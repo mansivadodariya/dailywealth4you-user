@@ -2,98 +2,123 @@
 @use '../../scss/breakpoints/breakpoints.scss' as *;
 
 .input {
-    label {
+  label {
+    display: block;
+    padding: 0 0 8px 0;
+    color: #fff;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+  }
+
+  .inputWrap {
+    position: relative;
+
+    &.rightspacingAdded {
+      input {
+        padding-right: 40px;
+      }
+    }
+
+    &.spacingRemove {
+      input {
+        padding: 0 16px;
+      }
+    }
+
+    input {
+      width: 100%;
+      border: 1px solid transparent;
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: var(--Radius-8, 8px);
+      color: #fafafa;
+      font-size: 14px;
+      padding-left: 40px;
+      padding-right: 16px;
+      height: 40px;
+      font-weight: 500;
+      outline: none;
+      position: relative;
+      z-index: 1;
+      transition: all 0.3s ease;
+
+      &::placeholder {
+        color: #8e8e8e;
+      }
+    }
+
+    .leftIcon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      display: flex;
+      align-items: center;
+      transform: translateY(-50%);
+
+      img {
         display: block;
-        padding: 0 0 8px 0;
-        color: #fff;
-        font-size: 14px;
-        font-style: normal;
-        font-weight: 600;
-        line-height: normal;
+      }
     }
 
+    .rightIcon {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      display: flex;
+      align-items: center;
+      transform: translateY(-50%);
 
-
-    .inputWrap {
-        position: relative;
-
-        &.rightspacingAdded {
-            input {
-                padding-right: 40px;
-            }
-        }
-
-        &.spacingRemove {
-            input {
-                padding: 0 16px;
-            }
-        }
-
-        input {
-            width: 100%;
-            border: 1px solid transparent;
-            background: rgba(255, 255, 255, 0.04);
-            border-radius: var(--Radius-8, 8px);
-            color: #FAFAFA;
-            font-size: 14px;
-            padding-left: 40px;
-            padding-right: 16px;
-            height: 40px;
-            font-weight: 500;
-            outline: none;
-            position: relative;
-            z-index: 1;
-            transition: all 0.3s ease;
-
-            &::placeholder {
-                color: #8e8e8e;
-            }
-        }
-
-        .leftIcon {
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            display: flex;
-            align-items: center;
-            transform: translateY(-50%);
-
-            img {
-                display: block;
-            }
-        }
-
-        .rightIcon {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            display: flex;
-            align-items: center;
-            transform: translateY(-50%);
-
-            img {
-                display: block;
-            }
-        }
-
-        &::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: var(--Radius-8, 8px);
-            padding: 1px;
-            background: linear-gradient(97.52deg, rgba(255, 255, 255, 0.2) 0.15%, rgba(255, 255, 255, 0.04) 11.93%);
-            -webkit-mask:
-                linear-gradient(#fff 0 0) content-box,
-                linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-            pointer-events: none;
-            transition: all 0.3s ease;
-        }
-
-        &:focus-within::before {
-            background: linear-gradient(97.52deg, rgba(255, 255, 255, 0.4) 0.15%, rgba(255, 255, 255, 0.1) 11.93%);
-        }
+      img {
+        display: block;
+      }
     }
+
+    .rightIconButton {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: translateY(-50%);
+      border: 0;
+      background: transparent;
+      padding: 0;
+      cursor: pointer;
+      z-index: 2;
+
+      img {
+        display: block;
+      }
+    }
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: var(--Radius-8, 8px);
+      padding: 1px;
+      background: linear-gradient(
+        97.52deg,
+        rgba(255, 255, 255, 0.2) 0.15%,
+        rgba(255, 255, 255, 0.04) 11.93%
+      );
+      -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+      transition: all 0.3s ease;
+    }
+
+    &:focus-within::before {
+      background: linear-gradient(
+        97.52deg,
+        rgba(255, 255, 255, 0.4) 0.15%,
+        rgba(255, 255, 255, 0.1) 11.93%
+      );
+    }
+  }
 }

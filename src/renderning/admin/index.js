@@ -1,33 +1,31 @@
 'use client';
 
 import React from 'react';
-import styles from './login.module.scss';
-import AuthSlider from '@/components/authSlider';
-import Input from '@/components/input';
-import AuthButton from '@/components/authButton';
-import Link from 'next/link';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useDispatch, useSelector } from 'react-redux';
-import { loginUser } from '@/store/reducers';
+import { adminLoginUser } from '@/store/reducers';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
-
-const EmailIcon = '/assets/icons/email.svg';
+import styles from './admin.module.scss';
+import Input from '@/components/input';
+import AuthButton from '@/components/authButton';
 const EyeIcon = '/assets/icons/eye.svg';
 const LockIcon = '/assets/icons/lock.svg';
 const RightIcon = '/assets/icons/right.svg';
+const EmailIcon = '/assets/icons/email.svg';
 
-const initialValues = {
-  email: '',
-  password: '',
-};
+const Admin = () => {
+  const initialValues = {
+    email: '',
+    password: '',
+  };
 
-const validationSchema = Yup.object({
-  email: Yup.string().email('Invalid email').required('Email is required'),
-  password: Yup.string().required('Password is required'),
-});
-export default function Login() {
+  const validationSchema = Yup.object({
+    email: Yup.string().email('Invalid email').required('Email is required'),
+    password: Yup.string().required('Password is required'),
+  });
+
   const dispatch = useDispatch();
 
   const router = useRouter();
@@ -36,25 +34,24 @@ export default function Login() {
   const formik = useFormik({
     initialValues,
     validationSchema,
+
     onSubmit: async (values, { resetForm }) => {
-      const result = await dispatch(loginUser(values));
+      const result = await dispatch(adminLoginUser(values));
 
       if (result.meta.requestStatus === 'fulfilled') {
-        toast.success('Login Successfully');
-
-        router.push('/dashboard');
+        toast.success('Admin login successfully');
+        router.push('/admindashboard');
       }
       resetForm();
     },
   });
-
   return (
     <div className={styles.flexbox}>
       <div className={styles.items}>
         <div className={styles.box}>
           <div className={styles.title}>
-            <h1>Sign in to your account</h1>
-            <p>Smart portfolio management, simplified.</p>
+            <h1>Sign in</h1>
+            <p>Empower Your Projects, Simplify Your Success!</p>
           </div>
           <form onSubmit={formik.handleSubmit}>
             <div className={styles.inputgrid}>
@@ -90,7 +87,7 @@ export default function Login() {
                 )}
               </div>
               <div className={styles.forgotpassword}>
-                <Link href="/verify-email">Forgot Password ?</Link>
+                {/* <Link href="/verify-email">Forgot Password ?</Link> */}
               </div>
               {/* {error ? <p className={styles.error}>{error}</p> : null} */}
               <AuthButton
@@ -101,16 +98,16 @@ export default function Login() {
               />
             </div>
           </form>
-          <div className={styles.bottomText}>
-            <p>
-              Don’t have an account? <Link href="/signup">Sign Up</Link>
-            </p>
-          </div>
+          {/* <div className={styles.bottomText}>
+                        <p>
+                            Don’t have an account?  <a>Sign in</a>
+                        </p>
+
+                    </div> */}
         </div>
-      </div>
-      <div className={styles.items}>
-        <AuthSlider />
       </div>
     </div>
   );
-}
+};
+
+export default Admin;

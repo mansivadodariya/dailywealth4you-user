@@ -2,34 +2,34 @@
 @use '../../scss/breakpoints/breakpoints.scss' as *;
 
 .authbutton {
-    button {
-        color: #030F0F;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 16px;
-        font-style: normal;
-        font-weight: 600;
-        line-height: normal;
-        border-radius: 8px;
-        background: #02DF82;
-        border: none;
-        padding: 12px;
-        width: 100%;
-        justify-content: center;
-        transition: .3s ease-in-out;
-        cursor: pointer;
+  button {
+    color: #030f0f;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+    border-radius: 8px;
+    background: #02df82;
+    border: none;
+    padding: 12px;
+    width: 100%;
+    justify-content: center;
+    transition: 0.3s ease-in-out;
+    cursor: pointer;
 
-        &:hover {
-            background-color: #fff;
+    &:hover {
+      background-color: #fff;
 
-            img {
-                transform: translateX(5px);
-            }
-        }
-
-        img {
-            transition: .3s ease-in-out;
-        }
+      img {
+        transform: translateX(5px);
+      }
     }
+
+    img {
+      transition: 0.3s ease-in-out;
+    }
+  }
 }
