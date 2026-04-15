@@ -11,6 +11,7 @@ import * as Yup from 'yup';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginUser } from '@/store/reducers';
 import { useRouter } from 'next/navigation';
+import { toast } from 'react-toastify';
 
 const EmailIcon = '/assets/icons/email.svg';
 const EyeIcon = '/assets/icons/eye.svg';
@@ -27,25 +28,21 @@ const validationSchema = Yup.object({
   password: Yup.string().required('Password is required'),
 });
 export default function Login() {
-
   const dispatch = useDispatch();
 
- 
   const router = useRouter();
   const { isLoading, error } = useSelector((state) => state.login);
 
-  
   const formik = useFormik({
     initialValues,
     validationSchema,
     onSubmit: async (values) => {
-     
       const result = await dispatch(loginUser(values));
-     
+
       if (result.meta.requestStatus === 'fulfilled') {
+        toast.success('Login Successfully');
 
         router.push('/dashboard');
-        
       }
     },
   });
@@ -54,7 +51,6 @@ export default function Login() {
     <div className={styles.flexbox}>
       <div className={styles.items}>
         <div className={styles.box}>
-        
           <div className={styles.title}>
             <h1>Sign in to your account</h1>
             <p>Smart portfolio management, simplified.</p>
@@ -73,7 +69,7 @@ export default function Login() {
                   onBlur={formik.handleBlur}
                 />
                 {formik.touched.email && formik.errors.email && (
-                  <p className={styles.error}>{formik.errors.email}</p>
+                  <span className={styles.error}>{formik.errors.email}</span>
                 )}
               </div>
               <div>
@@ -89,13 +85,13 @@ export default function Login() {
                   onBlur={formik.handleBlur}
                 />
                 {formik.touched.password && formik.errors.password && (
-                  <p className={styles.error}>{formik.errors.password}</p>
+                  <span className={styles.error}>{formik.errors.password}</span>
                 )}
               </div>
               <div className={styles.forgotpassword}>
-                <a>Forgot Password ?</a>
+                <Link href="/verify-email">Forgot Password ?</Link>
               </div>
-              {error ? <p className={styles.error}>{error}</p> : null}
+              {/* {error ? <p className={styles.error}>{error}</p> : null} */}
               <AuthButton
                 text={isLoading ? 'Please wait...' : 'Sign in'}
                 icon={RightIcon}
@@ -117,4 +113,3 @@ export default function Login() {
     </div>
   );
 }
-/*******  6aff1c11-486a-41ff-8777-d4e94f2365c7  *******/

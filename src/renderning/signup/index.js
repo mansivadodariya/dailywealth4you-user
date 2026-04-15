@@ -10,6 +10,8 @@ import { signupUser } from '@/store/reducers';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { toast } from 'react-toastify';
 
 const EyeIcon = '/assets/icons/eye.svg';
 const LockIcon = '/assets/icons/lock.svg';
@@ -36,7 +38,9 @@ const SignupSchema = Yup.object().shape({
   lastName: Yup.string().required('Last name is required'),
   email: Yup.string().email('Invalid email').required('Email is required'),
   birthday: Yup.string().required('Birthday is required'),
-  phone: Yup.string().required('Phone is required'),
+  phone: Yup.string()
+    .matches(/^[0-9]+$/, 'Must be only digits')
+    .required('Phone is required'),
   location: Yup.string().required('Location is required'),
   countryCode: Yup.string().required('Country code is required'),
   city: Yup.string().required('City is required'),
@@ -52,11 +56,11 @@ const SignupSchema = Yup.object().shape({
 
 export default function Signup() {
   const dispatch = useDispatch();
+  const router = useRouter();
   const { isLoading, error } = useSelector((state) => state.signup);
 
   const [agreed, setAgreed] = useState(false);
   const [localError, setLocalError] = useState('');
-
 
   const formik = useFormik({
     initialValues: initialFormValues,
@@ -68,11 +72,11 @@ export default function Signup() {
         setLocalError('Please accept Terms & Conditions and Privacy Policy.');
         return;
       }
-    
-        const result = await dispatch(signupUser(values));
-      if(result.meta.requestStatus === 'fulfilled'){
-        toast.success("user created successfully");
-        router.push("/login");
+
+      const result = await dispatch(signupUser(values));
+      if (result.meta.requestStatus === 'fulfilled') {
+        toast.success('Signup Successfully');
+        router.push('/');
       }
     },
   });
@@ -99,7 +103,9 @@ export default function Signup() {
                   onBlur={formik.handleBlur}
                 />
                 {formik.touched.firstName && formik.errors.firstName && (
-                  <p className={styles.error}>{formik.errors.firstName}</p>
+                  <span className={styles.error}>
+                    {formik.errors.firstName}
+                  </span>
                 )}
               </div>
 
@@ -112,7 +118,7 @@ export default function Signup() {
                   onBlur={formik.handleBlur}
                 />
                 {formik.touched.lastName && formik.errors.lastName && (
-                  <p className={styles.error}>{formik.errors.lastName}</p>
+                  <span className={styles.error}>{formik.errors.lastName}</span>
                 )}
               </div>
             </div>
@@ -138,7 +144,9 @@ export default function Signup() {
                     onBlur={formik.handleBlur}
                   />
                   {formik.touched[field.name] && formik.errors[field.name] && (
-                    <p className={styles.error}>{formik.errors[field.name]}</p>
+                    <span className={styles.error}>
+                      {formik.errors[field.name]}
+                    </span>
                   )}
                 </div>
               ))}
@@ -155,7 +163,7 @@ export default function Signup() {
                   onBlur={formik.handleBlur}
                 />
                 {formik.touched.password && formik.errors.password && (
-                  <p className={styles.error}>{formik.errors.password}</p>
+                  <span className={styles.error}>{formik.errors.password}</span>
                 )}
               </div>
 
@@ -172,9 +180,9 @@ export default function Signup() {
                 />
                 {formik.touched.confirmPassword &&
                   formik.errors.confirmPassword && (
-                    <p className={styles.error}>
+                    <span className={styles.error}>
                       {formik.errors.confirmPassword}
-                    </p>
+                    </span>
                   )}
               </div>
 
@@ -193,7 +201,7 @@ export default function Signup() {
                 </label>
               </div>
 
-              {message && <p className={styles.error}>{message}</p>}
+              {message && <span className={styles.error}>{message}</span>}
 
               <AuthButton
                 text={isLoading ? 'Please wait...' : 'Continue'}

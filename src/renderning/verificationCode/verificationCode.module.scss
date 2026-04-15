@@ -106,6 +106,13 @@
           }
         }
 
+        .error {
+          color: #ff7b7b;
+          font-size: 13px;
+          margin: 0 0 12px 0;
+          text-align: center;
+        }
+
         h1 {
           color: #fafafa;
           margin: 0 0 12px 0;
@@ -125,6 +132,15 @@
           font-weight: 600;
           max-width: 260px;
           margin: 0 auto;
+          line-height: 150%;
+          letter-spacing: -0.176px;
+        }
+        span {
+          color: #ef4444;
+          text-align: start;
+          font-size: 14px;
+          font-style: normal;
+          font-weight: 600;
           line-height: 150%;
           letter-spacing: -0.176px;
         }

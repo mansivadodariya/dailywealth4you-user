@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import styles from './input.module.scss';
 import classNames from 'classnames';
 
@@ -13,6 +13,10 @@ export default function Input({
   type = 'text',
   ...props
 }) {
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const isPasswordField = type === 'password';
+  const inputType = isPasswordField && isPasswordVisible ? 'text' : type;
+
   return (
     <div className={styles.input}>
       <label>{label}</label>
@@ -23,17 +27,27 @@ export default function Input({
           spacingRemove ? styles.spacingRemove : ''
         )}
       >
-        <input type={type} placeholder={placeholder} {...props} />
+        <input type={inputType} placeholder={placeholder} {...props} />
         {leftIcon && (
           <div className={styles.leftIcon}>
             <img src={leftIcon} alt={leftIcon} />
           </div>
         )}
-        {rightIcon && (
-          <div className={styles.rightIcon}>
-            <img src={rightIcon} alt={rightIcon} />
-          </div>
-        )}
+        {rightIcon &&
+          (isPasswordField ? (
+            <button
+              type="button"
+              className={styles.rightIconButton}
+              aria-label={isPasswordVisible ? 'Hide password' : 'Show password'}
+              onClick={() => setIsPasswordVisible((value) => !value)}
+            >
+              <img src={rightIcon} alt="" />
+            </button>
+          ) : (
+            <div className={styles.rightIcon}>
+              <img src={rightIcon} alt={rightIcon} />
+            </div>
+          ))}
       </div>
     </div>
   );

@@ -74,6 +74,25 @@
       }
     }
 
+    .rightIconButton {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: translateY(-50%);
+      border: 0;
+      background: transparent;
+      padding: 0;
+      cursor: pointer;
+      z-index: 2;
+
+      img {
+        display: block;
+      }
+    }
+
     &::before {
       content: '';
       position: absolute;
