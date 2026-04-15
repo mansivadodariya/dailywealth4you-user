@@ -21,15 +21,16 @@ const initialFormValues = {
   email: '',
   firstName: '',
   lastName: '',
-  birthday: '',
-  phone: '',
-  location: '',
-  countryCode: '+91',
-  city: '',
-  state: '',
-  country: '',
+  // birthday: '',
+  // phone: '',
+  // location: '',
+  // countryCode: '+91',
+  // city: '',
+  // state: '',
+  // country: '',
   password: '',
   confirmPassword: '',
+  referralCode: '',
 };
 
 // ✅ Yup Validation Schema
@@ -37,15 +38,16 @@ const SignupSchema = Yup.object().shape({
   firstName: Yup.string().required('First name is required'),
   lastName: Yup.string().required('Last name is required'),
   email: Yup.string().email('Invalid email').required('Email is required'),
-  birthday: Yup.string().required('Birthday is required'),
-  phone: Yup.string()
-    .matches(/^[0-9]+$/, 'Must be only digits')
-    .required('Phone is required'),
-  location: Yup.string().required('Location is required'),
-  countryCode: Yup.string().required('Country code is required'),
-  city: Yup.string().required('City is required'),
-  state: Yup.string().required('State is required'),
-  country: Yup.string().required('Country is required'),
+  referralCode: Yup.string().required('Referral code is required'),
+  // birthday: Yup.string().required('Birthday is required'),
+  // phone: Yup.string()
+  //   .matches(/^[0-9]+$/, 'Must be only digits')
+  //   .required('Phone is required'),
+  // location: Yup.string().required('Location is required'),
+  // countryCode: Yup.string().required('Country code is required'),
+  // city: Yup.string().required('City is required'),
+  // state: Yup.string().required('State is required'),
+  // country: Yup.string().required('Country is required'),
   password: Yup.string()
 
     .required('Password is required'),
@@ -65,7 +67,7 @@ export default function Signup() {
   const formik = useFormik({
     initialValues: initialFormValues,
     validationSchema: SignupSchema,
-    onSubmit: async (values) => {
+    onSubmit: async (values, { resetForm }) => {
       setLocalError('');
 
       if (!agreed) {
@@ -78,6 +80,7 @@ export default function Signup() {
         toast.success('Signup Successfully');
         router.push('/');
       }
+      resetForm();
     },
   });
 
@@ -126,13 +129,14 @@ export default function Signup() {
             <div className={styles.inputgrid}>
               {[
                 { label: 'Email Address', name: 'email', type: 'email' },
-                { label: 'Birthday', name: 'birthday', type: 'date' },
-                { label: 'Phone', name: 'phone' },
-                { label: 'Location', name: 'location' },
-                { label: 'Country Code', name: 'countryCode' },
-                { label: 'City', name: 'city' },
-                { label: 'State', name: 'state' },
-                { label: 'Country', name: 'country' },
+                //  { label: 'Referral  Code', name: 'referralCode', type: 'text' },
+                // { label: 'Birthday', name: 'birthday', type: 'date' },
+                // { label: 'Phone', name: 'phone' },
+                // { label: 'Location', name: 'location' },
+                // { label: 'Country Code', name: 'countryCode' },
+                // { label: 'City', name: 'city' },
+                // { label: 'State', name: 'state' },
+                // { label: 'Country', name: 'country' },
               ].map((field) => (
                 <div key={field.name}>
                   <Input
@@ -185,7 +189,23 @@ export default function Signup() {
                     </span>
                   )}
               </div>
-
+              <div>
+                <Input
+                  label="Referral  Code"
+                  type="text"
+                  // leftIcon={LockIcon}
+                  // rightIcon={EyeIcon}
+                  name="referralCode"
+                  value={formik.values.referralCode}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                />
+                {formik.touched.referralCode && formik.errors.referralCode && (
+                  <span className={styles.error}>
+                    {formik.errors.referralCode}
+                  </span>
+                )}
+              </div>
               <div className={styles.checkboxdesign}>
                 <label>
                   <input

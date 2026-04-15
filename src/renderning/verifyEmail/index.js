@@ -29,7 +29,7 @@ export default function VerifyEmail() {
   const formik = useFormik({
     initialValues,
     validationSchema,
-    onSubmit: async (values) => {
+    onSubmit: async (values, { resetForm }) => {
       const result = await dispatch(sendOtp({ email: values.email }));
       if (result.meta.requestStatus === 'fulfilled') {
         toast.success('OTP send in your email');
@@ -37,6 +37,7 @@ export default function VerifyEmail() {
           `/verification-code?email=${encodeURIComponent(values.email)}`
         );
       }
+      resetForm();
     },
   });
 

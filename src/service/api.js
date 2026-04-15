@@ -1,6 +1,5 @@
 import axios from 'axios';
 import { clearAuthCookies, getTokenFromCookie } from './cookies';
-import { API_BASE_URL } from './url';
 import config from '@/config';
 
 const api = axios.create({

@@ -1,5 +1,6 @@
 import { combineReducers } from '@reduxjs/toolkit';
 import loginReducer, {
+  adminLoginUser,
   clearLoginState,
   loginUser,
   resetPassword,
@@ -25,6 +26,7 @@ const reducer = combineReducers({
 export {
   signupUser,
   loginUser,
+  adminLoginUser,
   resetPassword,
   clearSignupState,
   clearLoginState,
