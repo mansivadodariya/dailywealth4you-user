@@ -1,0 +1,230 @@
+@use '../../../../scss/main.scss' as *;
+@use '../../../../scss/breakpoints/breakpoints.scss' as *;
+
+.profitSharingTable {
+    padding-bottom: 30px;
+
+    .tableContainer {
+        width: 100%;
+        border-radius: 12px;
+        position: relative;
+        overflow: hidden;
+
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+
+            thead {
+                position: relative;
+
+                &::after {
+                    content: '';
+                    position: absolute;
+                    inset: 0;
+                    border-radius: 8px;
+                    padding: 1px;
+                    background: linear-gradient(97.52deg,
+                            rgba(255, 255, 255, 0.2) 0.15%,
+                            rgba(255, 255, 255, 0.04) 11.93%);
+                    -webkit-mask:
+                        linear-gradient(#fff 0 0) content-box,
+                        linear-gradient(#fff 0 0);
+                    -webkit-mask-composite: xor;
+                    mask-composite: exclude;
+                    pointer-events: none;
+                }
+
+                th {
+                    color: var(--Text-Primary, #FAFAFA);
+                    font-size: 16px;
+                    font-style: normal;
+                    padding: 14px;
+                    text-align: left;
+                    font-weight: 600;
+                    line-height: normal;
+                    background: rgba(255, 255, 255, 0.04);
+
+                    &:first-child {
+
+                        border-top-left-radius: 8px;
+                        border-bottom-left-radius: 8px;
+                    }
+
+                    &:last-child {
+                        border-top-right-radius: 8px;
+                        text-align: right;
+                        border-bottom-right-radius: 8px;
+
+                    }
+                }
+            }
+
+            tbody {
+                tr {
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                    transition: all 0.3s ease;
+
+                    &:last-child {
+                        border-bottom: none;
+                    }
+
+                    td {
+                        color: var(--Text-Primary, #FAFAFA);
+                        font-size: 14px;
+                        font-style: normal;
+                        font-weight: 400;
+                        line-height: normal;
+                        padding: 8px 14px;
+
+                        &:last-child {
+                            text-align: right;
+                        }
+                    }
+
+                    &.activeRow {
+                        background: rgba(255, 255, 255, 0.02);
+                        border-bottom: none;
+
+                        td {
+                            opacity: 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    .textCenter {
+        display: flex;
+        justify-content: flex-end;
+
+        button {
+            position: relative;
+            cursor: pointer;
+            padding: 4px 12px;
+            border: none;
+            border-radius: 99px;
+            border: none;
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--Text-Primary, #FAFAFA);
+            font-size: 14px;
+            font-style: normal;
+            font-weight: 500;
+            line-height: normal;
+            display: flex;
+            width: 60px;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+
+            &.active,
+            &:hover {
+                background: rgba(255, 255, 255, 0.1);
+            }
+
+            &::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                border-radius: 99px;
+                padding: 1px;
+                background: linear-gradient(97.52deg,
+                        rgba(255, 255, 255, 0.2) 0.15%,
+                        rgba(255, 255, 255, 0.04) 11.93%);
+                -webkit-mask:
+                    linear-gradient(#fff 0 0) content-box,
+                    linear-gradient(#fff 0 0);
+                -webkit-mask-composite: xor;
+                mask-composite: exclude;
+                pointer-events: none;
+                transition: all 0.3s ease;
+            }
+        }
+    }
+
+    .detailsRow {
+
+        td {
+            padding: 0 !important;
+        }
+    }
+
+    .detailsWrapper {
+        padding: 12px 20px 12px 20px;
+
+        .innerTableContainer {
+            width: 100%;
+            border-radius: 12px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.03);
+
+            .innerHeader {
+                display: flex;
+                padding: 15px 20px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+
+                div {
+                    flex: 1;
+                    color: var(--Text-Primary, #FAFAFA);
+                    font-size: 14px;
+                    font-style: normal;
+                    text-align: left;
+                    font-weight: 600;
+                    line-height: normal;
+
+                    &:last-child {
+                        text-align: center;
+                    }
+                }
+            }
+
+            .innerBody {
+                .innerRow {
+                    display: flex;
+                    padding: 10px 20px;
+                    align-items: center;
+
+                    div {
+                        flex: 1;
+                        color: var(--Text-Primary, #FAFAFA);
+                        font-size: 12px;
+                        font-style: normal;
+                        font-weight: 600;
+                        text-align: left;
+                        line-height: normal;
+
+                        &:last-child {
+                            text-align: center;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    .symbolBadge {
+        background: #181F1D;
+        padding: 4px 16px;
+        border-radius: 6px;
+        color: #FAFAFA;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .pnlBadge {
+        padding: 2px 12px;
+        border-radius: 18px;
+        border: 0.5px solid var(--Primary, #02DF82);
+        background: rgba(2, 223, 130, 0.10);
+        color: var(--Text-Primary, #FAFAFA);
+        font-size: 12px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+    }
+
+    .topspacing {
+        padding: 12px 0 0 0;
+    }
+}

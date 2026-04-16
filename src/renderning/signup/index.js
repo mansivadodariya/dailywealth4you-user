@@ -100,6 +100,7 @@ export default function Signup() {
               <div>
                 <Input
                   label="First Name"
+                  spacingRemove
                   name="firstName"
                   value={formik.values.firstName}
                   onChange={formik.handleChange}
@@ -115,6 +116,7 @@ export default function Signup() {
               <div>
                 <Input
                   label="Last Name"
+                  spacingRemove
                   name="lastName"
                   value={formik.values.lastName}
                   onChange={formik.handleChange}
@@ -141,6 +143,7 @@ export default function Signup() {
                 <div key={field.name}>
                   <Input
                     label={field.label}
+                    spacingRemove
                     name={field.name}
                     type={field.type || 'text'}
                     value={formik.values[field.name]}
@@ -195,6 +198,7 @@ export default function Signup() {
                   type="text"
                   // leftIcon={LockIcon}
                   // rightIcon={EyeIcon}
+                  spacingRemove
                   name="referralCode"
                   value={formik.values.referralCode}
                   onChange={formik.handleChange}

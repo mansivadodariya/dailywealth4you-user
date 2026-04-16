@@ -1,7 +1,5 @@
-@import 'tailwindcss';
-@source '../renderning';
-
 body {
+  background: #030f0f;
   margin: 0;
   padding: 0;
 }
@@ -34,4 +32,20 @@ p {
 
 .font {
   font-family: var(--font-red-hat-display);
+}
+
+.user-layout {
+  display: flex;
+}
+
+.user-layout-sidebar {
+  width: 280px;
+}
+
+.user-layout-children {
+  width: calc(100% - 280px);
+}
+
+.user-layout-children-content {
+  padding: 14px;
 }
