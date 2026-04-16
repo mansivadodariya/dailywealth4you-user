@@ -30,7 +30,7 @@ const initialFormValues = {
   // country: '',
   password: '',
   confirmPassword: '',
-  referralCode: '',
+  referredBy: '',
 };
 
 // ✅ Yup Validation Schema
@@ -38,7 +38,7 @@ const SignupSchema = Yup.object().shape({
   firstName: Yup.string().required('First name is required'),
   lastName: Yup.string().required('Last name is required'),
   email: Yup.string().email('Invalid email').required('Email is required'),
-  referralCode: Yup.string().required('Referral code is required'),
+  referredBy: Yup.string().required('Referral code is required'),
   // birthday: Yup.string().required('Birthday is required'),
   // phone: Yup.string()
   //   .matches(/^[0-9]+$/, 'Must be only digits')
@@ -129,7 +129,7 @@ export default function Signup() {
             <div className={styles.inputgrid}>
               {[
                 { label: 'Email Address', name: 'email', type: 'email' },
-                //  { label: 'Referral  Code', name: 'referralCode', type: 'text' },
+                //  { label: 'Referral  Code', name: 'referredBy', type: 'text' },
                 // { label: 'Birthday', name: 'birthday', type: 'date' },
                 // { label: 'Phone', name: 'phone' },
                 // { label: 'Location', name: 'location' },
@@ -195,14 +195,14 @@ export default function Signup() {
                   type="text"
                   // leftIcon={LockIcon}
                   // rightIcon={EyeIcon}
-                  name="referralCode"
-                  value={formik.values.referralCode}
+                  name="referredBy"
+                  value={formik.values.referredBy}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                 />
-                {formik.touched.referralCode && formik.errors.referralCode && (
+                {formik.touched.referredBy && formik.errors.referredBy && (
                   <span className={styles.error}>
-                    {formik.errors.referralCode}
+                    {formik.errors.referredBy}
                   </span>
                 )}
               </div>

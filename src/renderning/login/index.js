@@ -41,7 +41,6 @@ export default function Login() {
 
       if (result.meta.requestStatus === 'fulfilled') {
         toast.success('Login Successfully');
-
         router.push('/dashboard');
       }
       resetForm();
@@ -70,7 +69,7 @@ export default function Login() {
                   onBlur={formik.handleBlur}
                 />
                 {formik.touched.email && formik.errors.email && (
-                  <span className={styles.error}>{formik.errors.email}</span>
+                  <p className={styles.error}>{formik.errors.email}</p>
                 )}
               </div>
               <div>
