@@ -1,0 +1,43 @@
+@use '../../scss/main.scss' as *;
+@use '../../scss/breakpoints/breakpoints.scss' as *;
+
+.header {
+    padding: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 99;
+    background: #030f0f;
+
+    h2 {
+        color: #FAFAFA;
+        font-size: 20px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+    }
+
+    .rightAlignment {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+
+        img {
+            display: block;
+            cursor: pointer;
+        }
+
+        .line {
+            background: rgba(255, 255, 255, 0.10);
+            width: 1px;
+            height: 38px;
+        }
+
+        button {
+            padding: 12px 20px;
+        }
+    }
+}

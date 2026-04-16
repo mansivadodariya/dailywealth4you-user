@@ -1,0 +1,20 @@
+@use '../../../../scss/main.scss' as *;
+@use '../../../../scss/breakpoints/breakpoints.scss' as *;
+
+.profitSharingHeader {
+    display: flex;
+    padding: 20px 0;
+    align-items: center;
+    justify-content: space-between;
+
+    .leftpanel {
+        max-width: 370px;
+        width: 100%;
+    }
+
+    .rightAlignment {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+}

@@ -1,0 +1,49 @@
+@use '../../../../scss/main.scss' as *;
+@use '../../../../scss/breakpoints/breakpoints.scss' as *;
+
+.exportbutton {
+    position: relative;
+
+    button {
+        position: relative;
+        cursor: pointer;
+        padding: 9px 12px;
+        border: none;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--Text-Primary, #FAFAFA);
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: normal;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+
+        &.active,
+        &:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        &::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: var(--Radius-8, 8px);
+            padding: 1px;
+            background: linear-gradient(97.52deg,
+                    rgba(255, 255, 255, 0.2) 0.15%,
+                    rgba(255, 255, 255, 0.04) 11.93%);
+            -webkit-mask:
+                linear-gradient(#fff 0 0) content-box,
+                linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+    }
+
+
+}

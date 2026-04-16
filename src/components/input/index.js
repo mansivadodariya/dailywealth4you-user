@@ -10,6 +10,8 @@ export default function Input({
   leftIcon,
   rightIcon,
   spacingRemove,
+  leftSpacingRemove,
+  placeholderWhite,
   type = 'text',
   ...props
 }) {
@@ -19,12 +21,18 @@ export default function Input({
 
   return (
     <div className={styles.input}>
-      <label>{label}</label>
+      {
+        label && (
+          <label>{label}</label>
+        )
+      }
       <div
         className={classNames(
           styles.inputWrap,
           rightIcon ? styles.rightspacingAdded : '',
-          spacingRemove ? styles.spacingRemove : ''
+          spacingRemove ? styles.spacingRemove : '',
+          leftSpacingRemove ? styles.leftSpacingRemove : '',
+          placeholderWhite ? styles.placeholderWhite : ''
         )}
       >
         <input type={inputType} placeholder={placeholder} {...props} />
