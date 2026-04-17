@@ -2,6 +2,18 @@
 @use '../../scss/breakpoints/breakpoints.scss' as *;
 
 .authbutton {
+  &.outlineButton {
+    button {
+      border: 1px solid var(--Lime, #DBE64C);
+      color: #fff;
+      background-color: transparent;
+
+      &:hover {
+        background-color: transparent;
+      }
+    }
+  }
+
   button {
     color: #030f0f;
     display: flex;

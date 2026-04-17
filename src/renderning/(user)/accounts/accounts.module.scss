@@ -1,0 +1,160 @@
+@use '../../../scss/main.scss' as *;
+@use '../../../scss/breakpoints/breakpoints.scss' as *;
+
+.accountsWrapper {
+    .accountsGrid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+    }
+
+    .accountCard {
+        border-radius: 8px;
+        position: relative;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.00) 100%);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+        &::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: var(--Radius-8, 8px);
+            padding: 1px;
+            background: linear-gradient(97.52deg,
+                    rgba(255, 255, 255, 0.2) 0.15%,
+                    rgba(255, 255, 255, 0.04) 11.93%);
+            -webkit-mask:
+                linear-gradient(#fff 0 0) content-box,
+                linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+
+        &:hover {
+            transform: translateY(-5px);
+        }
+
+        .headerAlignment {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+
+            h3 {
+                color: var(--Text-Primary, #FAFAFA);
+                font-size: 32px;
+                font-style: normal;
+                font-weight: 700;
+                line-height: 100%;
+
+                span {
+                    color: var(--Primary, #02DF82);
+                    font-size: 12px;
+                    font-style: normal;
+                    font-weight: 600;
+                    line-height: normal;
+                }
+            }
+        }
+
+        &::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 24px;
+            width: 4px;
+            height: 24px;
+            background-color: #DBE64C;
+            border-radius: 0 4px 4px 0;
+            box-shadow: 0 0 10px rgba(219, 230, 76, 0.4);
+        }
+
+        .cardHeader {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 0 12px 0;
+
+            p {
+                color: var(--Text-Primary, #FAFAFA);
+                font-size: 16px;
+                font-style: normal;
+                font-weight: 600;
+                line-height: normal;
+            }
+
+            .editBtn {
+                color: #8E8E8E;
+                cursor: pointer;
+                transition: color 0.2s ease;
+
+                &:hover {
+                    color: #FAFAFA;
+                }
+
+                svg {
+                    display: block;
+                    width: 18px;
+                    height: 18px;
+                }
+            }
+        }
+
+        .balanceInfo {
+            margin-bottom: 24px;
+            padding-left: 12px;
+
+            h2 {
+                color: #FAFAFA;
+                font-size: 32px;
+                font-weight: 700;
+                display: flex;
+                align-items: baseline;
+                gap: 8px;
+                margin: 0;
+
+                .profitText {
+                    color: #02DF82;
+                    font-size: 14px;
+                    font-weight: 600;
+                }
+            }
+        }
+
+        .cardDetails {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 20px;
+
+            .detailRow {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+
+                .label {
+                    color: var(--Text-Primary, #FAFAFA);
+                    font-size: 16px;
+                    font-style: normal;
+                    font-weight: 600;
+                    line-height: normal;
+                }
+
+                .dots {
+                    flex: 1;
+                    height: 12px;
+                    border-bottom: 2px dotted #fff;
+                    margin-bottom: 4px;
+                }
+
+                .value {
+                    color: var(--Text-Primary, #FAFAFA);
+                    font-size: 16px;
+                    font-style: normal;
+                    font-weight: 600;
+                    line-height: normal;
+                }
+            }
+        }
+    }
+}

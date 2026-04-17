@@ -2,16 +2,18 @@
 
 import React from 'react';
 import styles from './authButton.module.scss';
+import classNames from 'classnames';
 
 export default function AuthButton({
   text,
   icon,
   type = 'button',
   onClick,
+  outline,
   disabled,
 }) {
   return (
-    <div className={styles.authbutton}>
+    <div className={classNames(styles.authbutton, outline ? styles.outlineButton : "")}>
       <button
         aria-label={text}
         type={type}
