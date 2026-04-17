@@ -69,7 +69,7 @@ export default function Login() {
                   onBlur={formik.handleBlur}
                 />
                 {formik.touched.email && formik.errors.email && (
-                  <p className={styles.error}>{formik.errors.email}</p>
+                  <span className={styles.error}>{formik.errors.email}</span>
                 )}
               </div>
               <div>
