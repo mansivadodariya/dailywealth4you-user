@@ -1,0 +1,63 @@
+@use '../../../scss/main.scss' as *;
+@use '../../../scss/breakpoints/breakpoints.scss' as *;
+
+.mt5AccountWrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(3, 15, 15, 0.1);
+  backdrop-filter: blur(15px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+
+  .modal {
+    border-radius: var(--Radius-12, 12px);
+    box-shadow:
+      0 8px 16px -8px rgba(0, 0, 0, 0.06),
+      0 8px 16px -4px rgba(20, 21, 26, 0.06);
+    width: 460px;
+    background-color: #030f0f;
+
+    .modalHeader {
+      padding: 32px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+      h2 {
+        color: #fafafa;
+        font-size: 28px;
+        font-family: var(--font-red-hat-display);
+        font-weight: 700;
+        text-align: center;
+        margin: 0 0 8px 0;
+      }
+
+      p {
+        color: #8e8e8e;
+        font-size: 16px;
+        font-weight: 600;
+        text-align: center;
+        margin: 0;
+      }
+    }
+
+    .modalBody {
+      padding: 32px;
+
+      .actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+
+        > div,
+        > button {
+          flex: 1;
+          min-width: 140px;
+        }
+      }
+    }
+  }
+}

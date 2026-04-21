@@ -6,21 +6,24 @@ import loginReducer, {
   resetPassword,
   logout,
 } from '@/store/slice/loginSlice';
-import signupReducer, {
-  clearSignupState,
-  signupUser,
-} from '@/store/slice/signupSlice';
+import signupReducer, { signupUser } from '@/store/slice/signupSlice';
 import otpReducer, {
   clearOtpState,
   forgotPassword,
   sendOtp,
   verifyOtp,
 } from '@/store/slice/otpSlice';
+import accountReducer, {
+  clearAccountState,
+  fetchBrokers,
+  fetchTradingAccounts,
+} from '@/store/slice/accountSlice';
 
 const reducer = combineReducers({
   signup: signupReducer,
   login: loginReducer,
   otp: otpReducer,
+  account: accountReducer,
 });
 
 export {
@@ -28,12 +31,14 @@ export {
   loginUser,
   adminLoginUser,
   resetPassword,
-  clearSignupState,
   clearLoginState,
   logout,
   sendOtp,
   verifyOtp,
   forgotPassword,
   clearOtpState,
+  fetchBrokers,
+  fetchTradingAccounts,
+  clearAccountState,
 };
 export default reducer;

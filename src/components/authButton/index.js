@@ -13,7 +13,12 @@ export default function AuthButton({
   disabled,
 }) {
   return (
-    <div className={classNames(styles.authbutton, outline ? styles.outlineButton : "")}>
+    <div
+      className={classNames(
+        styles.authbutton,
+        outline ? styles.outlineButton : ''
+      )}
+    >
       <button
         aria-label={text}
         type={type}

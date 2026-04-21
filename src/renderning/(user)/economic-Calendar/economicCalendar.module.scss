@@ -1,0 +1,25 @@
+@use '../../../scss/main.scss' as *;
+@use '../../../scss/breakpoints/breakpoints.scss' as *;
+
+.dashboardWrapper {
+  padding: 20px;
+  //   background: #031313;
+  min-height: 100vh;
+}
+
+.calendarCard {
+  //   border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.349);
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(0, 255, 178, 0.05);
+  min-height: calc(90vh - 40px);
+  display: flex;
+  flex-direction: column;
+
+  iframe {
+    width: 100%;
+    flex: 1;
+    border: none;
+    border-radius: 0;
+  }
+}
