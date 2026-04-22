@@ -39,6 +39,12 @@ const sidebarData = [
     route: '/transactions',
   },
   {
+    id: 'recommended-brokers',
+    label: 'Recommended Brokers',
+    icon: TutorialsIcon,
+    route: '/recommended-brokers',
+  },
+  {
     id: 'contact-us',
     label: 'Contact Us',
     icon: ContactIcon,
