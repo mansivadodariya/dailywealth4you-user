@@ -2,12 +2,18 @@
 
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchTradingAccounts } from '@/store/reducers';
+
 import styles from './accounts.module.scss';
 import EditIcon from '@/icons/editIcon';
+import DeleteIcon from '@/icons/deleteIcon';
 import moment from 'moment';
 import { getUserFromCookie } from '@/service/cookies';
 import UseExisting from '@/components/modal/useExisting';
+import { deleteTradingAccount, fetchTradingAccounts } from '@/store/slice/accountSlice';
+import AuthButton from '@/components/authButton';
+import RightIcon from '@/icons/rightIcon';
+
+
 
 export default function Accounts() {
   const dispatch = useDispatch();
@@ -16,6 +22,8 @@ export default function Accounts() {
 
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [accountToDelete, setAccountToDelete] = useState(null);
 
   const user = getUserFromCookie();
   const userId = user?.id;
@@ -44,6 +52,24 @@ export default function Accounts() {
     );
   }
 
+  const handleDeleteClick = (account) => {
+    setAccountToDelete(account);
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (accountToDelete) {
+      dispatch(deleteTradingAccount(accountToDelete.id));
+      setShowDeleteModal(false);
+      setAccountToDelete(null);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setShowDeleteModal(false);
+    setAccountToDelete(null);
+  };
+
   const accountsData =
     tradingAccounts && tradingAccounts.length > 0 ? tradingAccounts : [];
 
@@ -56,14 +82,22 @@ export default function Accounts() {
               <div className={styles.headerAlignment}>
                 <div className={styles.cardHeader}>
                   <p>Account No: {item?.accountId}</p>
-                  <div
-                    className={styles.editBtn}
-                    onClick={() => {
-                      setSelectedAccount(item);
-                      setShowEditModal(true);
-                    }}
-                  >
-                    <EditIcon />
+                  <div className={styles.buttonContainer}>
+                    <div
+                      className={styles.editBtn}
+                      onClick={() => {
+                        setSelectedAccount(item);
+                        setShowEditModal(true);
+                      }}
+                    >
+                      <EditIcon />
+                    </div>
+                    <div
+                      className={styles.deleteBtn}
+                      onClick={() => handleDeleteClick(item)}
+                    >
+                      <DeleteIcon />
+                    </div>
                   </div>
                 </div>
                 <h3>
@@ -81,14 +115,14 @@ export default function Accounts() {
                   <span className={styles.value}>
                     {typeof item?.broker === 'object'
                       ? item?.broker?.name
-                      : item.broker || '-'}
+                      : item?.broker || '-'}
                   </span>
                 </div>
                 <div className={styles.detailRow}>
                   <span className={styles.label}>Date Added:</span>
                   <div className={styles.dots}></div>
                   <span className={styles.value}>
-                    {item.createdAt
+                    {item?.createdAt
                       ? moment(item?.createdAt).format('DD-MM-YYYY | hh:mm A')
                       : '-'}
                   </span>
@@ -125,6 +159,33 @@ export default function Accounts() {
           account={selectedAccount}
           onClose={() => setShowEditModal(false)}
         />
+      )}
+      
+      {showDeleteModal && accountToDelete && (
+           <div className={styles.mt5AccountWrapper}>
+      <div className={styles.modal}>
+        {/* Header */}
+        <div className={styles.modalHeader}>
+          <h2>Delete Account</h2>
+          <p>
+            Are you sure you want to 
+            delete this account?
+          </p>
+        </div>
+
+        {/* Body */}
+        <div className={styles.modalBody}>
+          {/* Buttons */}
+          <div className={styles.actions}>
+            <AuthButton outline text="Cancel" onClick={handleCancelDelete} />
+            <button className={styles.confirmDeleteBtn} onClick={handleConfirmDelete}>
+              Delete
+            </button>
+            
+          </div>
+        </div>
+      </div>
+    </div>
       )}
     </>
   );

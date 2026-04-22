@@ -7,6 +7,7 @@ import styles from './Mt5Account.module.scss';
 import RightLight from '@/icons/rightLight';
 import AuthButton from '@/components/authButton';
 import UseExisting from '../useExisting';
+import { toast } from 'react-toastify';
 
 const DownIcon = '/assets/icons/down.svg';
 const RightIcon = '/assets/icons/right.svg';
@@ -23,6 +24,7 @@ export default function Mt5Account() {
   const [selectedBroker, setSelectedBroker] = useState(null);
   const dropdownRef = useRef(null);
   const [openExitingAccount, setOpenExitingAccount] = useState(false);
+  const [existingBrokerId, setExistingBrokerId] = useState(null);
 
   useEffect(() => {
     dispatch(fetchBrokers({ page, limit }));
@@ -145,12 +147,24 @@ export default function Mt5Account() {
               outline
               text="Use Existing MT5 Account"
               icon={RightWhiteIcon}
-              onClick={() => setOpenExitingAccount(true)}
+              onClick={() => {
+                if (!selectedBroker) {
+                  toast.error('Please select a broker first');
+                  return;
+                }
+                setExistingBrokerId(selectedBroker.id);
+                setOpenExitingAccount(true);
+              }}
             />
           </div>
         </div>
       </div>
-      {openExitingAccount && <UseExisting />}
+      {openExitingAccount && (
+        <UseExisting
+          brokerId={existingBrokerId}
+          onClose={() => setOpenExitingAccount(false)}
+        />
+      )}
     </>
   );
 }

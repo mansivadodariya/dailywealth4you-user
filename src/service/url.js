@@ -9,6 +9,7 @@ export const GET_ALL_BROKERS = 'broker/getAllBroker';
 export const GET_ALL_TRADING_ACCOUNTS = 'tradingAccount/getAllTradingAccount';
 export const CREATE_TRADING_ACCOUNT = 'tradingAccount/create';
 export const UPDATE_TRADING_ACCOUNT = 'tradingAccount/updateTradingAccount';
+export const DELETE_TRADING_ACCOUNT = 'tradingAccount/deleteTradingAccount';
 export const GET_ALL_FAQ = '/faq/getAll';
 export const CREATE_CONTACT_US = '/contactUs/create';
 export const UPLOAD_USER_DOCUMENT = '/userDocument/uploadUserDocument';

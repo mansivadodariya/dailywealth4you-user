@@ -5,8 +5,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import styles from './useExisting.module.scss';
 import Input from '@/components/input';
 import AuthButton from '@/components/authButton';
-import { updateTradingAccount } from '@/store/slice/accountSlice';
+import { updateTradingAccount, createTradingAccount } from '@/store/slice/accountSlice';
 import { toast } from 'react-toastify';
+import Mt5Account from '../Mt5Account';
 const RightIcon = '/assets/icons/right.svg';
 const RightWhiteIcon = '/assets/icons/right-white.svg';
 
@@ -14,10 +15,12 @@ export default function UseExisting({
   isEdit = false,
   account = null,
   onClose,
+  brokerId = null,
 }) {
   const dispatch = useDispatch();
   const { loading } = useSelector((state) => state?.account);
   const { user } = useSelector((state) => state?.login);
+
 
   const [agreed, setAgreed] = useState(false);
   const [brokerName, setBrokerName] = useState('');
@@ -25,6 +28,8 @@ export default function UseExisting({
   const [loginId, setLoginId] = useState('');
   const [password, setPassword] = useState('');
   const [sizeOfAccount, setSizeOfAccount] = useState('');
+  const [accountId, setAccountId] = useState('');
+  const [showMt5Modal, setShowMt5Modal] = useState(false);
 
   useEffect(() => {
     if (account) {
@@ -33,6 +38,7 @@ export default function UseExisting({
       setLoginId(account?.brokerUserId || account?.accountId || '');
       setPassword(account?.password || '');
       setSizeOfAccount(account?.sizeOfAccount || '');
+      setAccountId(account?.accountId || '');
     }
   }, [account]);
 
@@ -47,34 +53,87 @@ export default function UseExisting({
         id: account?.id || account?._id || '',
         userId:
           account?.userId || account?.user?.id || account?.user?._id || '',
-        accountId: account?.accountId || loginId,
+        accountId: account?.accountId ,
         brokerId: account?.broker?.id || account?.brokerId || '',
         brokerName: brokerName || account?.brokerName || '',
-        brokerUserId: loginId,
-        platform: server || account?.platform || '',
-        firstName: account?.firstName || '',
-        lastName: account?.lastName || '',
-        currentDeposit: account?.currentDeposit || 0,
-        totalDeposit: account?.totalDeposit || 0,
-        totalProfit: account?.totalProfit || 0,
-        totalWithdraw: account?.totalWithdraw || 0,
-        status: account?.status || 'active',
-        isFundedAccount: account?.isFundedAccount || false,
+
+        
+        // brokerUserId: loginId,
+        // platform: server || account?.platform || '',
+        // firstName: account?.firstName || '',
+        // lastName: account?.lastName || '',
+        // currentDeposit: account?.currentDeposit || 0,
+        // totalDeposit: account?.totalDeposit || 0,
+        // totalProfit: account?.totalProfit || 0,
+        // totalWithdraw: account?.totalWithdraw || 0,
+        // status: account?.status || 'active',
+        // isFundedAccount: account?.isFundedAccount || false,
       };
 
       try {
         await dispatch(updateTradingAccount(payload)).unwrap();
-        toast.success('MT5 account updated successfully.');
+        // toast.success('MT5 account updated successfully.');
         if (onClose) onClose();
       } catch (error) {
         toast.error(error?.message || error || 'Failed to update MT5 account.');
       }
     } else {
-      toast.info('Save account clicked.');
+      // Create new account
+      if (!agreed) {
+        toast.error('Please accept Terms & Conditions and Privacy Policy.');
+        return;
+      }
+
+
+      if (!brokerName || !server || !loginId || !password || !accountId) {
+        toast.error('Please fill in all required fields.');
+        return;
+      }
+
+      const payload = {
+        userId: user?.id || '',
+        accountId: accountId,
+        brokerId: brokerId ,
+        brokerName: brokerName,
+        sizeOfAccount: sizeOfAccount,
+        // brokerUserId: loginId,
+        // platform: server,
+        // firstName: user?.firstName || '',
+        // lastName: user?.lastName || '',
+        // currentDeposit: 0,
+        // totalDeposit: 0,
+        // totalProfit: 0,
+        // totalWithdraw: 0,
+        // status: 'active',
+        // isFundedAccount: false,
+        server: server,
+        mt5LoginId: loginId,
+        password: password
+      };
+
+      try {
+        await dispatch(createTradingAccount(payload)).unwrap();
+        toast.success('MT5 account created successfully.');
+        // Reset form
+        setBrokerName('');
+        setServer('');
+        setLoginId('');
+        setPassword('');
+        setSizeOfAccount('');
+        setAccountId('');
+        setAgreed(false);
+        if (onClose) onClose();
+      } catch (error) {
+        console.log(error)
+        // toast.error(error?.message || 'Failed to create MT5 account.');
+      }
     }
   };
 
   return (
+
+
+    <>
     <div className={styles.useExistingWrapper}>
       <div className={styles.modal}>
         <div className={styles.modalHeader}>
@@ -92,6 +151,12 @@ export default function UseExisting({
               leftSpacingRemove
               value={brokerName}
               onChange={(e) => setBrokerName(e.target.value)}
+            />
+            <Input
+              label="Account ID"
+              leftSpacingRemove
+              value={accountId}
+              onChange={(e) => setAccountId(e.target.value)}
             />
             <Input
               label="Server"
@@ -160,11 +225,15 @@ export default function UseExisting({
                 text="Create a new MT5 account"
                 outline
                 RightWhiteIcon={RightIcon}
+                onClick={() => setShowMt5Modal(true)}
               />
             </>
           )}
         </div>
       </div>
     </div>
+    {showMt5Modal && <Mt5Account />}
+    </>
+    
   );
 }

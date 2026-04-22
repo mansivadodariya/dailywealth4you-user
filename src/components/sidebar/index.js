@@ -1,4 +1,5 @@
 'use client';
+
 import React, { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import styles from './sidebar.module.scss';
@@ -27,7 +28,7 @@ const sidebarData = [
   { id: 'accounts', label: 'Accounts', icon: AccountsIcon, route: '/accounts' },
   {
     id: 'introducing-broker',
-    label: 'Intoducing Broker',
+    label: 'Introducing Broker',
     icon: IntoducingIcon,
     route: '/profit-sharing',
   },

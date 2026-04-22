@@ -25,6 +25,8 @@
   gap: 16px;
   width: 100%;
   max-width: 900px;
+    align-items: start; // 🔥 FIX for wrong expansion
+
 }
 
 .faqItem {
@@ -76,4 +78,60 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.faqCard {
+  border-radius: 12px;
+  overflow: hidden; // VERY IMPORTANT
+  position: relative;
+
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.034) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      97.52deg,
+      rgba(255, 255, 255, 0.2),
+      rgba(255, 255, 255, 0.04)
+    );
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+}
+
+.faqAnswer {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(-5px);
+
+  transition: 
+    max-height 0.4s ease,
+    opacity 0.3s ease,
+    transform 0.3s ease;
+
+  color: #cfcfcf;
+  font-size: 14px;
+  line-height: 1.6;
+  padding: 0 14px; // 👈 start without vertical padding
+}
+
+/* जब open हो */
+.open {
+  max-height: 300px; // adjust if content बड़ा है
+  opacity: 1;
+  transform: translateY(0);
+  padding: 10px 14px; // 👈 padding open state में
 }

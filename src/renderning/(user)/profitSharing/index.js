@@ -17,7 +17,7 @@ export default function ProfitSharing() {
       <ProfitSharingCard />
       <ProfitSharingHeader />
       <ProfitSharingTable />
-      <KycModal />
+      {/* <KycModal /> */}
       {/* <KycFinalModal/> */}
       {/* <KycSubmitted/> */}
       {/* <Mt5Account /> */}

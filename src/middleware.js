@@ -22,6 +22,7 @@ export function middleware(request) {
     '/tutorials',
     '/economic-Calendar',
     '/transactions',
+    
   ];
 
   const token = request.cookies.get('auth_user')?.value;

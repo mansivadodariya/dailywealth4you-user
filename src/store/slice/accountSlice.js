@@ -1,7 +1,8 @@
-import api, { fileApi } from '@/service/api';
+import api from '@/service/api';
 import {
   CREATE_TRADING_ACCOUNT,
   UPDATE_TRADING_ACCOUNT,
+  DELETE_TRADING_ACCOUNT,
   GET_ALL_BROKERS,
   GET_ALL_TRADING_ACCOUNTS,
   GET_ALL_FAQ,
@@ -64,16 +65,25 @@ export const updateTradingAccount = createAsyncThunk(
   async (payload, thunkApi) => {
     try {
       const { id, ...body } = payload;
-      const response = await api.put(
-        `${UPDATE_TRADING_ACCOUNT}?id=${id}`,
-        body
-      );
+      const response = await api.put(`${UPDATE_TRADING_ACCOUNT}?id=${id}`, body);
       toast.success('Trading account updated successfully.');
       return response;
     } catch (error) {
-      toast.error(
-        error?.response?.data?.message || 'Failed to update trading account.'
-      );
+      // toast.error(error?.response?.data?.message || 'Failed to update trading account.');
+      return thunkApi.rejectWithValue(error);
+    }
+  }
+);
+
+export const deleteTradingAccount = createAsyncThunk(
+  'account/deleteTradingAccount',
+  async (id, thunkApi) => {
+    try {
+      const response = await api.delete(`${DELETE_TRADING_ACCOUNT}?id=${id}`);
+      toast.success('Trading account deleted successfully.');
+      return { id, response };
+    } catch (error) {
+      toast.error(error?.response?.data?.message || 'Failed to delete trading account.');
       return thunkApi.rejectWithValue(error);
     }
   }
@@ -111,34 +121,29 @@ export const uploadUserDocument = createAsyncThunk(
   async (payload, thunkApi) => {
     try {
       const response = await api.post(UPLOAD_USER_DOCUMENT, payload);
-      //   toast.success('Document uploaded successfully.');
+    //   toast.success('Document uploaded successfully.');
       return response;
     } catch (error) {
       return thunkApi.rejectWithValue(error);
     }
   }
 );
-
 export const uploadImage = createAsyncThunk(
   'account/uploadImage',
-  async (file, thunkApi) => {
+  async (payload, thunkApi) => {
     try {
-      const formData = new FormData();
-      formData.append('image', file);
-
-      const response = await fileApi.post(UPLOAD_IMAGE, formData, {
+      const response = await api.post(UPLOAD_IMAGE, payload, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
-
       return response;
     } catch (error) {
-      toast.error('Failed to upload image.');
       return thunkApi.rejectWithValue(error);
     }
   }
 );
+
 const accountSlice = createSlice({
   name: 'account',
   initialState: {
@@ -208,9 +213,7 @@ const accountSlice = createSlice({
       .addCase(updateTradingAccount.fulfilled, (state, action) => {
         state.loading = false;
         const updatedAccount =
-          action?.payload?.payload?.data ||
-          action?.payload?.data ||
-          action?.payload;
+          action?.payload?.payload?.data || action?.payload?.data || action?.payload;
         if (updatedAccount) {
           state.tradingAccounts = state.tradingAccounts.map((account) =>
             account?.id === updatedAccount?.id ? updatedAccount : account
@@ -218,6 +221,20 @@ const accountSlice = createSlice({
         }
       })
       .addCase(updateTradingAccount.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(deleteTradingAccount.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(deleteTradingAccount.fulfilled, (state, action) => {
+        state.loading = false;
+        const deletedId = action.payload.id;
+        state.tradingAccounts = state.tradingAccounts.filter(
+          (account) => account.id !== deletedId
+        );
+      })
+      .addCase(deleteTradingAccount.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })

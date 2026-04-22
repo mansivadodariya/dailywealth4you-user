@@ -11,6 +11,12 @@ export default function FAQS() {
     (state) => state.account
   );
 
+  const [openIndex, setOpenIndex] = React.useState(null);
+
+const toggleFaq = (index) => {
+  setOpenIndex(openIndex === index ? null : index);
+};
+
   useEffect(() => {
     dispatch(fetchFaqs());
   }, [dispatch]);
@@ -28,14 +34,37 @@ export default function FAQS() {
       ) : displayFaqs.length === 0 ? (
         <p style={{ color: '#fff' }}>No FAQs found.</p>
       ) : (
-        <div className={styles.grid}>
-          {displayFaqs.map((item, index) => (
-            <div key={item?.id || index} className={styles.faqItem}>
-              <span className={styles.faqText}>{item?.question}</span>
-              <span className={styles.faqIcon}>+</span>
-            </div>
-          ))}
+<div className={styles.grid}>
+  {displayFaqs.map((item, index) => {
+    const isOpen = openIndex === index;
+
+    return (
+      <div key={item?.id || index} className={styles.faqCard}>
+        
+        {/* Header */}
+        <div
+          className={styles.faqItem}
+          onClick={() => toggleFaq(index)}
+        >
+          <span className={styles.faqText}>{item?.question}</span>
+          <span className={styles.faqIcon}>
+            {isOpen ? '−' : '+'}
+          </span>
         </div>
+
+        {/* Answer (always mounted) */}
+        <div
+          className={`${styles.faqAnswer} ${
+            isOpen ? styles.open : ''
+          }`}
+        >
+          {item?.answer || "Lorem ipsum dolor sit amet..."}
+        </div>
+
+      </div>
+    );
+  })}
+</div>
       )}
     </div>
   );
