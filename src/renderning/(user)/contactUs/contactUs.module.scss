@@ -1,0 +1,129 @@
+@use '../../../scss/main.scss' as *;
+@use '../../../scss/breakpoints/breakpoints.scss' as *;
+
+.wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: calc(100vh - 150px);
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.title {
+  color: #fff;
+  text-align: center;
+  font-size: 24px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.inputGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.submitBtn {
+  cursor: pointer;
+}
+
+.textareaWrapper {
+  border-radius: 8px;
+  position: relative;
+  width: 100%;
+  height: 220px;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      97.52deg,
+      rgba(255, 255, 255, 0.2) 0.15%,
+      rgba(255, 255, 255, 0.04) 11.93%
+    );
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+}
+
+.inputWrapper {
+  border-radius: 8px;
+  position: relative;
+  width: 100%;
+  height: 50px;
+  display: flex;
+  align-items: center;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      97.52deg,
+      rgba(255, 255, 255, 0.2) 0.15%,
+      rgba(255, 255, 255, 0.04) 11.93%
+    );
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+}
+
+.textarea,
+.inputField {
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.04);
+  border: none;
+  color: #fff;
+  font-size: 16px;
+  font-family: inherit;
+  border-radius: var(--Radius-8, 8px);
+  padding: 0 16px;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 1;
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.inputWrapper:focus-within::before,
+.textareaWrapper:focus-within::before {
+  background: linear-gradient(
+    97.52deg,
+    rgba(255, 255, 255, 0.4) 0.15%,
+    rgba(255, 255, 255, 0.1) 11.93%
+  );
+}
+
+.textarea {
+  resize: none;
+  padding: 16px;
+}

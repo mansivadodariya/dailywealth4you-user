@@ -194,13 +194,13 @@ export default function Signup() {
               </div>
               <div>
                 <Input
-                  label="Referral  Code"
+                  label="Referral Code (Optional)"
                   type="text"
                   // leftIcon={LockIcon}
                   // rightIcon={EyeIcon}
                   spacingRemove
-                  name="referralCode"
-                  value={formik.values.referralCode}
+                  name="referredBy"
+                  value={formik.values.referredBy}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                 />

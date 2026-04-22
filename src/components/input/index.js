@@ -21,11 +21,7 @@ export default function Input({
 
   return (
     <div className={styles.input}>
-      {
-        label && (
-          <label>{label}</label>
-        )
-      }
+      {label && <label>{label}</label>}
       <div
         className={classNames(
           styles.inputWrap,

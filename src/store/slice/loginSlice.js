@@ -120,20 +120,29 @@ const loginSlice = createSlice({
         state.error = null;
 
         const responseData = action.payload?.data || action.payload;
+        const payloadData =
+          responseData?.payload || responseData?.data || responseData;
 
-        const token = responseData?.token;
+        const token = payloadData?.token || responseData?.token;
         const user =
+          payloadData?.user ||
+          payloadData ||
           responseData?.user ||
-          responseData?.data?.user ||
           responseData ||
           null;
 
-        state.token = token;
-        state.user = user;
-        state.role = getRoleFromResponse(responseData, user);
+        const savedUser =
+          user && typeof user === 'object'
+            ? { ...user, token: undefined }
+            : user;
 
-        setAuthCookies({ token, user });
+        state.token = token;
+        state.user = savedUser;
+        state.role = getRoleFromResponse(responseData, savedUser);
+
+        setAuthCookies({ token, user: savedUser });
       })
+
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload || 'Login failed';
@@ -147,19 +156,27 @@ const loginSlice = createSlice({
         state.error = null;
 
         const responseData = action.payload?.data || action.payload;
+        const payloadData =
+          responseData?.payload || responseData?.data || responseData;
 
-        const token = responseData?.token;
+        const token = payloadData?.token || responseData?.token;
         const user =
+          payloadData?.user ||
+          payloadData ||
           responseData?.user ||
-          responseData?.data?.user ||
           responseData ||
           null;
 
-        state.token = token;
-        state.user = user;
-        state.role = getRoleFromResponse(responseData, user);
+        const savedUser =
+          user && typeof user === 'object'
+            ? { ...user, token: undefined }
+            : user;
 
-        setAuthCookies({ token, user });
+        state.token = token;
+        state.user = savedUser;
+        state.role = getRoleFromResponse(responseData, savedUser);
+
+        setAuthCookies({ token, user: savedUser });
       })
       .addCase(adminLoginUser.rejected, (state, action) => {
         state.isLoading = false;

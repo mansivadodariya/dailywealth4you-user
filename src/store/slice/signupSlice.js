@@ -12,6 +12,7 @@ export const signupUser = createAsyncThunk(
   async (payload, thunkApi) => {
     try {
       const response = await api.post(SIGNUP, payload);
+      console.log(response);
       return response;
     } catch (error) {
       return thunkApi.rejectWithValue(error);
@@ -30,12 +31,7 @@ const initialState = {
 const signupSlice = createSlice({
   name: 'signup',
   initialState,
-  reducers: {
-    clearSignupState: (state) => {
-      state.error = null;
-      state.isLoading = false;
-    },
-  },
+
   extraReducers: (builder) => {
     builder
       .addCase(signupUser.pending, (state) => {
@@ -43,8 +39,9 @@ const signupSlice = createSlice({
         state.error = null;
       })
       .addCase(signupUser.fulfilled, (state, action) => {
+        debugger;
         state.isLoading = false;
-        state.userdetails = action.payload.data;
+        state.userdetails = action?.payload?.payload;
         state.error = null;
       })
       .addCase(signupUser.rejected, (state, action) => {
@@ -54,5 +51,4 @@ const signupSlice = createSlice({
   },
 });
 
-export const { clearSignupState } = signupSlice.actions;
 export default signupSlice.reducer;

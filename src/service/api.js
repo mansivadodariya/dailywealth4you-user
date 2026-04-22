@@ -14,6 +14,7 @@ api.interceptors.request.use(
     const token = getTokenFromCookie();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      config.headers['x-auth-token'] = token;
     }
 
     return config;

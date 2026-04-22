@@ -2,97 +2,96 @@
 @use '../../../scss/breakpoints/breakpoints.scss' as *;
 
 .depositModalWrapper {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(3, 15, 15, 0.10);
-    backdrop-filter: blur(15px);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(3, 15, 15, 0.1);
+  backdrop-filter: blur(15px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
 
-    .modal {
-        border-radius: var(--Radius-12, 12px);
-        box-shadow: 0 8px 16px -8px rgba(0, 0, 0, 0.06), 0 8px 16px -4px rgba(20, 21, 26, 0.06);
-        width: 460px;
-        background-color: #030F0F;
+  .modal {
+    border-radius: var(--Radius-12, 12px);
+    box-shadow:
+      0 8px 16px -8px rgba(0, 0, 0, 0.06),
+      0 8px 16px -4px rgba(20, 21, 26, 0.06);
+    width: 460px;
+    background-color: #030f0f;
 
-        .modalHeader {
-            border-bottom: 1px solid rgba(255, 255, 255, 0.10);
-            padding: 32px;
+    .modalHeader {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 32px;
 
-            h2 {
-                color: var(--Text-Primary, #FAFAFA);
-                font-size: 28px;
-                font-style: normal;
-                font-weight: 700;
-                font-family: var(--font-red-hat-display);
-                line-height: 110%;
-                text-align: center;
-                margin: 0 0 8px 0;
-            }
+      h2 {
+        color: var(--Text-Primary, #fafafa);
+        font-size: 28px;
+        font-style: normal;
+        font-weight: 700;
+        font-family: var(--font-red-hat-display);
+        line-height: 110%;
+        text-align: center;
+        margin: 0 0 8px 0;
+      }
 
-            p {
-                color: var(--Text-Secondary, #8E8E8E);
-                text-align: center;
-                font-size: 16px;
-                font-style: normal;
-                font-weight: 600;
-                line-height: 100%;
-                letter-spacing: -0.176px;
-            }
-
-        }
-
-        .modalbody {
-            padding: 64px 32px 32px 32px;
-
-            .counter {
-                input {
-                    width: 100%;
-                    color: var(--Text-Primary, #FAFAFA);
-                    font-size: 28px;
-                    font-style: normal;
-                    font-weight: 600;
-                    border: none;
-                    background-color: transparent;
-                    text-align: center;
-                    line-height: 150%;
-                    outline: none;
-                }
-
-                ::placeholder {
-                    color: #fff;
-                    text-align: center;
-                    font-size: 28px;
-                    font-style: normal;
-                    font-weight: 600;
-                }
-
-            }
-
-            .buttonTop {
-                padding: 20px 0 12px 0;
-            }
-
-            .inputAlignment {
-                padding: 64px 0 12px 0;
-            }
-
-            p {
-                margin-top: 12px;
-                color: var(--Text-Secondary, #8E8E8E);
-                text-align: center;
-                font-size: 16px;
-                font-style: normal;
-                font-weight: 600;
-                line-height: 100%;
-                letter-spacing: -0.176px;
-
-            }
-        }
+      p {
+        color: var(--Text-Secondary, #8e8e8e);
+        text-align: center;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: 100%;
+        letter-spacing: -0.176px;
+      }
     }
+
+    .modalbody {
+      padding: 64px 32px 32px 32px;
+
+      .counter {
+        input {
+          width: 100%;
+          color: var(--Text-Primary, #fafafa);
+          font-size: 28px;
+          font-style: normal;
+          font-weight: 600;
+          border: none;
+          background-color: transparent;
+          text-align: center;
+          line-height: 150%;
+          outline: none;
+        }
+
+        ::placeholder {
+          color: #fff;
+          text-align: center;
+          font-size: 28px;
+          font-style: normal;
+          font-weight: 600;
+        }
+      }
+
+      .buttonTop {
+        padding: 20px 0 12px 0;
+      }
+
+      .inputAlignment {
+        padding: 64px 0 12px 0;
+      }
+
+      p {
+        margin-top: 12px;
+        color: var(--Text-Secondary, #8e8e8e);
+        text-align: center;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: 100%;
+        letter-spacing: -0.176px;
+      }
+    }
+  }
 }
