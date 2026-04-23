@@ -6,6 +6,8 @@ import { fetchIbProfitSharing } from '@/store/slice/ibUserSlice';
 import ProfitSharingCard from './profitSharingCard';
 import ProfitSharingHeader from './profitSharingHeader';
 import ProfitSharingTable from './profitSharingTable';
+import EditProfile from '@/components/modal/editProfile';
+import ChangePassword from '@/components/modal/changePassword';
 
 export default function ProfitSharing() {
   const dispatch = useDispatch();
@@ -19,6 +21,9 @@ export default function ProfitSharing() {
       <ProfitSharingCard />
       <ProfitSharingHeader />
       <ProfitSharingTable />
+      {/* <EditProfile /> */}
+      {/* <ChangePassword /> */}
+
     </div>
   );
 }

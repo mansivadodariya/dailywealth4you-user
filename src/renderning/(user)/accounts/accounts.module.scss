@@ -2,266 +2,282 @@
 @use '../../../scss/breakpoints/breakpoints.scss' as *;
 
 .accountsWrapper {
-  .accountsGrid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
-  }
-
-  .accountCard {
-    border-radius: 8px;
-    position: relative;
-    background: linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.08) 0%,
-      rgba(255, 255, 255, 0) 100%
-    );
-    transition:
-      transform 0.3s ease,
-      box-shadow 0.3s ease;
-
-    &::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border-radius: var(--Radius-8, 8px);
-      padding: 1px;
-      background: linear-gradient(
-        97.52deg,
-        rgba(255, 255, 255, 0.2) 0.15%,
-        rgba(255, 255, 255, 0.04) 11.93%
-      );
-      -webkit-mask:
-        linear-gradient(#fff 0 0) content-box,
-        linear-gradient(#fff 0 0);
-      -webkit-mask-composite: xor;
-      mask-composite: exclude;
-      pointer-events: none;
-      transition: all 0.3s ease;
+    .accountsGrid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
     }
 
-    &:hover {
-      transform: translateY(-5px);
-    }
+    .accountCard {
+        border-radius: 8px;
+        position: relative;
+        background: linear-gradient(180deg,
+                rgba(255, 255, 255, 0.08) 0%,
+                rgba(255, 255, 255, 0) 100%);
+        transition:
+            transform 0.3s ease,
+            box-shadow 0.3s ease;
 
-    .headerAlignment {
-      padding: 20px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-
-      h3 {
-        color: var(--Text-Primary, #fafafa);
-        font-size: 32px;
-        font-style: normal;
-        font-weight: 700;
-        line-height: 100%;
-
-        span {
-          color: var(--Primary, #02df82);
-          font-size: 12px;
-          font-style: normal;
-          font-weight: 600;
-          line-height: normal;
+        &::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: var(--Radius-8, 8px);
+            padding: 1px;
+            background: linear-gradient(97.52deg,
+                    rgba(255, 255, 255, 0.2) 0.15%,
+                    rgba(255, 255, 255, 0.04) 11.93%);
+            -webkit-mask:
+                linear-gradient(#fff 0 0) content-box,
+                linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+            transition: all 0.3s ease;
         }
-      }
-    }
-
-    &::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 24px;
-      width: 4px;
-      height: 24px;
-      background-color: #dbe64c;
-      border-radius: 0 4px 4px 0;
-      box-shadow: 0 0 10px rgba(219, 230, 76, 0.4);
-    }
-
-    .cardHeader {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0 0 12px 0;
-
-      p {
-        color: var(--Text-Primary, #fafafa);
-        font-size: 16px;
-        font-style: normal;
-        font-weight: 600;
-        line-height: normal;
-      }
-
-      .buttonContainer {
-        display: flex;
-        gap: 8px;
-        align-items: center;
-      }
-
-      .editBtn {
-        color: #8e8e8e;
-        cursor: pointer;
-        transition: color 0.2s ease;
 
         &:hover {
-          color: #fafafa;
+            transform: translateY(-5px);
         }
 
-        svg {
-          display: block;
-          width: 18px;
-          height: 18px;
-        }
-      }
+        .headerAlignment {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 
-      .deleteBtn {
-        color: #8e8e8e;
-        cursor: pointer;
-        transition: color 0.2s ease;
+            h3 {
+                color: var(--Text-Primary, #fafafa);
+                font-size: 32px;
+                font-style: normal;
+                font-weight: 700;
+                line-height: 100%;
 
-        &:hover {
-          color: #ff4d4d;
+                span {
+                    color: var(--Primary, #02df82);
+                    font-size: 12px;
+                    font-style: normal;
+                    font-weight: 600;
+                    line-height: normal;
+                }
+            }
         }
 
-        svg {
-          display: block;
-          width: 18px;
-          height: 18px;
+        &::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 24px;
+            width: 4px;
+            height: 24px;
+            background-color: #dbe64c;
+            border-radius: 0 4px 4px 0;
+            box-shadow: 0 0 10px rgba(219, 230, 76, 0.4);
         }
-      }
+
+        .cardHeader {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 0 12px 0;
+
+            p {
+                color: var(--Text-Primary, #fafafa);
+                font-size: 16px;
+                font-style: normal;
+                font-weight: 600;
+                line-height: normal;
+            }
+
+            .buttonContainer {
+                display: flex;
+                gap: 8px;
+                align-items: center;
+            }
+
+            .editBtn {
+                color: #8e8e8e;
+                cursor: pointer;
+                transition: color 0.2s ease;
+
+                &:hover {
+                    color: #fafafa;
+                }
+
+                svg {
+                    display: block;
+                    width: 18px;
+                    height: 18px;
+                }
+            }
+
+            .deleteBtn {
+                color: #8e8e8e;
+                cursor: pointer;
+                transition: color 0.2s ease;
+
+                &:hover {
+                    color: #ff4d4d;
+                }
+
+                svg {
+                    display: block;
+                    width: 18px;
+                    height: 18px;
+                }
+            }
+        }
+
+        .balanceInfo {
+            margin-bottom: 24px;
+            padding-left: 12px;
+
+            h2 {
+                color: #fafafa;
+                font-size: 32px;
+                font-weight: 700;
+                display: flex;
+                align-items: baseline;
+                gap: 8px;
+                margin: 0;
+
+                .profitText {
+                    color: #02df82;
+                    font-size: 14px;
+                    font-weight: 600;
+                }
+            }
+        }
+
+        .cardDetails {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 20px;
+
+            .detailRow {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+
+                .label {
+                    color: var(--Text-Primary, #fafafa);
+                    font-size: 16px;
+                    font-style: normal;
+                    font-weight: 600;
+                    line-height: normal;
+                }
+
+                .dots {
+                    flex: 1;
+                    height: 12px;
+                    border-bottom: 2px dotted #fff;
+                    margin-bottom: 4px;
+                }
+
+                .value {
+                    color: var(--Text-Primary, #fafafa);
+                    font-size: 16px;
+                    font-style: normal;
+                    font-weight: 600;
+                    line-height: normal;
+                }
+            }
+        }
     }
-
-    .balanceInfo {
-      margin-bottom: 24px;
-      padding-left: 12px;
-
-      h2 {
-        color: #fafafa;
-        font-size: 32px;
-        font-weight: 700;
-        display: flex;
-        align-items: baseline;
-        gap: 8px;
-        margin: 0;
-
-        .profitText {
-          color: #02df82;
-          font-size: 14px;
-          font-weight: 600;
-        }
-      }
-    }
-
-    .cardDetails {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      padding: 20px;
-
-      .detailRow {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-
-        .label {
-          color: var(--Text-Primary, #fafafa);
-          font-size: 16px;
-          font-style: normal;
-          font-weight: 600;
-          line-height: normal;
-        }
-
-        .dots {
-          flex: 1;
-          height: 12px;
-          border-bottom: 2px dotted #fff;
-          margin-bottom: 4px;
-        }
-
-        .value {
-          color: var(--Text-Primary, #fafafa);
-          font-size: 16px;
-          font-style: normal;
-          font-weight: 600;
-          line-height: normal;
-        }
-      }
-    }
-  }
 }
 
 .mt5AccountWrapper {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(3, 15, 15, 0.1);
-  backdrop-filter: blur(15px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(3, 15, 15, 0.1);
+    backdrop-filter: blur(15px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
 
-  .modal {
-    border-radius: var(--Radius-12, 12px);
-    box-shadow:
-      0 8px 16px -8px rgba(0, 0, 0, 0.06),
-      0 8px 16px -4px rgba(20, 21, 26, 0.06);
-    width: 460px;
-    background-color: #030f0f;
+    .modal {
+        border-radius: var(--Radius-12, 12px);
+        box-shadow:
+            0 8px 16px -8px rgba(0, 0, 0, 0.06),
+            0 8px 16px -4px rgba(20, 21, 26, 0.06);
+        width: 460px;
+        background-color: #030f0f;
 
-    .modalHeader {
-      padding: 32px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        .modalHeader {
+            padding: 32px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 
-      h2 {
-        color: #fafafa;
-        font-size: 28px;
-        font-family: var(--font-red-hat-display);
-        font-weight: 700;
-        text-align: center;
-        margin: 0 0 8px 0;
-      }
+            h2 {
+                color: #fafafa;
+                font-size: 28px;
+                font-family: var(--font-red-hat-display);
+                font-weight: 700;
+                text-align: center;
+                margin: 0 0 8px 0;
+            }
 
-      p {
-        color: #8e8e8e;
-        font-size: 16px;
-        font-weight: 600;
-        text-align: center;
-        margin: 0;
-      }
-    }
-
-    .modalBody {
-      padding: 32px;
-
-      .actions {
-        display: flex;
-        gap: 12px;
-        flex-wrap: wrap;
-
-        > div,
-        > button {
-          flex: 1;
-          min-width: 140px;
+            p {
+                color: #8e8e8e;
+                font-size: 16px;
+                font-weight: 600;
+                text-align: center;
+                margin: 0;
+            }
         }
       }
     }
-    .confirmDeleteBtn {
-      background-color: #ff4444 !important;
-      color: #fff !important;
-      border: none !important;
-      padding: 12px 24px !important;
-      border-radius: 8px !important;
-      font-size: 16px !important;
-      font-weight: 600 !important;
-      cursor: pointer !important;
-      transition: all 0.2s ease !important;
-      width: 100% !important;
+//     .confirmDeleteBtn {
+//       background-color: #ff4444 !important;
+//       color: #fff !important;
+//       border: none !important;
+//       padding: 12px 24px !important;
+//       border-radius: 8px !important;
+//       font-size: 16px !important;
+//       font-weight: 600 !important;
+//       cursor: pointer !important;
+//       transition: all 0.2s ease !important;
+//       width: 100% !important;
 
-      &:hover {
-        background-color: #ff3333 !important;
-      }
-    }
-  }
-}
+//       &:hover {
+//         background-color: #ff3333 !important;
+//       }
+//     }
+//   }
+// }
+
+        .modalBody {
+            padding: 32px;
+
+            .actions {
+                display: flex;
+                gap: 12px;
+                flex-wrap: wrap;
+
+                >div,
+                >button {
+                    flex: 1;
+                    min-width: 140px;
+                }
+            }
+        }
+
+        .confirmDeleteBtn {
+            background-color: #ff4444 !important;
+            color: #fff !important;
+            border: none !important;
+            padding: 12px 24px !important;
+            border-radius: 8px !important;
+            font-size: 16px !important;
+            font-weight: 600 !important;
+            cursor: pointer !important;
+            transition: all 0.2s ease !important;
+            width: 100% !important;
+
+            &:hover {
+                background-color: #ff3333 !important;
+            }
+        }
+    
