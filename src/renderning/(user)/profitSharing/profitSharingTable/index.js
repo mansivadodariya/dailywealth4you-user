@@ -2,114 +2,63 @@
 import React, { useState } from 'react';
 import styles from './profitSharingTable.module.scss';
 import { motion, AnimatePresence } from 'framer-motion';
-
-const tableData = [
-  {
-    id: 1,
-    date: '24-12-2026 | 10:12 PM',
-    name: 'Virat Kohli',
-    email: 'mail@mail.com',
-    lots: 120,
-    broker: 'Exness',
-    commission: '$10',
-    details: Array(10).fill({
-      orderId: '123456',
-      mt5Account: '123456789',
-      symbol: 'XAUUSD',
-      lots: '0.20',
-      pnl: '+$14.50',
-      commission: '$1',
-    }),
-  },
-  {
-    id: 2,
-    date: '24-12-2026 | 10:12 PM',
-    name: 'Virat Kohli',
-    email: 'mail@mail.com',
-    lots: 120,
-    broker: 'IG Markets',
-    commission: '$10',
-  },
-  {
-    id: 3,
-    date: '24-12-2026 | 10:12 PM',
-    name: 'Devdutt Paddikal',
-    email: 'mail@mail.com',
-    lots: 120,
-    broker: 'Exness',
-    commission: '$10',
-  },
-  {
-    id: 4,
-    date: '24-12-2026 | 10:12 PM',
-    name: 'Rajat Patidar',
-    email: 'mail@mail.com',
-    lots: 120,
-    broker: 'Paperboat',
-    commission: '$10',
-  },
-  {
-    id: 5,
-    date: '24-12-2026 | 10:12 PM',
-    name: 'Tim David',
-    email: 'mail@mail.com',
-    lots: 120,
-    broker: 'Paperboat',
-    commission: '$10',
-  },
-  {
-    id: 6,
-    date: '24-12-2026 | 10:12 PM',
-    name: 'Romario Shepherd',
-    email: 'mail@mail.com',
-    lots: 120,
-    broker: 'Exness',
-    commission: '$10',
-  },
-  {
-    id: 7,
-    date: '24-12-2026 | 10:12 PM',
-    name: 'Krunal Pandya',
-    email: 'mail@mail.com',
-    lots: 120,
-    broker: 'Paperboat',
-    commission: '$10',
-  },
-  {
-    id: 8,
-    date: '24-12-2026 | 10:12 PM',
-    name: 'Josh Hazelwood',
-    email: 'mail@mail.com',
-    lots: 120,
-    broker: 'Exness',
-    commission: '$10',
-  },
-  {
-    id: 9,
-    date: '24-12-2026 | 10:12 PM',
-    name: 'Suyash Sharma',
-    email: 'mail@mail.com',
-    lots: 120,
-    broker: 'IG Markets',
-    commission: '$10',
-  },
-  {
-    id: 10,
-    date: '24-12-2026 | 10:12 PM',
-    name: 'Bhuvneshwar Kumar',
-    email: 'mail@mail.com',
-    lots: 120,
-    broker: 'Paperboat',
-    commission: '$10',
-  },
-];
+import { useSelector } from 'react-redux';
+import moment from 'moment';
 
 export default function ProfitSharingTable() {
-  const [expandedId, setExpandedId] = useState(1);
+  const { profitSharingData, profitSharingLoading, profitSharingError } =
+    useSelector((state) => state.ibUser);
 
-  const handleToggle = (id) => {
-    setExpandedId(expandedId === id ? null : id);
+  const [expandedKey, setExpandedKey] = useState(null);
+
+  const handleToggle = (key) => {
+    setExpandedKey(expandedKey === key ? null : key);
   };
+
+  if (profitSharingLoading) {
+    return (
+      <div className={styles.profitSharingTable}>
+        <div className={styles.emptyState}>Loading...</div>
+      </div>
+    );
+  }
+
+  if (profitSharingError) {
+    return (
+      <div className={styles.profitSharingTable}>
+        <div className={styles.emptyState} style={{ color: '#ff4d4d' }}>
+          Failed to load data.
+        </div>
+      </div>
+    );
+  }
+
+  // Flatten: one row per user+broker combination
+  const rows = [];
+  profitSharingData?.forEach((entry) => {
+    const user = entry?.user;
+    entry?.brokers?.forEach((brokerEntry, bIdx) => {
+      // Use the latest trade date as the row date
+      const trades = brokerEntry?.trades || [];
+      const latestDate = trades.reduce((latest, trade) => {
+        if (!trade?.createdAt) return latest;
+        return !latest || new Date(trade.createdAt) > new Date(latest)
+          ? trade.createdAt
+          : latest;
+      }, null);
+
+      rows.push({
+        key: `${user?.id}-${bIdx}`,
+        user,
+        broker: brokerEntry?.broker,
+        trades,
+        latestDate,
+        totalProfit: brokerEntry?.totalProfit,
+        totalLots: brokerEntry?.totalLots,
+        totalCommission: brokerEntry?.totalCommission,
+      });
+    });
+  });
 
   return (
     <div className={styles.profitSharingTable}>
@@ -120,33 +69,57 @@ export default function ProfitSharingTable() {
               <th>Date</th>
               <th>Name</th>
               <th>Email</th>
-              <th>Lots</th>
+
+              <th>Profit</th>
               <th>Broker</th>
-              <th>Commission</th>
+              <th>Total Commission</th>
               <th className={styles.textCenter}>Action</th>
             </tr>
           </thead>
           <tbody>
-            {tableData.map((row) => (
-              <React.Fragment key={row.id}>
-                <tr className={expandedId === row.id ? styles.activeRow : ''}>
-                  <td>{row.date}</td>
-                  <td>{row.name}</td>
-                  <td>{row.email}</td>
-                  <td>{row.lots}</td>
-                  <td>{row.broker}</td>
-                  <td>{row.commission}</td>
+            {rows.length === 0 && (
+              <tr>
+                <td
+                  colSpan="7"
+                  style={{
+                    textAlign: 'center',
+                    padding: '24px',
+                    color: '#8e8e8e',
+                  }}
+                >
+                  No data available.
+                </td>
+              </tr>
+            )}
+            {rows.map((row) => (
+              <React.Fragment key={row.key}>
+                <tr className={expandedKey === row.key ? styles.activeRow : ''}>
+                  <td>
+                    {row.latestDate
+                      ? moment(row.latestDate).format('DD-MM-YYYY | hh:mm A')
+                      : '—'}
+                  </td>
+                  <td>
+                    {`${row.user?.firstName ?? ''} ${row.user?.lastName ?? ''}`.trim() ||
+                      '—'}
+                  </td>
+                  <td>{row.user?.email || '—'}</td>
+
+                  <td>${row.totalProfit ?? '—'}</td>
+                  <td>{row.broker?.name || '—'}</td>
+                  <td>${row.totalCommission ?? '—'}</td>
                   <td className={styles.textCenter}>
                     <button
-                      className={styles.viewBtn}
-                      onClick={() => handleToggle(row.id)}
+                      className={`${styles.viewBtn} ${expandedKey === row.key ? styles.active : ''}`}
+                      onClick={() => handleToggle(row.key)}
                     >
-                      {expandedId === row.id ? 'Close' : 'View'}
+                      {expandedKey === row.key ? 'Close' : 'View'}
                     </button>
                   </td>
                 </tr>
+
                 <AnimatePresence>
-                  {expandedId === row.id && row.details && (
+                  {expandedKey === row.key && row.trades.length > 0 && (
                     <tr className={styles.detailsRow}>
                       <td colSpan="7">
                         <motion.div
@@ -159,29 +132,51 @@ export default function ProfitSharingTable() {
                           <div className={styles.innerTableContainer}>
                             <div className={styles.innerHeader}>
                               <div>Order ID</div>
-                              <div>MT5 Account</div>
+                              <div>Account ID</div>
                               <div>Symbol</div>
                               <div>Lots</div>
                               <div>P&L</div>
                               <div>Commission</div>
+                              {/* <div>Date</div> */}
                             </div>
                             <div className={styles.innerBody}>
-                              {row.details.map((detail, index) => (
-                                <div className={styles.innerRow} key={index}>
-                                  <div>{detail.orderId}</div>
-                                  <div>{detail.mt5Account}</div>
+                              {row.trades.map((trade) => (
+                                <div
+                                  className={styles.innerRow}
+                                  key={trade?.id}
+                                >
+                                  <div>{trade?.orderId || '—'}</div>
+                                  <div>{trade?.accountId || '—'}</div>
                                   <div>
                                     <span className={styles.symbolBadge}>
-                                      {detail.symbol}
+                                      {trade?.item || '—'}
                                     </span>
                                   </div>
-                                  <div>{detail.lots}</div>
+                                  <div>{trade?.volume ?? '—'}</div>
                                   <div>
-                                    <span className={styles.pnlBadge}>
-                                      {detail.pnl}
+                                    <span
+                                      className={styles.pnlBadge}
+                                      style={{
+                                        borderColor:
+                                          (trade?.profitLoss ?? 0) >= 0
+                                            ? '#02df82'
+                                            : '#ff4d4d',
+                                        background:
+                                          (trade?.profitLoss ?? 0) >= 0
+                                            ? 'rgba(2,223,130,0.1)'
+                                            : 'rgba(255,77,77,0.1)',
+                                      }}
+                                    >
+                                      {(trade?.profitLoss ?? 0) >= 0 ? '+' : ''}
+                                      ${trade?.profitLoss ?? '—'}
                                     </span>
                                   </div>
-                                  <div>{detail.commission}</div>
+                                  <div>${trade?.commission ?? '—'}</div>
+                                  {/* <div>
+                                    {trade?.createdAt
+                                      ? moment(trade.createdAt).format('DD-MM-YYYY | hh:mm A')
+                                      : '—'}
+                                  </div> */}
                                 </div>
                               ))}
                             </div>

@@ -5,7 +5,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import styles from './useExisting.module.scss';
 import Input from '@/components/input';
 import AuthButton from '@/components/authButton';
-import { updateTradingAccount, createTradingAccount } from '@/store/slice/accountSlice';
+import {
+  updateTradingAccount,
+  createTradingAccount,
+} from '@/store/slice/accountSlice';
 import { toast } from 'react-toastify';
 import Mt5Account from '../Mt5Account';
 const RightIcon = '/assets/icons/right.svg';
@@ -20,7 +23,6 @@ export default function UseExisting({
   const dispatch = useDispatch();
   const { loading } = useSelector((state) => state?.account);
   const { user } = useSelector((state) => state?.login);
-
 
   const [agreed, setAgreed] = useState(false);
   const [brokerName, setBrokerName] = useState('');
@@ -53,11 +55,10 @@ export default function UseExisting({
         id: account?.id || account?._id || '',
         userId:
           account?.userId || account?.user?.id || account?.user?._id || '',
-        accountId: account?.accountId ,
+        accountId: account?.accountId,
         brokerId: account?.broker?.id || account?.brokerId || '',
         brokerName: brokerName || account?.brokerName || '',
 
-        
         // brokerUserId: loginId,
         // platform: server || account?.platform || '',
         // firstName: account?.firstName || '',
@@ -84,7 +85,6 @@ export default function UseExisting({
         return;
       }
 
-
       if (!brokerName || !server || !loginId || !password || !accountId) {
         toast.error('Please fill in all required fields.');
         return;
@@ -93,7 +93,7 @@ export default function UseExisting({
       const payload = {
         userId: user?.id || '',
         accountId: accountId,
-        brokerId: brokerId ,
+        brokerId: brokerId,
         brokerName: brokerName,
         sizeOfAccount: sizeOfAccount,
         // brokerUserId: loginId,
@@ -108,7 +108,7 @@ export default function UseExisting({
         // isFundedAccount: false,
         server: server,
         mt5LoginId: loginId,
-        password: password
+        password: password,
       };
 
       try {
@@ -124,116 +124,113 @@ export default function UseExisting({
         setAgreed(false);
         if (onClose) onClose();
       } catch (error) {
-        console.log(error)
+        console.log(error);
         // toast.error(error?.message || 'Failed to create MT5 account.');
       }
     }
   };
 
   return (
-
-
     <>
-    <div className={styles.useExistingWrapper}>
-      <div className={styles.modal}>
-        <div className={styles.modalHeader}>
-          <h2>{isEdit ? 'Edit MT5 Account' : 'Use existing MT5 account'}</h2>
-          <p>
-            {isEdit
-              ? 'Please provide following details to edit MT5 account'
-              : 'Please provide following details to add MT5 account'}
-          </p>
-        </div>
-        <div className={styles.modalBody}>
-          <div className={styles.singleCol}>
-            <Input
-              label="Broker Name"
-              leftSpacingRemove
-              value={brokerName}
-              onChange={(e) => setBrokerName(e.target.value)}
-            />
-            <Input
-              label="Account ID"
-              leftSpacingRemove
-              value={accountId}
-              onChange={(e) => setAccountId(e.target.value)}
-            />
-            <Input
-              label="Server"
-              leftSpacingRemove
-              value={server}
-              onChange={(e) => setServer(e.target.value)}
-            />
-            <Input
-              label="MT5 Login ID"
-              leftSpacingRemove
-              value={loginId}
-              onChange={(e) => setLoginId(e.target.value)}
-            />
-            <Input
-              label="Password"
-              leftSpacingRemove
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <Input
-              label="Size of Account"
-              leftSpacingRemove
-              value={sizeOfAccount}
-              onChange={(e) => setSizeOfAccount(e.target.value)}
-            />
-          </div>
-
-          <div className={styles.infoBox}>
+      <div className={styles.useExistingWrapper}>
+        <div className={styles.modal}>
+          <div className={styles.modalHeader}>
+            <h2>{isEdit ? 'Edit MT5 Account' : 'Use existing MT5 account'}</h2>
             <p>
-              You will get <strong>{user?.commission} %</strong> of total profit{' '}
-              <br />
-              gained on this account
+              {isEdit
+                ? 'Please provide following details to edit MT5 account'
+                : 'Please provide following details to add MT5 account'}
             </p>
           </div>
-
-          <div className={styles.checkboxdesign}>
-            <label>
-              <input
-                type="checkbox"
-                checked={agreed}
-                onChange={(e) => setAgreed(e.target.checked)}
+          <div className={styles.modalBody}>
+            <div className={styles.singleCol}>
+              <Input
+                label="Broker Name"
+                leftSpacingRemove
+                value={brokerName}
+                onChange={(e) => setBrokerName(e.target.value)}
               />
-              <span className={styles.customCheckbox}></span>
+              <Input
+                label="Account ID"
+                leftSpacingRemove
+                value={accountId}
+                onChange={(e) => setAccountId(e.target.value)}
+              />
+              <Input
+                label="Server"
+                leftSpacingRemove
+                value={server}
+                onChange={(e) => setServer(e.target.value)}
+              />
+              <Input
+                label="MT5 Login ID"
+                leftSpacingRemove
+                value={loginId}
+                onChange={(e) => setLoginId(e.target.value)}
+              />
+              <Input
+                label="Password"
+                leftSpacingRemove
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <Input
+                label="Size of Account"
+                leftSpacingRemove
+                value={sizeOfAccount}
+                onChange={(e) => setSizeOfAccount(e.target.value)}
+              />
+            </div>
+
+            <div className={styles.infoBox}>
               <p>
-                I agree to the CredBlaze <a>Terms & Conditions</a> and{' '}
-                <a>Privacy Policy</a>
+                You will get <strong>{user?.commission} %</strong> of total
+                profit <br />
+                gained on this account
               </p>
-            </label>
+            </div>
+
+            <div className={styles.checkboxdesign}>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={agreed}
+                  onChange={(e) => setAgreed(e.target.checked)}
+                />
+                <span className={styles.customCheckbox}></span>
+                <p>
+                  I agree to the CredBlaze <a>Terms & Conditions</a> and{' '}
+                  <a>Privacy Policy</a>
+                </p>
+              </label>
+            </div>
+
+            <AuthButton
+              text={loading ? 'Please wait...' : 'Save Account'}
+              icon={RightIcon}
+              onClick={handleSave}
+              disabled={loading}
+            />
+
+            {!isEdit && (
+              <>
+                <div className={styles.ortext}>
+                  <div className={styles.line}></div>
+                  <span>OR</span>
+                  <div className={styles.line}></div>
+                </div>
+                <AuthButton
+                  text="Create a new MT5 account"
+                  outline
+                  RightWhiteIcon={RightIcon}
+                  onClick={() => setShowMt5Modal(true)}
+                />
+              </>
+            )}
           </div>
-
-          <AuthButton
-            text={loading ? 'Please wait...' : 'Save Account'}
-            icon={RightIcon}
-            onClick={handleSave}
-            disabled={loading}
-          />
-
-          {!isEdit && (
-            <>
-              <div className={styles.ortext}>
-                <div className={styles.line}></div>
-                <span>OR</span>
-                <div className={styles.line}></div>
-              </div>
-              <AuthButton
-                text="Create a new MT5 account"
-                outline
-                RightWhiteIcon={RightIcon}
-                onClick={() => setShowMt5Modal(true)}
-              />
-            </>
-          )}
         </div>
       </div>
-    </div>
-    {showMt5Modal && <Mt5Account />}
+      {showMt5Modal && <Mt5Account />}
     </>
-    
   );
 }

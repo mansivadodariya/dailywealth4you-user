@@ -9,11 +9,13 @@ import DeleteIcon from '@/icons/deleteIcon';
 import moment from 'moment';
 import { getUserFromCookie } from '@/service/cookies';
 import UseExisting from '@/components/modal/useExisting';
-import { deleteTradingAccount, fetchTradingAccounts } from '@/store/slice/accountSlice';
+import {
+  deleteTradingAccount,
+  fetchTradingAccounts,
+} from '@/store/slice/accountSlice';
 import AuthButton from '@/components/authButton';
 import RightIcon from '@/icons/rightIcon';
-
-
+import Loader from '@/components/Loader';
 
 export default function Accounts() {
   const dispatch = useDispatch();
@@ -34,11 +36,13 @@ export default function Accounts() {
 
   if (tradingAccountsLoading) {
     return (
-      <div className={styles.accountsWrapper}>
-        <p style={{ color: '#fff', textAlign: 'center', padding: '2rem' }}>
-          Loading accounts...
-        </p>
-      </div>
+      <Loader
+        fullScreen={true}
+        variant="dots"
+        size="large"
+        color="success"
+        text="Loading data..."
+      />
     );
   }
 
@@ -160,32 +164,35 @@ export default function Accounts() {
           onClose={() => setShowEditModal(false)}
         />
       )}
-      
-      {showDeleteModal && accountToDelete && (
-           <div className={styles.mt5AccountWrapper}>
-      <div className={styles.modal}>
-        {/* Header */}
-        <div className={styles.modalHeader}>
-          <h2>Delete Account</h2>
-          <p>
-            Are you sure you want to 
-            delete this account?
-          </p>
-        </div>
 
-        {/* Body */}
-        <div className={styles.modalBody}>
-          {/* Buttons */}
-          <div className={styles.actions}>
-            <AuthButton outline text="Cancel" onClick={handleCancelDelete} />
-            <button className={styles.confirmDeleteBtn} onClick={handleConfirmDelete}>
-              Delete
-            </button>
-            
+      {showDeleteModal && accountToDelete && (
+        <div className={styles.mt5AccountWrapper}>
+          <div className={styles.modal}>
+            {/* Header */}
+            <div className={styles.modalHeader}>
+              <h2>Delete Account</h2>
+              <p>Are you sure you want to delete this account?</p>
+            </div>
+
+            {/* Body */}
+            <div className={styles.modalBody}>
+              {/* Buttons */}
+              <div className={styles.actions}>
+                <AuthButton
+                  outline
+                  text="Cancel"
+                  onClick={handleCancelDelete}
+                />
+                <button
+                  className={styles.confirmDeleteBtn}
+                  onClick={handleConfirmDelete}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
       )}
     </>
   );

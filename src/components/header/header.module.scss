@@ -36,6 +36,164 @@
       height: 38px;
     }
 
+    .accountSelectorWrapper {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .accountSelector {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      .accountLabel {
+        color: #fafafa;
+        font-size: 16px;
+        font-weight: 500;
+      }
+
+      .relativeContainer {
+        position: relative;
+      }
+
+      .accountDropdown {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 8px 16px;
+        cursor: pointer;
+        transition: background 0.2s ease;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.1);
+        }
+
+        .brokerIcon {
+          width: 24px;
+          height: 24px;
+          object-fit: contain;
+          border-radius: 50%;
+        }
+
+        .accountIdText {
+          color: #fafafa;
+          font-size: 16px;
+          font-weight: 500;
+        }
+
+        .dropdownIcon {
+          width: 12px;
+          height: 12px;
+          transition: transform 0.2s ease;
+
+          &.rotated {
+            transform: rotate(180deg);
+          }
+        }
+      }
+
+      .dropdownMenuList {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        min-width: 100%;
+        margin-top: 8px;
+        background: #0f1c1c;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        z-index: 100;
+      }
+
+      .dropdownMenuItem {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 16px;
+        cursor: pointer;
+        transition: background 0.2s ease;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.1);
+        }
+
+        .brokerIcon {
+          width: 24px;
+          height: 24px;
+          object-fit: contain;
+          border-radius: 50%;
+        }
+
+        .accountIdText {
+          color: #fafafa;
+          font-size: 16px;
+          font-weight: 500;
+        }
+      }
+    }
+
+    .addMt5Btn {
+      background: #02df82;
+      border: none;
+      border-radius: 8px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: opacity 0.2s ease;
+      padding: 0 16px;
+      gap: 8px;
+
+      &:hover {
+        opacity: 0.8;
+      }
+
+      img {
+        width: 18px;
+        height: 18px;
+        filter: brightness(0) saturate(100%);
+      }
+
+      .addMt5Text {
+        color: #000;
+        font-size: 14px;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+    }
+
+    // Green + button shown next to account dropdown
+    .plusBtn {
+      width: 44px;
+      height: 44px;
+      background: #02df82;
+      border: none;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: opacity 0.2s ease;
+
+      &:hover {
+        opacity: 0.85;
+      }
+
+      img {
+        width: 20px;
+        height: 20px;
+        filter: brightness(0) saturate(100%); // make icon black on green bg
+      }
+    }
+
     button {
       padding: 12px 20px;
     }

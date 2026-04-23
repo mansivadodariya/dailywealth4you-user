@@ -1,13 +1,11 @@
 import Header from '@/components/header';
 import KycGuard from '@/components/kycGuard';
 
-
 import Sidebar from '@/components/sidebar';
 import React from 'react';
 
 export default function layout({ children }) {
   return (
-
     <KycGuard>
       <div className="user-layout">
         <div className="user-layout-sidebar">
@@ -19,6 +17,5 @@ export default function layout({ children }) {
         </div>
       </div>
     </KycGuard>
-
   );
 }

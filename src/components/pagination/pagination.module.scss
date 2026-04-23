@@ -1,0 +1,113 @@
+@use '../../scss/main.scss' as *;
+@use '../../scss/breakpoints/breakpoints.scss' as *;
+
+.paginationWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 32px;
+  padding-top: 16px;
+
+  .left {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: transparent;
+    border: none;
+    color: #fafafa;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: color 0.2s ease;
+
+    &:hover:not(:disabled) {
+      color: #02df82;
+    }
+
+    &:disabled {
+      color: #3a3a3a;
+      cursor: not-allowed;
+    }
+  }
+
+  .page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: transparent;
+    border: none;
+    color: #8e8e8e;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    font-family: var(--font-manrope);
+
+    &:hover {
+      color: #fafafa;
+    }
+
+    &.active {
+      background: #02df82;
+      color: #030f0f;
+      font-weight: 700;
+    }
+  }
+
+  .dots {
+    color: #8e8e8e;
+    font-size: 14px;
+    padding: 0 4px;
+    user-select: none;
+  }
+
+  .goTo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    .goToLabel {
+      color: #8e8e8e;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: var(--font-manrope);
+    }
+
+    .goToInput {
+      width: 48px;
+      height: 32px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 6px;
+      color: #fafafa;
+      font-size: 14px;
+      font-family: var(--font-manrope);
+      text-align: center;
+      outline: none;
+      transition: border-color 0.2s ease;
+
+      /* Hide number input arrows */
+      &::-webkit-outer-spin-button,
+      &::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+      -moz-appearance: textfield;
+
+      &:focus {
+        border-color: #02df82;
+      }
+    }
+  }
+}

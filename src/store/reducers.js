@@ -17,13 +17,20 @@ import accountReducer, {
   clearAccountState,
   fetchBrokers,
   fetchTradingAccounts,
+  fetchTutorials,
 } from '@/store/slice/accountSlice';
+import ibUserReducer, {
+  applyIbRequest,
+  clearIbUserState,
+  fetchIbProfitSharing,
+} from '@/store/slice/ibUserSlice';
 
 const reducer = combineReducers({
   signup: signupReducer,
   login: loginReducer,
   otp: otpReducer,
   account: accountReducer,
+  ibUser: ibUserReducer,
 });
 
 export {
@@ -39,6 +46,10 @@ export {
   clearOtpState,
   fetchBrokers,
   fetchTradingAccounts,
+  fetchTutorials,
   clearAccountState,
+  applyIbRequest,
+  clearIbUserState,
+  fetchIbProfitSharing,
 };
 export default reducer;

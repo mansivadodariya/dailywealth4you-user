@@ -189,7 +189,6 @@
   }
 }
 
-
 .mt5AccountWrapper {
   position: fixed;
   top: 0;
@@ -247,7 +246,7 @@
           min-width: 140px;
         }
       }
-    } 
+    }
     .confirmDeleteBtn {
       background-color: #ff4444 !important;
       color: #fff !important;
@@ -259,11 +258,10 @@
       cursor: pointer !important;
       transition: all 0.2s ease !important;
       width: 100% !important;
-      
+
       &:hover {
         background-color: #ff3333 !important;
       }
     }
   }
 }
-

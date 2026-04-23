@@ -23,7 +23,7 @@
   }
 }
 
-// Outer wrapper — column container, not the card itself
+// Outer wrapper — not a card, just a column container
 .item {
   display: flex;
   flex-direction: column;
@@ -33,19 +33,18 @@
   &:hover .card {
     transform: translateY(-3px);
   }
-
-  &:hover .playOverlay {
-    opacity: 1;
-  }
 }
 
-// The bordered box — thumbnail only
+// The bordered box — logo only
 .card {
   background: rgba(255, 255, 255, 0.04);
   border-radius: 12px;
   position: relative;
   transition: transform 0.25s ease;
   aspect-ratio: 16 / 9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   overflow: hidden;
 
   &::before {
@@ -68,41 +67,25 @@
     z-index: 1;
   }
 
-  .thumbnail {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
+  .brokerLogo {
+    max-width: 60%;
+    max-height: 60%;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
   }
 
-  .playOverlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.45);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: opacity 0.25s ease;
-    z-index: 2;
-
-    .playIcon {
-      width: 44px;
-      height: 44px;
-      background: rgba(2, 223, 130, 0.9);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #030f0f;
-      font-size: 16px;
-      padding-left: 3px;
-    }
+  .logoFallback {
+    display: none;
+    color: #fafafa;
+    font-size: 28px;
+    font-weight: 700;
+    font-family: var(--font-red-hat-display);
+    letter-spacing: -0.5px;
   }
 }
 
 // Text sits outside the card box
-.title {
+.description {
   color: #fafafa;
   font-size: 13px;
   font-weight: 400;
@@ -169,7 +152,6 @@
   }
 }
 
-.errorText,
 .emptyText {
   color: #8e8e8e;
   text-align: center;

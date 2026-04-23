@@ -13,27 +13,36 @@ const DownIcon = '/assets/icons/down.svg';
 const RightIcon = '/assets/icons/right.svg';
 const RightWhiteIcon = '/assets/icons/right-white.svg';
 
-export default function Mt5Account() {
+export default function Mt5Account({ onClose, preSelectedBroker = null }) {
   const dispatch = useDispatch();
   const { brokers, loading, error } = useSelector((state) => state?.account);
-  console.log('Brokers:', brokers);
 
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
+  const [page] = useState(1);
+  const [limit] = useState(10);
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedBroker, setSelectedBroker] = useState(null);
+  const [selectedBroker, setSelectedBroker] = useState(preSelectedBroker);
   const dropdownRef = useRef(null);
-  const [openExitingAccount, setOpenExitingAccount] = useState(false);
-  const [existingBrokerId, setExistingBrokerId] = useState(null);
+  const [openExistingAccount, setOpenExistingAccount] = useState(false);
+  const [existingBrokerId, setExistingBrokerId] = useState(
+    preSelectedBroker?.id || null
+  );
 
   useEffect(() => {
     dispatch(fetchBrokers({ page, limit }));
   }, [dispatch, page, limit]);
 
+  // If a broker was pre-selected (from Recommended Brokers page), honour it
+  useEffect(() => {
+    if (preSelectedBroker) {
+      setSelectedBroker(preSelectedBroker);
+      setExistingBrokerId(preSelectedBroker?.id);
+    }
+  }, [preSelectedBroker]);
+
   const toggleDropdown = () => setIsOpen(!isOpen);
 
   const handleSelect = (broker) => {
-    setSelectedBroker(broker); // pura object store karo
+    setSelectedBroker(broker);
     setIsOpen(false);
   };
 
@@ -43,28 +52,29 @@ export default function Mt5Account() {
         setIsOpen(false);
       }
     };
-
     if (isOpen) {
       document.addEventListener('mousedown', handleClickOutside);
     } else {
       document.removeEventListener('mousedown', handleClickOutside);
     }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isOpen]);
 
   const handleContinue = () => {
     if (!selectedBroker) {
-      return alert('Please select a broker');
+      return toast.error('Please select a broker');
     }
-
     if (selectedBroker.redirectURL) {
       window.open(selectedBroker.redirectURL, '_blank');
     } else {
       alert('Redirect URL not available');
     }
+  };
+
+  // Called when UseExisting successfully creates/saves — close everything
+  const handleUseExistingClose = () => {
+    setOpenExistingAccount(false);
+    if (onClose) onClose();
   };
 
   return (
@@ -102,7 +112,7 @@ export default function Mt5Account() {
                     exit={{ opacity: 0, scale: 0.95, y: -10 }}
                     transition={{ duration: 0.2 }}
                   >
-                    {brokers?.map((broker, index) => (
+                    {brokers?.map((broker) => (
                       <div
                         key={broker?.id}
                         className={styles.dropdownItem}
@@ -114,7 +124,7 @@ export default function Mt5Account() {
                             alt={broker?.name}
                             onError={(e) => {
                               e.target.onerror = null;
-                              e.target.src = '/assets/icons/user.svg'; // Fallback to user icon
+                              e.target.src = '/assets/icons/user.svg';
                             }}
                           />
                         </div>
@@ -130,7 +140,9 @@ export default function Mt5Account() {
                 )}
               </AnimatePresence>
             </div>
+
             {error && <p className={styles.error}>Error: {error}</p>}
+
             <div className={styles.buttonSpacing}>
               <AuthButton
                 text="Continue"
@@ -138,11 +150,13 @@ export default function Mt5Account() {
                 onClick={handleContinue}
               />
             </div>
+
             <div className={styles.ortext}>
               <div className={styles.line}></div>
               <span>Or</span>
               <div className={styles.line}></div>
             </div>
+
             <AuthButton
               outline
               text="Use Existing MT5 Account"
@@ -153,16 +167,17 @@ export default function Mt5Account() {
                   return;
                 }
                 setExistingBrokerId(selectedBroker.id);
-                setOpenExitingAccount(true);
+                setOpenExistingAccount(true);
               }}
             />
           </div>
         </div>
       </div>
-      {openExitingAccount && (
+
+      {openExistingAccount && (
         <UseExisting
           brokerId={existingBrokerId}
-          onClose={() => setOpenExitingAccount(false)}
+          onClose={handleUseExistingClose}
         />
       )}
     </>

@@ -9,6 +9,7 @@ import {
   CREATE_CONTACT_US,
   UPLOAD_USER_DOCUMENT,
   UPLOAD_IMAGE,
+  GET_ALL_TUTORIALS,
 } from '@/service/url';
 import { getUserFromCookie } from '@/service/cookies';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
@@ -65,7 +66,10 @@ export const updateTradingAccount = createAsyncThunk(
   async (payload, thunkApi) => {
     try {
       const { id, ...body } = payload;
-      const response = await api.put(`${UPDATE_TRADING_ACCOUNT}?id=${id}`, body);
+      const response = await api.put(
+        `${UPDATE_TRADING_ACCOUNT}?id=${id}`,
+        body
+      );
       toast.success('Trading account updated successfully.');
       return response;
     } catch (error) {
@@ -83,7 +87,9 @@ export const deleteTradingAccount = createAsyncThunk(
       toast.success('Trading account deleted successfully.');
       return { id, response };
     } catch (error) {
-      toast.error(error?.response?.data?.message || 'Failed to delete trading account.');
+      toast.error(
+        error?.response?.data?.message || 'Failed to delete trading account.'
+      );
       return thunkApi.rejectWithValue(error);
     }
   }
@@ -121,7 +127,7 @@ export const uploadUserDocument = createAsyncThunk(
   async (payload, thunkApi) => {
     try {
       const response = await api.post(UPLOAD_USER_DOCUMENT, payload);
-    //   toast.success('Document uploaded successfully.');
+      //   toast.success('Document uploaded successfully.');
       return response;
     } catch (error) {
       return thunkApi.rejectWithValue(error);
@@ -144,12 +150,31 @@ export const uploadImage = createAsyncThunk(
   }
 );
 
+export const fetchTutorials = createAsyncThunk(
+  'account/fetchTutorials',
+  async ({ page = 1, limit = 12 } = {}, thunkApi) => {
+    try {
+      const response = await api.get(
+        `${GET_ALL_TUTORIALS}?page=${page}&limit=${limit}`
+      );
+      return response;
+    } catch (error) {
+      toast.error(error);
+      return thunkApi.rejectWithValue(error);
+    }
+  }
+);
+
 const accountSlice = createSlice({
   name: 'account',
   initialState: {
     brokers: [],
     tradingAccounts: [],
     faqs: [],
+    tutorials: [],
+    tutorialsLoading: false,
+    tutorialsError: null,
+    tutorialsTotalPages: 1,
     loading: false,
     tradingAccountsLoading: false,
     faqsLoading: false,
@@ -213,7 +238,9 @@ const accountSlice = createSlice({
       .addCase(updateTradingAccount.fulfilled, (state, action) => {
         state.loading = false;
         const updatedAccount =
-          action?.payload?.payload?.data || action?.payload?.data || action?.payload;
+          action?.payload?.payload?.data ||
+          action?.payload?.data ||
+          action?.payload;
         if (updatedAccount) {
           state.tradingAccounts = state.tradingAccounts.map((account) =>
             account?.id === updatedAccount?.id ? updatedAccount : account
@@ -273,6 +300,26 @@ const accountSlice = createSlice({
       .addCase(uploadUserDocument.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+      .addCase(fetchTutorials.pending, (state) => {
+        state.tutorialsLoading = true;
+        state.tutorialsError = null;
+      })
+      .addCase(fetchTutorials.fulfilled, (state, action) => {
+        // debugger
+        state.tutorialsLoading = false;
+
+        state.tutorials =
+          action?.payload?.payload?.data ||
+          action?.payload?.data ||
+          action?.payload ||
+          [];
+        // state.tutorialsTotalPages =
+        //   payload?.totalPages || payload?.pagination?.totalPages || 1;
+      })
+      .addCase(fetchTutorials.rejected, (state, action) => {
+        state.tutorialsLoading = false;
+        state.tutorialsError = action.payload;
       });
   },
 });

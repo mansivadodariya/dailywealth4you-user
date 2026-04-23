@@ -1,10 +1,10 @@
-import Tutorials from '@/renderning/(user)/tutorials';
+import IntroducingBroker from '@/renderning/(user)/introducing-broker';
 import React from 'react';
 
 export default function page() {
   return (
     <div>
-      <Tutorials />
+      <IntroducingBroker />
     </div>
   );
 }

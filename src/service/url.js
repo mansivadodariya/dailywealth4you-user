@@ -14,3 +14,6 @@ export const GET_ALL_FAQ = '/faq/getAll';
 export const CREATE_CONTACT_US = '/contactUs/create';
 export const UPLOAD_USER_DOCUMENT = '/userDocument/uploadUserDocument';
 export const UPLOAD_IMAGE = '/user/upload-image';
+export const APPLY_IB_REQUEST = '/ibUser/applyIbRequest';
+export const GET_IB_PROFIT_SHARING = '/ibUser/getIbProfitSharing';
+export const GET_ALL_TUTORIALS = '/tutorial/getAll';

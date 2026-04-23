@@ -25,8 +25,7 @@
   gap: 16px;
   width: 100%;
   max-width: 900px;
-    align-items: start; // 🔥 FIX for wrong expansion
-
+  align-items: start; // 🔥 FIX for wrong expansion
 }
 
 .faqItem {
@@ -117,7 +116,7 @@
   opacity: 0;
   transform: translateY(-5px);
 
-  transition: 
+  transition:
     max-height 0.4s ease,
     opacity 0.3s ease,
     transform 0.3s ease;

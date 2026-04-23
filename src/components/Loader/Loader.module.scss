@@ -1,0 +1,370 @@
+@use '../../scss/main.scss' as *;
+@use '../../scss/breakpoints/breakpoints.scss' as *;
+
+.loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+
+  &.fullScreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(3, 15, 15, 0.8);
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+  }
+
+  .loaderText {
+    color: #8e8e8e;
+    font-size: 14px;
+    font-weight: 500;
+    margin: 0;
+    text-align: center;
+  }
+
+  // Size variants
+  &.small {
+    .spinner {
+      width: 24px;
+      height: 24px;
+    }
+
+    .dots {
+      .dot {
+        width: 6px;
+        height: 6px;
+      }
+    }
+
+    .pulse {
+      width: 32px;
+      height: 32px;
+    }
+
+    .bars {
+      .bar {
+        width: 3px;
+        height: 16px;
+      }
+    }
+
+    .loaderText {
+      font-size: 12px;
+    }
+  }
+
+  &.medium {
+    .spinner {
+      width: 40px;
+      height: 40px;
+    }
+
+    .dots {
+      .dot {
+        width: 8px;
+        height: 8px;
+      }
+    }
+
+    .pulse {
+      width: 48px;
+      height: 48px;
+    }
+
+    .bars {
+      .bar {
+        width: 4px;
+        height: 24px;
+      }
+    }
+  }
+
+  &.large {
+    .spinner {
+      width: 56px;
+      height: 56px;
+    }
+
+    .dots {
+      .dot {
+        width: 12px;
+        height: 12px;
+      }
+    }
+
+    .pulse {
+      width: 64px;
+      height: 64px;
+    }
+
+    .bars {
+      .bar {
+        width: 6px;
+        height: 32px;
+      }
+    }
+
+    .loaderText {
+      font-size: 16px;
+    }
+  }
+
+  // Color variants
+  &.primary {
+    .spinnerCircle {
+      border-color: #007bff;
+      border-top-color: transparent;
+    }
+
+    .dot {
+      background: #007bff;
+    }
+
+    .pulseCircle {
+      background: #007bff;
+    }
+
+    .bar {
+      background: #007bff;
+    }
+  }
+
+  &.secondary {
+    .spinnerCircle {
+      border-color: #6c757d;
+      border-top-color: transparent;
+    }
+
+    .dot {
+      background: #6c757d;
+    }
+
+    .pulseCircle {
+      background: #6c757d;
+    }
+
+    .bar {
+      background: #6c757d;
+    }
+  }
+
+  &.success {
+    .spinnerCircle {
+      border-color: #28a745;
+      border-top-color: transparent;
+    }
+
+    .dot {
+      background: #28a745;
+    }
+
+    .pulseCircle {
+      background: #28a745;
+    }
+
+    .bar {
+      background: #28a745;
+    }
+  }
+
+  &.warning {
+    .spinnerCircle {
+      border-color: #ffc107;
+      border-top-color: transparent;
+    }
+
+    .dot {
+      background: #ffc107;
+    }
+
+    .pulseCircle {
+      background: #ffc107;
+    }
+
+    .bar {
+      background: #ffc107;
+    }
+  }
+
+  &.danger {
+    .spinnerCircle {
+      border-color: #dc3545;
+      border-top-color: transparent;
+    }
+
+    .dot {
+      background: #dc3545;
+    }
+
+    .pulseCircle {
+      background: #dc3545;
+    }
+
+    .bar {
+      background: #dc3545;
+    }
+  }
+
+  &.light {
+    .spinnerCircle {
+      border-color: #fafafa;
+      border-top-color: transparent;
+    }
+
+    .dot {
+      background: #fafafa;
+    }
+
+    .pulseCircle {
+      background: #fafafa;
+    }
+
+    .bar {
+      background: #fafafa;
+    }
+
+    .loaderText {
+      color: #fafafa;
+    }
+  }
+
+  // Spinner variant
+  .spinner {
+    position: relative;
+    display: inline-block;
+
+    .spinnerCircle {
+      position: absolute;
+      border: 3px solid transparent;
+      border-radius: 50%;
+      animation: spin 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+
+      &:nth-child(1) {
+        animation-delay: -0.45s;
+      }
+
+      &:nth-child(2) {
+        animation-delay: -0.3s;
+      }
+
+      &:nth-child(3) {
+        animation-delay: -0.15s;
+      }
+    }
+  }
+
+  // Dots variant
+  .dots {
+    display: flex;
+    gap: 8px;
+
+    .dot {
+      border-radius: 50%;
+      animation: dotsAnimation 1.4s ease-in-out infinite both;
+
+      &:nth-child(1) {
+        animation-delay: -0.32s;
+      }
+
+      &:nth-child(2) {
+        animation-delay: -0.16s;
+      }
+
+      &:nth-child(3) {
+        animation-delay: 0;
+      }
+    }
+  }
+
+  // Pulse variant
+  .pulse {
+    position: relative;
+    display: inline-block;
+
+    .pulseCircle {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      animation: pulseAnimation 1.5s ease-in-out infinite;
+    }
+  }
+
+  // Bars variant
+  .bars {
+    display: flex;
+    gap: 4px;
+
+    .bar {
+      border-radius: 2px;
+      animation: barsAnimation 1.2s ease-in-out infinite;
+
+      &:nth-child(1) {
+        animation-delay: -1.1s;
+      }
+
+      &:nth-child(2) {
+        animation-delay: -1s;
+      }
+
+      &:nth-child(3) {
+        animation-delay: -0.9s;
+      }
+
+      &:nth-child(4) {
+        animation-delay: -0.8s;
+      }
+    }
+  }
+}
+
+// Animations
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(360deg);
+    opacity: 1;
+  }
+}
+
+@keyframes dotsAnimation {
+  0%,
+  80%,
+  100% {
+    transform: scale(0);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes pulseAnimation {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes barsAnimation {
+  0%,
+  40%,
+  100% {
+    transform: scaleY(0.4);
+  }
+  20% {
+    transform: scaleY(1);
+  }
+}

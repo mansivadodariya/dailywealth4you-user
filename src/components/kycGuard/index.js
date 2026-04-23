@@ -13,9 +13,7 @@ export default function KycGuard({ children }) {
     setMounted(true);
   }, []);
 
-
   if (!mounted) return null;
-
 
   if (!user) {
     return <div style={{ color: '#fff' }}>Loading...</div>;

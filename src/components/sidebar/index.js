@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import styles from './sidebar.module.scss';
 import RightIcon from '@/icons/rightIcon';
@@ -30,7 +30,7 @@ const sidebarData = [
     id: 'introducing-broker',
     label: 'Introducing Broker',
     icon: IntoducingIcon,
-    route: '/profit-sharing',
+    route: '/introducing-broker',
   },
   {
     id: 'transactions',
@@ -68,7 +68,7 @@ const sidebarData = [
 export default function Sidebar() {
   const router = useRouter();
   const pathname = usePathname();
-  const [activeTab, setActiveTab] = React.useState('dashboard');
+  const [activeTab, setActiveTab] = useState('dashboard');
 
   // Set active tab based on current route
   useEffect(() => {

@@ -1,10 +1,10 @@
-import Tutorials from '@/renderning/(user)/tutorials';
 import React from 'react';
+import Transactions from '@/renderning/(user)/transactions';
 
 export default function page() {
   return (
     <div>
-      <Tutorials />
+      <Transactions />
     </div>
   );
 }
