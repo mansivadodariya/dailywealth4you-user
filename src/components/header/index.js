@@ -1,18 +1,25 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
 import styles from './header.module.scss';
 import Mt5Account from '../modal/Mt5Account';
+import EditProfile from '../modal/editProfile';
+import ChangePassword from '../modal/changePassword';
 import { fetchTradingAccounts } from '@/store/slice/accountSlice';
-import { getUserFromCookie } from '@/service/cookies';
+import { logout } from '@/store/slice/loginSlice';
+import { getUserFromCookie, clearAuthCookies } from '@/service/cookies';
 import AuthButton from '../authButton';
 
 const BellIcon = '/assets/icons/bell.svg';
-const UserIcon = '/assets/icons/user.svg';
+const UserIcon = '/assets/icons/userIcon.svg';
+const moneyIcon = '/assets/icons/money.svg';
 const PlusIcon = '/assets/icons/plus.svg';
 const DownIcon = '/assets/icons/down.svg';
+const EditIcon = '/assets/icons/editFile.svg';
+const LockIcon = '/assets/icons/LookIcon.svg';
+const LogoutIcon = '/assets/icons/logout.svg';
 
 const routeTitles = {
   '/dashboard': 'Dashboard',
@@ -31,10 +38,8 @@ const routeTitles = {
 function getTitleFromPath(pathname) {
   if (!pathname) return 'Dashboard';
   if (routeTitles[pathname]) return routeTitles[pathname];
-
   const parts = pathname.split('/').filter(Boolean);
   if (!parts.length) return 'Dashboard';
-
   return parts[parts.length - 1]
     .replace(/-/g, ' ')
     .replace(/\b\w/g, (char) => char.toUpperCase());
@@ -42,46 +47,76 @@ function getTitleFromPath(pathname) {
 
 export default function Header() {
   const [isMt5ModalOpen, setIsMt5ModalOpen] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isAccountDropdownOpen, setIsAccountDropdownOpen] = useState(false);
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [selectedAccountId, setSelectedAccountId] = useState(null);
+  const [showEditProfile, setShowEditProfile] = useState(false);
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [activeAccountBreadcrumb, setActiveAccountBreadcrumb] = useState(null);
 
   const pathname = usePathname();
-  const pageTitle = getTitleFromPath(pathname);
-  const dropdownRef = useRef(null);
+  const router = useRouter();
+  const accountDropdownRef = useRef(null);
+  const profileMenuRef = useRef(null);
 
   const dispatch = useDispatch();
   const { tradingAccounts } = useSelector((state) => state.account);
+  const { user } = useSelector((state) => state.login);
   const isDashboard = pathname === '/dashboard' || pathname === '/';
+  const isAccountsPage = pathname === '/accounts';
+
+  const cookieUser = getUserFromCookie();
+  const currentUser = user || cookieUser;
+  const fullName =
+    `${currentUser?.firstName || ''} ${currentUser?.lastName || ''}`.trim() ||
+    'User';
+  const email = currentUser?.email || '';
+  const isKycVerified = currentUser?.isKYCVerified === 'approved';
+
+  // Listen for account selection events from the Accounts page
+  useEffect(() => {
+    const handler = (e) =>
+      setActiveAccountBreadcrumb(e.detail?.accountId || null);
+    window.addEventListener('accountSelected', handler);
+    return () => window.removeEventListener('accountSelected', handler);
+  }, []);
+
+  // Reset breadcrumb when leaving accounts page
+  useEffect(() => {
+    if (!isAccountsPage) setActiveAccountBreadcrumb(null);
+  }, [isAccountsPage]);
 
   useEffect(() => {
     const user = getUserFromCookie();
-    if (user?.id) {
-      dispatch(fetchTradingAccounts(user.id));
-    }
+    if (user?.id) dispatch(fetchTradingAccounts(user.id));
   }, [dispatch]);
 
+  // Close dropdowns on outside click
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsDropdownOpen(false);
+    const handleClickOutside = (e) => {
+      if (
+        accountDropdownRef.current &&
+        !accountDropdownRef.current.contains(e.target)
+      ) {
+        setIsAccountDropdownOpen(false);
+      }
+      if (
+        profileMenuRef.current &&
+        !profileMenuRef.current.contains(e.target)
+      ) {
+        setIsProfileMenuOpen(false);
       }
     };
-    if (isDropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    } else {
-      document.removeEventListener('mousedown', handleClickOutside);
-    }
+    document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isDropdownOpen]);
+  }, []);
 
   useEffect(() => {
-    if (tradingAccounts && tradingAccounts.length > 0) {
+    if (tradingAccounts?.length > 0) {
       const exists = tradingAccounts.find(
         (acc) => acc?.id === selectedAccountId
       );
-      if (!exists) {
-        setSelectedAccountId(tradingAccounts[0]?.id);
-      }
+      if (!exists) setSelectedAccountId(tradingAccounts[0]?.id);
     }
   }, [tradingAccounts, selectedAccountId]);
 
@@ -89,29 +124,44 @@ export default function Header() {
     tradingAccounts?.find((acc) => acc?.id === selectedAccountId) ||
     tradingAccounts?.[0];
   const accountIdStr = activeAccount?.accountId || 'No Account';
-  const brokerLogo = activeAccount?.broker?.logo || '/assets/icons/user.svg';
+  const brokerLogo = activeAccount?.broker?.logo || moneyIcon;
 
   const handleSelectAccount = (account) => {
     setSelectedAccountId(account?.id);
-    setIsDropdownOpen(false);
+    setIsAccountDropdownOpen(false);
   };
 
   const handleMt5ModalClose = () => {
     setIsMt5ModalOpen(false);
-    // Refetch accounts after modal closes (in case new account was added)
-    const user = getUserFromCookie();
-    if (user?.id) {
-      dispatch(fetchTradingAccounts(user.id));
-    }
+    const u = getUserFromCookie();
+    if (u?.id) dispatch(fetchTradingAccounts(u.id));
+  };
+
+  const handleLogout = () => {
+    dispatch(logout());
+    clearAuthCookies();
+    router.push('/');
   };
 
   return (
     <>
       <header className={styles.header}>
-        <h2>{pageTitle}</h2>
+        <div className={styles.titleArea}>
+          {isAccountsPage && activeAccountBreadcrumb ? (
+            <h2>
+              <span className={styles.breadcrumbBase}>Accounts</span>
+              <span className={styles.breadcrumbSep}> › </span>
+              <span className={styles.breadcrumbActive}>
+                {activeAccountBreadcrumb}
+              </span>
+            </h2>
+          ) : (
+            <h2>{getTitleFromPath(pathname)}</h2>
+          )}
+        </div>
         <div className={styles.rightAlignment}>
-          <img src={BellIcon} alt="BellIcon" />
-          <div className={styles.line}></div>
+          <img src={BellIcon} alt="Notifications" />
+          <div className={styles.line} />
 
           {isDashboard && (
             <>
@@ -119,10 +169,15 @@ export default function Header() {
                 <div className={styles.accountSelectorWrapper}>
                   <div className={styles.accountSelector}>
                     <span className={styles.accountLabel}>Account:</span>
-                    <div className={styles.relativeContainer} ref={dropdownRef}>
+                    <div
+                      className={styles.relativeContainer}
+                      ref={accountDropdownRef}
+                    >
                       <div
                         className={styles.accountDropdown}
-                        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                        onClick={() =>
+                          setIsAccountDropdownOpen(!isAccountDropdownOpen)
+                        }
                       >
                         <img
                           src={brokerLogo}
@@ -130,7 +185,7 @@ export default function Header() {
                           className={styles.brokerIcon}
                           onError={(e) => {
                             e.target.onerror = null;
-                            e.target.src = '/assets/icons/user.svg';
+                            e.target.src = UserIcon;
                           }}
                         />
                         <span className={styles.accountIdText}>
@@ -139,52 +194,38 @@ export default function Header() {
                         <img
                           src={DownIcon}
                           alt="Down"
-                          className={`${styles.dropdownIcon} ${isDropdownOpen ? styles.rotated : ''}`}
+                          className={`${styles.dropdownIcon} ${isAccountDropdownOpen ? styles.rotated : ''}`}
                         />
                       </div>
 
-                      {isDropdownOpen &&
-                        tradingAccounts &&
-                        tradingAccounts.length > 0 && (
-                          <div className={styles.dropdownMenuList}>
-                            {tradingAccounts?.map((account) => (
-                              <div
-                                key={account?.id}
-                                className={styles.dropdownMenuItem}
-                                onClick={() => handleSelectAccount(account)}
-                              >
-                                <img
-                                  src={
-                                    account?.broker?.logo ||
-                                    '/assets/icons/user.svg'
-                                  }
-                                  alt="Broker"
-                                  className={styles.brokerIcon}
-                                  onError={(e) => {
-                                    e.target.onerror = null;
-                                    e.target.src = '/assets/icons/user.svg';
-                                  }}
-                                />
-                                <span className={styles.accountIdText}>
-                                  {account?.accountId}
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
+                      {isAccountDropdownOpen && tradingAccounts?.length > 0 && (
+                        <div className={styles.dropdownMenuList}>
+                          {tradingAccounts.map((account) => (
+                            <div
+                              key={account?.id}
+                              className={styles.dropdownMenuItem}
+                              onClick={() => handleSelectAccount(account)}
+                            >
+                              <img
+                                src={account?.broker?.logo || UserIcon}
+                                alt="Broker"
+                                className={styles.brokerIcon}
+                                onError={(e) => {
+                                  e.target.onerror = null;
+                                  e.target.src = UserIcon;
+                                }}
+                              />
+                              <span className={styles.accountIdText}>
+                                {account?.accountId}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
 
-                  {/* Plus button next to account dropdown */}
-                  {/* <button
-                    className={styles.plusBtn}
-                    onClick={() => setIsMt5ModalOpen(true)}
-                    aria-label="Add MT5 Account"
-                  >
-                    <img src={PlusIcon} alt="Add"  width={200} />
-                  </button> */}
                   <AuthButton
-                    // text="Add MT5 Account"
                     icon={PlusIcon}
                     onClick={() => setIsMt5ModalOpen(true)}
                   />
@@ -199,11 +240,118 @@ export default function Header() {
             </>
           )}
 
-          <img src={UserIcon} alt="UserIcon" />
+          {/* Profile icon + dropdown */}
+          <div className={styles.profileContainer} ref={profileMenuRef}>
+            <div
+              // className={styles.profileIcon}
+              onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+            >
+              <img src={UserIcon} alt="Profile" />
+            </div>
+
+            {isProfileMenuOpen && (
+              <div className={styles.profileMenu}>
+                {/* User info */}
+                <div className={styles.profileMenuHeader}>
+                  <div className={styles.profileMenuInfo}>
+                    <span className={styles.profileMenuName}>{fullName}</span>
+                    <span className={styles.profileMenuEmail}>{email}</span>
+                  </div>
+                  {isKycVerified && (
+                    <span className={styles.kycBadge}>KYC Verified</span>
+                  )}
+                </div>
+
+                <div className={styles.profileMenuDivider} />
+
+                {/* Menu items */}
+                <div
+                  className={styles.profileMenuItem}
+                  onClick={() => {
+                    setShowEditProfile(true);
+                    setIsProfileMenuOpen(false);
+                  }}
+                >
+                  <img
+                    src={EditIcon}
+                    alt=""
+                    className={styles.menuItemIcon}
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                    }}
+                  />
+                  <span>Edit Profile</span>
+                  <img
+                    src={DownIcon}
+                    alt=""
+                    className={styles.menuItemArrow}
+                    style={{ transform: 'rotate(-90deg)' }}
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                    }}
+                  />
+                </div>
+
+                <div
+                  className={styles.profileMenuItem}
+                  onClick={() => {
+                    setShowChangePassword(true);
+                    setIsProfileMenuOpen(false);
+                  }}
+                >
+                  <img
+                    src={LockIcon}
+                    alt=""
+                    className={styles.menuItemIcon}
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                    }}
+                  />
+                  <span>Change Password</span>
+                  <img
+                    src={DownIcon}
+                    alt=""
+                    className={styles.menuItemArrow}
+                    style={{ transform: 'rotate(-90deg)' }}
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                    }}
+                  />
+                </div>
+
+                <div className={styles.profileMenuItem} onClick={handleLogout}>
+                  <img
+                    src={LogoutIcon}
+                    alt=""
+                    className={styles.menuItemIcon}
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                    }}
+                  />
+                  <span>Logout</span>
+                  <img
+                    src={DownIcon}
+                    alt=""
+                    className={styles.menuItemArrow}
+                    style={{ transform: 'rotate(-90deg)' }}
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </header>
 
       {isMt5ModalOpen && <Mt5Account onClose={handleMt5ModalClose} />}
+      {showEditProfile && (
+        <EditProfile onClose={() => setShowEditProfile(false)} />
+      )}
+      {showChangePassword && (
+        <ChangePassword onClose={() => setShowChangePassword(false)} />
+      )}
     </>
   );
 }

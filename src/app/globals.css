@@ -48,4 +48,6 @@ p {
 
 .user-layout-children-content {
   padding: 14px;
+  position: relative;
+  min-height: calc(100dvh - 60px); /* ensures loader has height to fill */
 }

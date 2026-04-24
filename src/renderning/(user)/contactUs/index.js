@@ -12,7 +12,7 @@ export default function ContactUs() {
   const dispatch = useDispatch();
   // const { userdetails } = useSelector((state) => state?.signup);
   const { user } = useSelector((state) => state?.login);
-  console.log(user);
+
   const { loading } = useSelector((state) => state.account);
 
   const [formData, setFormData] = useState({

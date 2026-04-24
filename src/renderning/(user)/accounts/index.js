@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-
 import styles from './accounts.module.scss';
 import EditIcon from '@/icons/editIcon';
 import DeleteIcon from '@/icons/deleteIcon';
@@ -12,16 +11,23 @@ import UseExisting from '@/components/modal/useExisting';
 import {
   deleteTradingAccount,
   fetchTradingAccounts,
+  fetchAccountHistory,
 } from '@/store/slice/accountSlice';
 import AuthButton from '@/components/authButton';
-import RightIcon from '@/icons/rightIcon';
 import Loader from '@/components/Loader';
 
 export default function Accounts() {
   const dispatch = useDispatch();
-  const { tradingAccounts, tradingAccountsLoading, tradingAccountsError } =
-    useSelector((state) => state.account);
+  const {
+    tradingAccounts,
+    tradingAccountsLoading,
+    tradingAccountsError,
+    accountHistory,
+    accountHistoryLoading,
+  } = useSelector((state) => state.account);
 
+  // null = card view, object = history view for that account
+  const [activeAccount, setActiveAccount] = useState(null);
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -33,6 +39,42 @@ export default function Accounts() {
   useEffect(() => {
     dispatch(fetchTradingAccounts(userId));
   }, [dispatch]);
+
+  // Notify header of selected account for breadcrumb
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.__activeAccountId = activeAccount?.accountId || null;
+      window.dispatchEvent(
+        new CustomEvent('accountSelected', {
+          detail: { accountId: activeAccount?.accountId || null },
+        })
+      );
+    }
+  }, [activeAccount]);
+
+  const handleCardClick = (item) => {
+    setActiveAccount(item);
+    const brokerId = item?.broker?.id || item?.brokerId;
+    dispatch(fetchAccountHistory({ userId, brokerId }));
+  };
+
+  const handleBack = () => {
+    setActiveAccount(null);
+  };
+
+  const handleDeleteClick = (e, account) => {
+    e.stopPropagation();
+    setAccountToDelete(account);
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (accountToDelete) {
+      dispatch(deleteTradingAccount(accountToDelete.id));
+      setShowDeleteModal(false);
+      setAccountToDelete(null);
+    }
+  };
 
   if (tradingAccountsLoading) {
     return (
@@ -56,40 +98,120 @@ export default function Accounts() {
     );
   }
 
-  const handleDeleteClick = (account) => {
-    setAccountToDelete(account);
-    setShowDeleteModal(true);
-  };
+  const accountsData = tradingAccounts?.length > 0 ? tradingAccounts : [];
 
-  const handleConfirmDelete = () => {
-    if (accountToDelete) {
-      dispatch(deleteTradingAccount(accountToDelete.id));
-      setShowDeleteModal(false);
-      setAccountToDelete(null);
-    }
-  };
+  // ── History View ──────────────────────────────────────────────────────────
+  if (activeAccount) {
+    return (
+      <>
+        {/* Back button */}
+        <button className={styles.backBtn} onClick={handleBack}>
+          <span className={styles.backArrow}>←</span>
+          Back to Accounts
+        </button>
 
-  const handleCancelDelete = () => {
-    setShowDeleteModal(false);
-    setAccountToDelete(null);
-  };
+        <div className={styles.historyWrapper}>
+          {accountHistoryLoading ? (
+            <Loader
+              variant="dots"
+              size="large"
+              color="success"
+              text="Loading history..."
+            />
+          ) : (
+            <div className={styles.historyTableContainer}>
+              <table className={styles.historyTable}>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Order ID</th>
+                    <th>Symbol</th>
+                    <th>Lots</th>
+                    <th>P&L</th>
+                    <th>Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(!accountHistory || accountHistory.length === 0) && (
+                    <tr>
+                      <td colSpan="6" className={styles.emptyRow}>
+                        No history found for this account.
+                      </td>
+                    </tr>
+                  )}
+                  {accountHistory?.map((trade) => (
+                    <tr key={trade?.id}>
+                      <td>
+                        {trade?.createdAt
+                          ? moment(trade.tradingDate).format(
+                              'DD-MM-YYYY | hh:mm A'
+                            )
+                          : '—'}
+                      </td>
+                      <td>{trade?.orderId || '—'}</td>
+                      <td>
+                        <span className={styles.symbolBadge}>
+                          {trade?.item || '—'}
+                        </span>
+                      </td>
+                      <td>{trade?.volume ?? trade?.lot ?? '—'}</td>
+                      <td>
+                        <span
+                          className={styles.pnlBadge}
+                          style={{
+                            borderColor:
+                              (trade?.profitLoss ?? 0) >= 0
+                                ? '#02df82'
+                                : '#ff4d4d',
+                            background:
+                              (trade?.profitLoss ?? 0) >= 0
+                                ? 'rgba(2,223,130,0.1)'
+                                : 'rgba(255,77,77,0.1)',
+                          }}
+                        >
+                          {(trade?.profitLoss ?? 0) >= 0 ? '+' : ''}$
+                          {trade?.profitLoss ?? '—'}
+                        </span>
+                      </td>
+                      <td>${trade?.amount ?? trade?.commission ?? '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
 
-  const accountsData =
-    tradingAccounts && tradingAccounts.length > 0 ? tradingAccounts : [];
+        {showEditModal && selectedAccount && (
+          <UseExisting
+            isEdit
+            account={selectedAccount}
+            onClose={() => setShowEditModal(false)}
+          />
+        )}
+      </>
+    );
+  }
 
+  // ── Card View ─────────────────────────────────────────────────────────────
   return (
     <>
       <div className={styles.accountsWrapper}>
         <div className={styles.accountsGrid}>
-          {accountsData?.map((item, index) => (
-            <div key={item?.id} className={styles.accountCard}>
+          {accountsData.map((item) => (
+            <div
+              key={item?.id}
+              className={styles.accountCard}
+              onClick={() => handleCardClick(item)}
+            >
               <div className={styles.headerAlignment}>
                 <div className={styles.cardHeader}>
                   <p>Account No: {item?.accountId}</p>
                   <div className={styles.buttonContainer}>
                     <div
                       className={styles.editBtn}
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.stopPropagation();
                         setSelectedAccount(item);
                         setShowEditModal(true);
                       }}
@@ -98,7 +220,7 @@ export default function Accounts() {
                     </div>
                     <div
                       className={styles.deleteBtn}
-                      onClick={() => handleDeleteClick(item)}
+                      onClick={(e) => handleDeleteClick(e, item)}
                     >
                       <DeleteIcon />
                     </div>
@@ -115,7 +237,7 @@ export default function Accounts() {
               <div className={styles.cardDetails}>
                 <div className={styles.detailRow}>
                   <span className={styles.label}>Broker:</span>
-                  <div className={styles.dots}></div>
+                  <div className={styles.dots} />
                   <span className={styles.value}>
                     {typeof item?.broker === 'object'
                       ? item?.broker?.name
@@ -124,39 +246,51 @@ export default function Accounts() {
                 </div>
                 <div className={styles.detailRow}>
                   <span className={styles.label}>Date Added:</span>
-                  <div className={styles.dots}></div>
+                  <div className={styles.dots} />
                   <span className={styles.value}>
                     {item?.createdAt
-                      ? moment(item?.createdAt).format('DD-MM-YYYY | hh:mm A')
+                      ? moment(item.createdAt).format('DD-MM-YYYY | hh:mm A')
                       : '-'}
                   </span>
                 </div>
                 <div className={styles.detailRow}>
                   <span className={styles.label}>P&L:</span>
-                  <div className={styles.dots}></div>
+                  <div className={styles.dots} />
                   <span
                     className={styles.value}
                     style={{
-                      color:
-                        (item?.pnl || '0').toString().startsWith('+') ||
-                        (item?.pnl || 0) >= 0
-                          ? '#02DF82'
-                          : '#FF4D4D',
+                      color: (item?.pnl || 0) >= 0 ? '#02DF82' : '#FF4D4D',
                     }}
                   >
                     {item?.pnl || '0%'}
                   </span>
                 </div>
               </div>
+
+              {/* Arrow hint */}
+              <div className={styles.cardArrow}>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path
+                    d="M3 8H13M13 8L9 4M13 8L9 12"
+                    stroke="#02df82"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                <span>View History</span>
+              </div>
             </div>
           ))}
         </div>
+
         {accountsData.length === 0 && (
           <div style={{ textAlign: 'center', padding: '2rem', color: '#fff' }}>
             <p>No trading accounts found</p>
           </div>
         )}
       </div>
+
       {showEditModal && selectedAccount && (
         <UseExisting
           isEdit
@@ -168,20 +302,19 @@ export default function Accounts() {
       {showDeleteModal && accountToDelete && (
         <div className={styles.mt5AccountWrapper}>
           <div className={styles.modal}>
-            {/* Header */}
             <div className={styles.modalHeader}>
               <h2>Delete Account</h2>
               <p>Are you sure you want to delete this account?</p>
             </div>
-
-            {/* Body */}
             <div className={styles.modalBody}>
-              {/* Buttons */}
               <div className={styles.actions}>
                 <AuthButton
                   outline
                   text="Cancel"
-                  onClick={handleCancelDelete}
+                  onClick={() => {
+                    setShowDeleteModal(false);
+                    setAccountToDelete(null);
+                  }}
                 />
                 <button
                   className={styles.confirmDeleteBtn}

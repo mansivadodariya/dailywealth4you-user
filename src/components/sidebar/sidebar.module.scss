@@ -132,6 +132,102 @@
         }
       }
     }
+
+    // Chevron for IB expand/collapse
+    .chevron {
+      display: flex;
+      align-items: center;
+      transition: transform 0.25s ease;
+      transform: rotate(90deg);
+    }
+
+    .chevronUp {
+      transform: rotate(-90deg);
+    }
+  }
+
+  // Sub-menu container (IB children)
+  .subMenu {
+    padding: 0 15px 8px 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .subMenuItem {
+    position: relative;
+    padding: 9px 10px 9px 28px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    justify-content: space-between;
+    transition: all 0.25s ease;
+
+    &:hover,
+    &.subMenuItemActive {
+      background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.1) 0%,
+        rgba(255, 255, 255, 0) 100%
+      );
+
+      .subMenuLeft span {
+        color: #fff;
+      }
+      .subMenuLeft img {
+        filter: brightness(0) invert(1);
+      }
+      .rightAlignment {
+        color: #fff;
+      }
+    }
+
+    // Vertical + horizontal connector lines
+    .subMenuConnector {
+      position: absolute;
+      left: 10px;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: rgba(255, 255, 255, 0.12);
+
+      &::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        width: 10px;
+        height: 1px;
+        background: rgba(255, 255, 255, 0.12);
+      }
+    }
+
+    .subMenuLeft {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      img {
+        width: 16px;
+        height: 16px;
+        opacity: 0.5;
+        transition: all 0.25s ease;
+      }
+
+      span {
+        color: #8e8e8e;
+        font-size: 13px;
+        font-weight: 600;
+        transition: color 0.25s ease;
+      }
+    }
+
+    .rightAlignment {
+      display: flex;
+      align-items: center;
+      color: #8e8e8e;
+    }
   }
 
   .sidebarFooter {

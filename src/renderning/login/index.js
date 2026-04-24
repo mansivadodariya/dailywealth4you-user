@@ -17,6 +17,7 @@ const EmailIcon = '/assets/icons/email.svg';
 const EyeIcon = '/assets/icons/eye.svg';
 const LockIcon = '/assets/icons/lock.svg';
 const RightIcon = '/assets/icons/right.svg';
+const logo = '/assets/logo/sidebar-logo.svg';
 
 const initialValues = {
   email: '',
@@ -24,8 +25,10 @@ const initialValues = {
 };
 
 const validationSchema = Yup.object({
-  email: Yup.string().email('Invalid email').required('Email is required'),
-  password: Yup.string().required('Password is required'),
+  email: Yup.string()
+    .email('Invalid email')
+    .required('Please enter a valid email'),
+  password: Yup.string().required('Please enter a valid passord'),
 });
 export default function Login() {
   const dispatch = useDispatch();
@@ -51,6 +54,9 @@ export default function Login() {
     <div className={styles.flexbox}>
       <div className={styles.items}>
         <div className={styles.box}>
+          <div className={styles.logo}>
+            <img src={logo} alt="logo" />
+          </div>
           <div className={styles.title}>
             <h1>Sign in to your account</h1>
             <p>Smart portfolio management, simplified.</p>

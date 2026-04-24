@@ -22,6 +22,7 @@ export default function Mt5Account({ onClose, preSelectedBroker = null }) {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedBroker, setSelectedBroker] = useState(preSelectedBroker);
   const dropdownRef = useRef(null);
+  const overlayRef = useRef(null);
   const [openExistingAccount, setOpenExistingAccount] = useState(false);
   const [existingBrokerId, setExistingBrokerId] = useState(
     preSelectedBroker?.id || null
@@ -77,9 +78,20 @@ export default function Mt5Account({ onClose, preSelectedBroker = null }) {
     if (onClose) onClose();
   };
 
+  // Close modal on overlay click
+  const handleOverlayClick = (e) => {
+    if (e.target === overlayRef.current) {
+      if (onClose) onClose();
+    }
+  };
+
   return (
     <>
-      <div className={styles.mt5AccountWrapper}>
+      <div
+        className={styles.mt5AccountWrapper}
+        ref={overlayRef}
+        onClick={handleOverlayClick}
+      >
         <div className={styles.modal}>
           <div className={styles.modalHeader}>
             <h2>Create a new MT5 account</h2>

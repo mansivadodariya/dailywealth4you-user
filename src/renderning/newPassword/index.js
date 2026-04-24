@@ -11,10 +11,12 @@ import { forgotPassword } from '@/store/reducers';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'react-toastify';
 
+import styles from './newPassword.module.scss';
+
 const EyeIcon = '/assets/icons/eye.svg';
 const LockIcon = '/assets/icons/lock.svg';
 const RightIcon = '/assets/icons/right.svg';
-import styles from './newPassword.module.scss';
+const logo = '/assets/logo/logo.svg';
 
 const validationSchema = Yup.object({
   password: Yup.string().required('Password is required'),
@@ -59,6 +61,10 @@ export default function NewPassword() {
     <div className={styles.flexbox}>
       <div className={styles.items}>
         <div className={styles.box}>
+          <div className={styles.logo}>
+            <img src={logo} alt="logo" />
+          </div>
+
           <div className={styles.title}>
             <h1>Create a new password</h1>
             <p>Choose a strong password</p>

@@ -32,8 +32,9 @@ export default function RecommendedBrokers() {
   };
 
   const handleBrokerClick = (broker) => {
-    setSelectedBroker(broker);
-    setShowMt5Modal(true);
+    // setSelectedBroker(broker);
+    // setShowMt5Modal(true);
+    window.open(broker?.redirectURL, '_blank');
   };
 
   if (loading) {
@@ -55,7 +56,7 @@ export default function RecommendedBrokers() {
         <div className={styles.grid}>
           {brokers?.map((broker) => (
             <div
-              key={broker?.id || broker?._id}
+              key={broker?.id}
               className={styles.item}
               onClick={() => handleBrokerClick(broker)}
             >

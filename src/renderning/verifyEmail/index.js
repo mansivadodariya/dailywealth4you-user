@@ -14,6 +14,7 @@ import { toast } from 'react-toastify';
 
 const EmailIcon = '/assets/icons/email.svg';
 const RightIcon = '/assets/icons/right.svg';
+const logo = '/assets/logo/sidebar-logo.svg';
 
 const initialValues = { email: '' };
 
@@ -45,6 +46,9 @@ export default function VerifyEmail() {
     <div className={styles.flexbox}>
       <div className={styles.items}>
         <div className={styles.box}>
+          <div className={styles.logo}>
+            <img src={logo} alt="logo" />
+          </div>
           <div className={styles.title}>
             <h1>Verify your email</h1>
             <p>Please enter your email to receive the verification code</p>

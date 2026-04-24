@@ -12,7 +12,6 @@ export function middleware(request) {
     '/password-successfully',
   ];
 
-  // Define the routes that strictly require authentication
   const protectedRoutes = [
     '/dashboard',
     '/accounts',

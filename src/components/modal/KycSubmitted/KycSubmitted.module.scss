@@ -21,10 +21,11 @@
       0 8px 16px -4px rgba(20, 21, 26, 0.06);
     width: 460px;
     background-color: #030f0f;
+    text-align: center;
 
     .modalHeader {
-      padding: 32px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 24px 32px 32px;
+      // border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 
       h2 {
         color: #fafafa;
@@ -57,6 +58,30 @@
           flex: 1;
           min-width: 140px;
         }
+      }
+    }
+
+    .modalFooter {
+      padding: 0 32px 28px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .backBtn {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+      color: #8e8e8e;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: var(--font-manrope);
+      padding: 10px 24px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &:hover {
+        border-color: rgba(255, 255, 255, 0.3);
+        color: #fafafa;
       }
     }
   }

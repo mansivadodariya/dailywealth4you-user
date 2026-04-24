@@ -16,4 +16,7 @@ export const UPLOAD_USER_DOCUMENT = '/userDocument/uploadUserDocument';
 export const UPLOAD_IMAGE = '/user/upload-image';
 export const APPLY_IB_REQUEST = '/ibUser/applyIbRequest';
 export const GET_IB_PROFIT_SHARING = '/ibUser/getIbProfitSharing';
+export const GET_ALL_IB_USER_REQUEST = '/ibUser/getAllIbUserRequest';
 export const GET_ALL_TUTORIALS = '/tutorial/getAll';
+export const UPDATE_USER = '/user/update';
+export const GET_ACCOUNT_HISTORY = '/tradesHistory/getAllTradesHistory';

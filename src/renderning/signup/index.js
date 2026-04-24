@@ -16,6 +16,7 @@ import { toast } from 'react-toastify';
 const EyeIcon = '/assets/icons/eye.svg';
 const LockIcon = '/assets/icons/lock.svg';
 const RightIcon = '/assets/icons/right.svg';
+const logo = '/assets/logo/sidebar-logo.svg';
 
 const initialFormValues = {
   email: '',
@@ -35,10 +36,12 @@ const initialFormValues = {
 
 // ✅ Yup Validation Schema
 const SignupSchema = Yup.object().shape({
-  firstName: Yup.string().required('First name is required'),
-  lastName: Yup.string().required('Last name is required'),
-  email: Yup.string().email('Invalid email').required('Email is required'),
-  referredBy: Yup.string().required('Referral code is required'),
+  firstName: Yup.string().required('Please enter your first name!'),
+  lastName: Yup.string().required('Please enter your last name!'),
+  email: Yup.string()
+    .email('Invalid email')
+    .required('Please enter your last name!'),
+  // referredBy: Yup.string().required('Referral code is required'),
   // birthday: Yup.string().required('Birthday is required'),
   // phone: Yup.string()
   //   .matches(/^[0-9]+$/, 'Must be only digits')
@@ -50,10 +53,10 @@ const SignupSchema = Yup.object().shape({
   // country: Yup.string().required('Country is required'),
   password: Yup.string()
 
-    .required('Password is required'),
+    .required('Please enter your password!'),
   confirmPassword: Yup.string()
     .oneOf([Yup.ref('password')], 'Passwords must match')
-    .required('Confirm password is required'),
+    .required('Please enter your confirm password!'),
 });
 
 export default function Signup() {
@@ -79,8 +82,8 @@ export default function Signup() {
       if (result.meta.requestStatus === 'fulfilled') {
         toast.success('Signup Successfully');
         router.push('/');
+        resetForm();
       }
-      resetForm();
     },
   });
 
@@ -90,6 +93,9 @@ export default function Signup() {
     <div className={styles.flexbox}>
       <div className={styles.items}>
         <div className={styles.box}>
+          <div className={styles.logo}>
+            <img src={logo} alt="logo" />
+          </div>
           <div className={styles.title}>
             <h1>Create an account</h1>
             <p>Smart portfolio management, simplified.</p>
@@ -97,7 +103,7 @@ export default function Signup() {
 
           <form onSubmit={formik.handleSubmit}>
             <div className={styles.twocol}>
-              <div>
+              <div className={styles.inputgrid}>
                 <Input
                   label="First Name"
                   spacingRemove
@@ -204,11 +210,11 @@ export default function Signup() {
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                 />
-                {formik.touched.referredBy && formik.errors.referredBy && (
+                {/* {formik.touched.referredBy && formik.errors.referredBy && (
                   <span className={styles.error}>
                     {formik.errors.referredBy}
                   </span>
-                )}
+                )} */}
               </div>
               <div className={styles.checkboxdesign}>
                 <label>

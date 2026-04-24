@@ -4,6 +4,7 @@ import styles from './profitSharingTable.module.scss';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSelector } from 'react-redux';
 import moment from 'moment';
+import Loader from '@/components/Loader';
 
 export default function ProfitSharingTable() {
   const { profitSharingData, profitSharingLoading, profitSharingError } =
@@ -17,9 +18,7 @@ export default function ProfitSharingTable() {
 
   if (profitSharingLoading) {
     return (
-      <div className={styles.profitSharingTable}>
-        <div className={styles.emptyState}>Loading...</div>
-      </div>
+      <Loader variant="dots" size="large" color="success" text="Loading ..." />
     );
   }
 

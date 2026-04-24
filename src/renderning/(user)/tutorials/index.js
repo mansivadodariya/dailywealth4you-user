@@ -11,7 +11,6 @@ export default function Tutorials() {
   const { tutorials, tutorialsLoading, tutorialsError, tutorialsTotalPages } =
     useSelector((state) => state?.account);
 
-  console.log('Tutorials data from Redux:', tutorials);
   const [currentPage, setCurrentPage] = useState(1);
   const LIMIT = 12;
 
@@ -44,6 +43,11 @@ export default function Tutorials() {
       </p>
     );
   }
+  const handleClick = (tutorial) => {
+    if (tutorial?.videoUrl) {
+      window.open(tutorial.videoUrl, '_blank');
+    }
+  };
 
   return (
     <div className={styles.wrapper}>
@@ -59,6 +63,7 @@ export default function Tutorials() {
                 onError={(e) => {
                   e.currentTarget.style.display = 'none';
                 }}
+                onClick={() => handleClick(tutorial)}
               />
               {/* <div className={styles.playOverlay}>
                 <div className={styles.playIcon}>▶</div>

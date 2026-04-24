@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styles from './useExisting.module.scss';
 import Input from '@/components/input';
@@ -23,6 +23,8 @@ export default function UseExisting({
   const dispatch = useDispatch();
   const { loading } = useSelector((state) => state?.account);
   const { user } = useSelector((state) => state?.login);
+
+  const overlayRef = useRef(null);
 
   const [agreed, setAgreed] = useState(false);
   const [brokerName, setBrokerName] = useState('');
@@ -132,7 +134,13 @@ export default function UseExisting({
 
   return (
     <>
-      <div className={styles.useExistingWrapper}>
+      <div
+        className={styles.useExistingWrapper}
+        ref={overlayRef}
+        onClick={(e) => {
+          if (e.target === overlayRef.current && onClose) onClose();
+        }}
+      >
         <div className={styles.modal}>
           <div className={styles.modalHeader}>
             <h2>{isEdit ? 'Edit MT5 Account' : 'Use existing MT5 account'}</h2>
@@ -230,7 +238,14 @@ export default function UseExisting({
           </div>
         </div>
       </div>
-      {showMt5Modal && <Mt5Account />}
+      {showMt5Modal && (
+        <Mt5Account
+          onClose={() => {
+            setShowMt5Modal(false);
+            if (onClose) onClose();
+          }}
+        />
+      )}
     </>
   );
 }

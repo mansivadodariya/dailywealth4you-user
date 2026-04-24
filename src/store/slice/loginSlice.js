@@ -6,7 +6,7 @@ import {
   getUserFromCookie,
   setAuthCookies,
 } from '@/service/cookies';
-import { ADMIN_LOGIN, LOGIN, RESET_PASSWORD } from '@/service/url';
+import { ADMIN_LOGIN, LOGIN, RESET_PASSWORD, UPDATE_USER } from '@/service/url';
 import { toast } from 'react-toastify';
 
 const getRoleFromUser = (user) =>
@@ -53,6 +53,19 @@ export const adminLoginUser = createAsyncThunk(
   }
 );
 
+export const updateUserProfile = createAsyncThunk(
+  'login/updateUserProfile',
+  async (payload, thunkApi) => {
+    try {
+      const { id, ...body } = payload;
+      const response = await api.put(`${UPDATE_USER}?id=${id}`, body);
+      return response;
+    } catch (error) {
+      return thunkApi.rejectWithValue(error);
+    }
+  }
+);
+
 export const resetPassword = createAsyncThunk(
   'login/resetPassword',
   async (payload, thunkApi) => {
@@ -87,6 +100,8 @@ const initialState = {
   resetPasswordLoading: false,
   resetPasswordError: null,
   resetPasswordData: null,
+  updateProfileLoading: false,
+  updateProfileError: null,
   role: getRoleFromUser(initialUser),
 };
 
@@ -107,6 +122,8 @@ const loginSlice = createSlice({
       state.resetPasswordLoading = false;
       state.resetPasswordError = null;
       state.resetPasswordData = null;
+      state.updateProfileLoading = false;
+      state.updateProfileError = null;
     },
   },
   extraReducers: (builder) => {
@@ -194,6 +211,27 @@ const loginSlice = createSlice({
       .addCase(resetPassword.rejected, (state, action) => {
         state.resetPasswordLoading = false;
         state.resetPasswordError = action.payload || 'Reset password failed';
+      })
+      .addCase(updateUserProfile.pending, (state) => {
+        state.updateProfileLoading = true;
+        state.updateProfileError = null;
+      })
+      .addCase(updateUserProfile.fulfilled, (state, action) => {
+        state.updateProfileLoading = false;
+        state.updateProfileError = null;
+        // Merge updated fields into user state and cookie
+        const updated =
+          action?.payload?.payload?.data ||
+          action?.payload?.data ||
+          action?.payload;
+        if (updated && typeof updated === 'object') {
+          state.user = { ...state.user, ...updated };
+          setAuthCookies({ token: state.token, user: state.user });
+        }
+      })
+      .addCase(updateUserProfile.rejected, (state, action) => {
+        state.updateProfileLoading = false;
+        state.updateProfileError = action.payload || 'Failed to update profile';
       });
   },
 });

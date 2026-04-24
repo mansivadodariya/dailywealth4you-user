@@ -10,6 +10,7 @@ import {
   UPLOAD_USER_DOCUMENT,
   UPLOAD_IMAGE,
   GET_ALL_TUTORIALS,
+  GET_ACCOUNT_HISTORY,
 } from '@/service/url';
 import { getUserFromCookie } from '@/service/cookies';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
@@ -165,6 +166,21 @@ export const fetchTutorials = createAsyncThunk(
   }
 );
 
+export const fetchAccountHistory = createAsyncThunk(
+  'account/fetchAccountHistory',
+  async ({ userId, brokerId }, thunkApi) => {
+    try {
+      const response = await api.get(
+        `${GET_ACCOUNT_HISTORY}?userId=${userId}&brokerId=${brokerId}`
+      );
+      return response;
+    } catch (error) {
+      toast.error(error);
+      return thunkApi.rejectWithValue(error);
+    }
+  }
+);
+
 const accountSlice = createSlice({
   name: 'account',
   initialState: {
@@ -175,6 +191,9 @@ const accountSlice = createSlice({
     tutorialsLoading: false,
     tutorialsError: null,
     tutorialsTotalPages: 1,
+    accountHistory: [],
+    accountHistoryLoading: false,
+    accountHistoryError: null,
     loading: false,
     tradingAccountsLoading: false,
     faqsLoading: false,
@@ -308,18 +327,28 @@ const accountSlice = createSlice({
       .addCase(fetchTutorials.fulfilled, (state, action) => {
         // debugger
         state.tutorialsLoading = false;
-
-        state.tutorials =
-          action?.payload?.payload?.data ||
-          action?.payload?.data ||
-          action?.payload ||
-          [];
-        // state.tutorialsTotalPages =
-        //   payload?.totalPages || payload?.pagination?.totalPages || 1;
+        const payload = action?.payload?.payload?.data;
+        state.tutorials = payload;
+        state.tutorialsTotalPages =
+          payload?.totalPages || payload?.pagination?.totalPages || 1;
       })
       .addCase(fetchTutorials.rejected, (state, action) => {
         state.tutorialsLoading = false;
         state.tutorialsError = action.payload;
+      })
+      .addCase(fetchAccountHistory.pending, (state) => {
+        state.accountHistoryLoading = true;
+        state.accountHistoryError = null;
+        state.accountHistory = [];
+      })
+      .addCase(fetchAccountHistory.fulfilled, (state, action) => {
+        state.accountHistoryLoading = false;
+        const payload = action?.payload?.payload;
+        state.accountHistory = payload?.data;
+      })
+      .addCase(fetchAccountHistory.rejected, (state, action) => {
+        state.accountHistoryLoading = false;
+        state.accountHistoryError = action.payload;
       });
   },
 });

@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import KycModal from '@/components/modal/KycModal';
 import KycFinalModal from '@/components/modal/KycFinalModal';
+import KycSubmitted from '../modal/KycSubmitted';
 
 export default function KycGuard({ children }) {
   const user = useSelector((state) => state.login.user);
@@ -26,7 +27,7 @@ export default function KycGuard({ children }) {
   }
 
   if (kycStatus === 'pending') {
-    return <KycFinalModal />;
+    return <KycSubmitted />;
   }
 
   if (kycStatus === 'approved') {

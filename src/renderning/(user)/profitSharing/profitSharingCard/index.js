@@ -4,6 +4,7 @@ import React from 'react';
 import styles from './profitSharingCard.module.scss';
 import Input from '@/components/input';
 import { useSelector } from 'react-redux';
+import config from '@/config';
 
 const CopyIcon = '/assets/icons/copy.svg';
 
@@ -11,9 +12,10 @@ export default function ProfitSharingCard() {
   const { profitSharingSummary, profitSharingLoading } = useSelector(
     (state) => state.ibUser
   );
+  const user = useSelector((state) => state.login.user);
 
   const totalClients = profitSharingSummary?.totalClients ?? '—';
-  const totalLots = profitSharingSummary?.totalLots ?? '—';
+  const totalProfit = profitSharingSummary?.totalProfit ?? '—';
   const totalCommission =
     profitSharingSummary?.totalCommission != null
       ? `$${profitSharingSummary.totalCommission}`
@@ -27,7 +29,9 @@ export default function ProfitSharingCard() {
           placeholderWhite
           leftSpacingRemove
           rightIcon={CopyIcon}
-          placeholder="https://domain.com/123abc"
+          value={`${config.API_URL}/signup/${user?.referralCode || ''}`}
+          readOnly
+          // placeholder="https://domain.com/123abc"
         />
       </div>
       <div className={styles.items}>
@@ -36,7 +40,7 @@ export default function ProfitSharingCard() {
       </div>
       <div className={styles.items}>
         <p>Client's Profit</p>
-        <h3>${profitSharingLoading ? '...' : totalLots}</h3>
+        <h3>${profitSharingLoading ? '...' : totalProfit}</h3>
       </div>
       <div className={styles.items}>
         <p> Commission (10%)</p>

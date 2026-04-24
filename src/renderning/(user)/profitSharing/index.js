@@ -23,7 +23,6 @@ export default function ProfitSharing() {
       <ProfitSharingTable />
       {/* <EditProfile /> */}
       {/* <ChangePassword /> */}
-
     </div>
   );
 }

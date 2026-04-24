@@ -12,6 +12,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'react-toastify';
 
 const RightIcon = '/assets/icons/right.svg';
+const logo = '/assets/logo/sidebar-logo.svg';
 
 const validationSchema = Yup.object({
   otp: Yup.string()
@@ -123,6 +124,9 @@ export default function VerificationCode() {
     <div className={styles.flexbox}>
       <div className={styles.items}>
         <div className={styles.box}>
+          <div className={styles.logo}>
+            <img src={logo} alt="logo" />
+          </div>
           <div className={styles.title}>
             <h1>Enter verification code</h1>
             <p>Enter your 6 digit code received in your email.</p>
