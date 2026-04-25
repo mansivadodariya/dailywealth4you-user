@@ -5,6 +5,7 @@ import styles from './profitSharingCard.module.scss';
 import Input from '@/components/input';
 import { useSelector } from 'react-redux';
 import config from '@/config';
+import toast from 'react-hot-toast';
 
 const CopyIcon = '/assets/icons/copy.svg';
 
@@ -18,20 +19,37 @@ export default function ProfitSharingCard() {
   const totalProfit = profitSharingSummary?.totalProfit ?? '—';
   const totalCommission =
     profitSharingSummary?.totalCommission != null
-      ? `$${profitSharingSummary.totalCommission}`
+      ? `${profitSharingSummary.totalCommission}`
       : '—';
+
+  const referralUrl = `${config.API_URL || ''}/signup/${user?.referralCode || ''}`;
+
+  const handleCopyReferral = () => {
+    if (!referralUrl) return;
+    navigator.clipboard
+      .writeText(referralUrl)
+      .then(() => {
+        toast.success('Referral link copied!');
+      })
+      .catch(() => {
+        toast.error('Failed to copy link.');
+      });
+  };
 
   return (
     <div className={styles.profitSharingCard}>
-      <div className={styles.items}>
+      <div
+        className={styles.items}
+        style={{ cursor: 'pointer' }}
+        onClick={handleCopyReferral}
+      >
         <Input
           label="Your Referral link"
           placeholderWhite
           leftSpacingRemove
           rightIcon={CopyIcon}
-          value={`${config.API_URL}/signup/${user?.referralCode || ''}`}
+          value={referralUrl}
           readOnly
-          // placeholder="https://domain.com/123abc"
         />
       </div>
       <div className={styles.items}>
@@ -43,7 +61,7 @@ export default function ProfitSharingCard() {
         <h3>${profitSharingLoading ? '...' : totalProfit}</h3>
       </div>
       <div className={styles.items}>
-        <p> Commission (10%)</p>
+        <p>Commission (10%)</p>
         <h3>{profitSharingLoading ? '...' : totalCommission}</h3>
       </div>
     </div>

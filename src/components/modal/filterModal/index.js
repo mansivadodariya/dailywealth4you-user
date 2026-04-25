@@ -1,43 +1,83 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { fetchIbProfitSharing } from '@/store/slice/ibUserSlice';
-import { toast } from 'react-toastify';
 import styles from './filterModal.module.scss';
 import AuthButton from '@/components/authButton';
 
 const RightIcon = '/assets/icons/right.svg';
 const CloseIcon = '/assets/icons/close.svg';
 
-export default function FilterModal({ onClose }) {
-  const dispatch = useDispatch();
+/**
+ * Generic filter modal.
+ *
+ * Props:
+ *   onClose()           — called when Cancel is clicked or after Apply
+ *   onApply(filters)    — called with the filter object on Apply
+ *                         If NOT provided, falls back to dispatching fetchIbProfitSharing
+ *   fields              — array of field configs to show (default: date + profit + commission)
+ *                         Each: { key, label, type: 'date' | 'number', placeholder? }
+ */
+const DEFAULT_FIELDS = [
+  {
+    group: 'Select Date Range',
+    fields: [
+      { key: 'startDate', label: 'Start Date', type: 'date' },
+      { key: 'endDate', label: 'End Date', type: 'date' },
+    ],
+  },
+  {
+    group: 'Select Profit Range',
+    fields: [
+      { key: 'minProfit', label: 'Min', type: 'number', placeholder: 'Min' },
+      { key: 'maxProfit', label: 'Max', type: 'number', placeholder: 'Max' },
+    ],
+  },
+  {
+    group: 'Select Commission Range',
+    fields: [
+      {
+        key: 'minCommission',
+        label: 'Min',
+        type: 'number',
+        placeholder: 'Min',
+      },
+      {
+        key: 'maxCommission',
+        label: 'Max',
+        type: 'number',
+        placeholder: 'Max',
+      },
+    ],
+  },
+];
 
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [minProfit, setMinProfit] = useState('');
-  const [maxProfit, setMaxProfit] = useState('');
-  const [minCommission, setMinCommission] = useState('');
-  const [maxCommission, setMaxCommission] = useState('');
+export default function FilterModal({ onClose, onApply, fieldGroups }) {
+  const groups = fieldGroups || DEFAULT_FIELDS;
 
-  const handleApply = async () => {
-    const filters = {};
-    if (startDate) filters.startDate = startDate;
-    if (endDate) filters.endDate = endDate;
-    if (minProfit !== '') filters.minProfit = minProfit;
-    if (maxProfit !== '') filters.maxProfit = maxProfit;
-    if (minCommission !== '') filters.minCommission = minCommission;
-    if (maxCommission !== '') filters.maxCommission = maxCommission;
+  // Build initial state from all field keys
+  const initialValues = {};
+  groups.forEach((g) =>
+    g.fields.forEach((f) => {
+      initialValues[f.key] = '';
+    })
+  );
+  const [values, setValues] = useState(initialValues);
 
-    try {
-      await dispatch(fetchIbProfitSharing(filters)).unwrap();
-      if (onClose) onClose();
-    } catch {
-      toast.error('Failed to apply filters.');
-    }
+  const handleChange = (key, val) => {
+    setValues((prev) => ({ ...prev, [key]: val }));
   };
 
-  const handleCancel = () => {
+  const handleApply = () => {
+    // Build filters — only include non-empty values
+    const filters = {};
+    Object.entries(values).forEach(([k, v]) => {
+      if (v !== '' && v !== null && v !== undefined) filters[k] = v;
+    });
+
+    if (onApply) {
+      // Caller handles the dispatch
+      onApply(filters);
+    }
     if (onClose) onClose();
   };
 
@@ -49,84 +89,25 @@ export default function FilterModal({ onClose }) {
         </div>
 
         <div className={styles.modalBody}>
-          {/* Date Range */}
-          <div className={styles.section}>
-            <label className={styles.sectionLabel}>Select Date Range</label>
-            <div className={styles.row}>
-              <div className={styles.inputWrapper}>
-                <input
-                  type="date"
-                  className={styles.input}
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  placeholder="Start Date"
-                />
-              </div>
-              <div className={styles.inputWrapper}>
-                <input
-                  type="date"
-                  className={styles.input}
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  placeholder="End Date"
-                />
+          {groups.map((group) => (
+            <div key={group.group} className={styles.section}>
+              <label className={styles.sectionLabel}>{group.group}</label>
+              <div className={styles.row}>
+                {group.fields.map((field) => (
+                  <div key={field.key} className={styles.inputWrapper}>
+                    <input
+                      type={field.type}
+                      className={styles.input}
+                      value={values[field.key]}
+                      onChange={(e) => handleChange(field.key, e.target.value)}
+                      placeholder={field.placeholder || field.label}
+                    />
+                  </div>
+                ))}
               </div>
             </div>
-          </div>
+          ))}
 
-          {/* Profit Range */}
-          <div className={styles.section}>
-            <label className={styles.sectionLabel}>Select Profit Range</label>
-            <div className={styles.row}>
-              <div className={styles.inputWrapper}>
-                <input
-                  type="number"
-                  className={styles.input}
-                  value={minProfit}
-                  onChange={(e) => setMinProfit(e.target.value)}
-                  placeholder="Min"
-                />
-              </div>
-              <div className={styles.inputWrapper}>
-                <input
-                  type="number"
-                  className={styles.input}
-                  value={maxProfit}
-                  onChange={(e) => setMaxProfit(e.target.value)}
-                  placeholder="Max"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Commission Range */}
-          <div className={styles.section}>
-            <label className={styles.sectionLabel}>
-              Select Commission Range
-            </label>
-            <div className={styles.row}>
-              <div className={styles.inputWrapper}>
-                <input
-                  type="number"
-                  className={styles.input}
-                  value={minCommission}
-                  onChange={(e) => setMinCommission(e.target.value)}
-                  placeholder="Min"
-                />
-              </div>
-              <div className={styles.inputWrapper}>
-                <input
-                  type="number"
-                  className={styles.input}
-                  value={maxCommission}
-                  onChange={(e) => setMaxCommission(e.target.value)}
-                  placeholder="Max"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Buttons */}
           <div className={styles.actions}>
             <AuthButton
               text="Apply Filters"
@@ -137,7 +118,7 @@ export default function FilterModal({ onClose }) {
               text="Cancel"
               outline
               icon={CloseIcon}
-              onClick={handleCancel}
+              onClick={onClose}
             />
           </div>
         </div>

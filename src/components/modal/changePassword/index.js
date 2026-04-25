@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { resetPassword } from '@/store/slice/loginSlice';
-import { toast } from 'react-toastify';
+import toast from 'react-hot-toast';
 import styles from './changePassword.module.scss';
 import AuthButton from '@/components/authButton';
 import Input from '@/components/input';

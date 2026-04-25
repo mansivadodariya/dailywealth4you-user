@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import api from '@/service/api';
 import { FORGOT_PASSWORD, SEND_OTP, VERIFY_OTP } from '@/service/url';
-import { toast } from 'react-toastify';
+import toast from 'react-hot-toast';
 
 export const sendOtp = createAsyncThunk(
   'otp/sendOtp',

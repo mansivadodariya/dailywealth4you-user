@@ -79,6 +79,25 @@
   font-size: 14px;
 }
 
+.addressText {
+  font-family: var(--font-manrope);
+  font-size: 12px;
+  color: #8e8e8e;
+  cursor: default;
+}
+
+.proofLink {
+  color: #02df82;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  font-family: var(--font-manrope);
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
 .badge {
   display: inline-block;
   padding: 3px 12px;
@@ -101,5 +120,10 @@
   &.neutral {
     background: rgba(255, 255, 255, 0.06);
     color: #fafafa;
+  }
+  &.warning {
+    background: rgba(255, 193, 7, 0.12);
+    border: 0.5px solid #dbe64c;
+    color: #dbe64c;
   }
 }

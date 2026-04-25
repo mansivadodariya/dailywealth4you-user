@@ -5,12 +5,16 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useSelector } from 'react-redux';
 import moment from 'moment';
 import Loader from '@/components/Loader';
+import Pagination from '@/components/pagination';
+
+const ITEMS_PER_PAGE = 10;
 
 export default function ProfitSharingTable() {
   const { profitSharingData, profitSharingLoading, profitSharingError } =
     useSelector((state) => state.ibUser);
 
   const [expandedKey, setExpandedKey] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const handleToggle = (key) => {
     setExpandedKey(expandedKey === key ? null : key);
@@ -33,11 +37,10 @@ export default function ProfitSharingTable() {
   }
 
   // Flatten: one row per user+broker combination
-  const rows = [];
+  const allRows = [];
   profitSharingData?.forEach((entry) => {
     const user = entry?.user;
     entry?.brokers?.forEach((brokerEntry, bIdx) => {
-      // Use the latest trade date as the row date
       const trades = brokerEntry?.trades || [];
       const latestDate = trades.reduce((latest, trade) => {
         if (!trade?.createdAt) return latest;
@@ -45,8 +48,7 @@ export default function ProfitSharingTable() {
           ? trade.createdAt
           : latest;
       }, null);
-
-      rows.push({
+      allRows.push({
         key: `${user?.id}-${bIdx}`,
         user,
         broker: brokerEntry?.broker,
@@ -59,6 +61,12 @@ export default function ProfitSharingTable() {
     });
   });
 
+  const totalPages = Math.max(1, Math.ceil(allRows.length / ITEMS_PER_PAGE));
+  const rows = allRows.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
   return (
     <div className={styles.profitSharingTable}>
       <div className={styles.tableContainer}>
@@ -68,7 +76,6 @@ export default function ProfitSharingTable() {
               <th>Date</th>
               <th>Name</th>
               <th>Email</th>
-
               <th>Profit</th>
               <th>Broker</th>
               <th>Total Commission</th>
@@ -103,7 +110,6 @@ export default function ProfitSharingTable() {
                       '—'}
                   </td>
                   <td>{row.user?.email || '—'}</td>
-
                   <td>${row.totalProfit ?? '—'}</td>
                   <td>{row.broker?.name || '—'}</td>
                   <td>${row.totalCommission ?? '—'}</td>
@@ -136,7 +142,6 @@ export default function ProfitSharingTable() {
                               <div>Lots</div>
                               <div>P&L</div>
                               <div>Commission</div>
-                              {/* <div>Date</div> */}
                             </div>
                             <div className={styles.innerBody}>
                               {row.trades.map((trade) => (
@@ -171,11 +176,6 @@ export default function ProfitSharingTable() {
                                     </span>
                                   </div>
                                   <div>${trade?.commission ?? '—'}</div>
-                                  {/* <div>
-                                    {trade?.createdAt
-                                      ? moment(trade.createdAt).format('DD-MM-YYYY | hh:mm A')
-                                      : '—'}
-                                  </div> */}
                                 </div>
                               ))}
                             </div>
@@ -190,6 +190,17 @@ export default function ProfitSharingTable() {
           </tbody>
         </table>
       </div>
+
+      {totalPages > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={(p) => {
+            setCurrentPage(p);
+            setExpandedKey(null);
+          }}
+        />
+      )}
     </div>
   );
 }

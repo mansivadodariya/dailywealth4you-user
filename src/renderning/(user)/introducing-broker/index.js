@@ -5,6 +5,7 @@ import AuthButton from '@/components/authButton';
 import { useDispatch, useSelector } from 'react-redux';
 import { applyIbRequest, fetchIbUserRequest } from '@/store/slice/ibUserSlice';
 import { getUserFromCookie } from '@/service/cookies';
+import Loader from '@/components/Loader';
 
 const RightIcon = '/assets/icons/right.svg';
 
@@ -30,11 +31,7 @@ export default function IntroducingBroker() {
   // Still loading IB status
   if (ibRequestLoading) {
     return (
-      <div className={styles.wrapper}>
-        <div className={styles.modal}>
-          <p style={{ color: '#8e8e8e', fontSize: 14 }}>Loading...</p>
-        </div>
-      </div>
+      <Loader variant="bar" size="large" color="success" text="Loading..." />
     );
   }
 
@@ -46,7 +43,7 @@ export default function IntroducingBroker() {
           <img
             src="/assets/icons/Ibuser.svg"
             alt="broker"
-            style={{ width: 180, height: 180 }}
+            style={{ width: 200, height: 210 }}
           />
           <h2 className={styles.title}>Your IB request is under review</h2>
           <p className={styles.subtitle}>
@@ -64,17 +61,19 @@ export default function IntroducingBroker() {
         <img
           src="/assets/icons/Ibuser.svg"
           alt="broker"
-          style={{ width: 180, height: 180 }}
+          style={{ width: 160, height: 160 }}
         />
         <h2 className={styles.title}>
           Please apply to start receiving commissions
         </h2>
-        <AuthButton
-          text={loading ? 'Applying...' : 'Apply'}
-          icon={RightIcon}
-          onClick={handleSubmit}
-          disabled={loading}
-        />
+        <div className={styles.buttonWrapper}>
+          <AuthButton
+            text={loading ? 'Applying...' : 'Apply'}
+            icon={RightIcon}
+            onClick={handleSubmit}
+            disabled={loading}
+          />
+        </div>
       </div>
     </div>
   );

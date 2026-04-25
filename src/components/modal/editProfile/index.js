@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { updateUserProfile } from '@/store/slice/loginSlice';
 import { uploadImage } from '@/store/slice/accountSlice';
 import { getUserFromCookie } from '@/service/cookies';
-import { toast } from 'react-toastify';
+import toast from 'react-hot-toast';
 import styles from './editProfile.module.scss';
 import UploadIcon from '@/icons/uploadIcon';
 import AuthButton from '@/components/authButton';

@@ -8,7 +8,7 @@ import { uploadUserDocument, uploadImage } from '@/store/slice/accountSlice';
 import { getUserFromCookie } from '@/service/cookies';
 import KycSubmitted from '../KycSubmitted';
 // import KycFinalModal from '../KycFinalModal';
-import { toast } from 'react-toastify';
+import toast from 'react-hot-toast';
 
 const RightIcon = '/assets/icons/right.svg';
 const CloseIcon = '/assets/icons/close.svg';

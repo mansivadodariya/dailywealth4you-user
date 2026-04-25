@@ -9,7 +9,7 @@ import * as Yup from 'yup';
 import { useDispatch, useSelector } from 'react-redux';
 import { sendOtp, verifyOtp } from '@/store/reducers';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { toast } from 'react-toastify';
+import toast from 'react-hot-toast';
 
 const RightIcon = '/assets/icons/right.svg';
 const logo = '/assets/logo/sidebar-logo.svg';

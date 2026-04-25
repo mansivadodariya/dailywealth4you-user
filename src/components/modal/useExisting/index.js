@@ -9,7 +9,7 @@ import {
   updateTradingAccount,
   createTradingAccount,
 } from '@/store/slice/accountSlice';
-import { toast } from 'react-toastify';
+import toast from 'react-hot-toast';
 import Mt5Account from '../Mt5Account';
 const RightIcon = '/assets/icons/right.svg';
 const RightWhiteIcon = '/assets/icons/right-white.svg';

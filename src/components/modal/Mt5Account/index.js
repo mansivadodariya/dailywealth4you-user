@@ -7,7 +7,7 @@ import styles from './Mt5Account.module.scss';
 import RightLight from '@/icons/rightLight';
 import AuthButton from '@/components/authButton';
 import UseExisting from '../useExisting';
-import { toast } from 'react-toastify';
+import toast from 'react-hot-toast';
 
 const DownIcon = '/assets/icons/down.svg';
 const RightIcon = '/assets/icons/right.svg';

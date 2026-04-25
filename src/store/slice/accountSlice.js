@@ -11,10 +11,12 @@ import {
   UPLOAD_IMAGE,
   GET_ALL_TUTORIALS,
   GET_ACCOUNT_HISTORY,
+  CREATE_TRANSACTION,
+  GET_ALL_TRANSACTION,
 } from '@/service/url';
 import { getUserFromCookie } from '@/service/cookies';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { toast } from 'react-toastify';
+import toast from 'react-hot-toast';
 
 export const fetchBrokers = createAsyncThunk(
   'account/fetchBrokers',
@@ -181,6 +183,38 @@ export const fetchAccountHistory = createAsyncThunk(
   }
 );
 
+export const createTransaction = createAsyncThunk(
+  'account/createTransaction',
+  async (payload, thunkApi) => {
+    try {
+      const response = await api.post(CREATE_TRANSACTION, payload);
+      toast.success(
+        payload.type === 'deposit'
+          ? 'Deposit submitted successfully.'
+          : 'Withdrawal request submitted successfully.'
+      );
+      return response;
+    } catch (error) {
+      toast.error(error);
+      return thunkApi.rejectWithValue(error);
+    }
+  }
+);
+
+// type: 'deposit' | 'withdrwal'
+export const fetchTransactions = createAsyncThunk(
+  'account/fetchTransactions',
+  async (type, thunkApi) => {
+    try {
+      const response = await api.get(`${GET_ALL_TRANSACTION}?type=${type}`);
+      return { response, type };
+    } catch (error) {
+      toast.error(error);
+      return thunkApi.rejectWithValue(error);
+    }
+  }
+);
+
 const accountSlice = createSlice({
   name: 'account',
   initialState: {
@@ -194,6 +228,12 @@ const accountSlice = createSlice({
     accountHistory: [],
     accountHistoryLoading: false,
     accountHistoryError: null,
+    transactionLoading: false,
+    transactionError: null,
+    deposits: [],
+    withdrawals: [],
+    transactionsLoading: false,
+    transactionsError: null,
     loading: false,
     tradingAccountsLoading: false,
     faqsLoading: false,
@@ -349,6 +389,40 @@ const accountSlice = createSlice({
       .addCase(fetchAccountHistory.rejected, (state, action) => {
         state.accountHistoryLoading = false;
         state.accountHistoryError = action.payload;
+      })
+      .addCase(createTransaction.pending, (state) => {
+        state.transactionLoading = true;
+        state.transactionError = null;
+      })
+      .addCase(createTransaction.fulfilled, (state) => {
+        state.transactionLoading = false;
+      })
+      .addCase(createTransaction.rejected, (state, action) => {
+        state.transactionLoading = false;
+        state.transactionError = action.payload;
+      })
+      .addCase(fetchTransactions.pending, (state) => {
+        state.transactionsLoading = true;
+        state.transactionsError = null;
+      })
+      .addCase(fetchTransactions.fulfilled, (state, action) => {
+        state.transactionsLoading = false;
+        const { response, type } = action.payload;
+        const data =
+          response?.payload?.data ||
+          response?.payload ||
+          response?.data ||
+          response ||
+          [];
+        if (type === 'deposit') {
+          state.deposits = Array.isArray(data) ? data : [];
+        } else {
+          state.withdrawals = Array.isArray(data) ? data : [];
+        }
+      })
+      .addCase(fetchTransactions.rejected, (state, action) => {
+        state.transactionsLoading = false;
+        state.transactionsError = action.payload;
       });
   },
 });

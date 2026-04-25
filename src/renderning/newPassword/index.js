@@ -9,7 +9,7 @@ import * as Yup from 'yup';
 import { useDispatch, useSelector } from 'react-redux';
 import { forgotPassword } from '@/store/reducers';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { toast } from 'react-toastify';
+import toast from 'react-hot-toast';
 
 import styles from './newPassword.module.scss';
 

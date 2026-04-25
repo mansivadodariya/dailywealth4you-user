@@ -86,7 +86,7 @@ export default function RecommendedBrokers() {
           <p className={styles.emptyText}>No brokers available.</p>
         )}
 
-        {brokers?.length > 0 && (
+        {brokers?.length > 1 && (
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}

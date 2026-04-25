@@ -11,7 +11,7 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { toast } from 'react-toastify';
+import toast from 'react-hot-toast';
 
 const EyeIcon = '/assets/icons/eye.svg';
 const LockIcon = '/assets/icons/lock.svg';
@@ -41,7 +41,7 @@ const SignupSchema = Yup.object().shape({
   email: Yup.string()
     .email('Invalid email')
     .required('Please enter your last name!'),
-  // referredBy: Yup.string().required('Referral code is required'),
+  referredBy: Yup.string().required('Please enter your Referral code '),
   // birthday: Yup.string().required('Birthday is required'),
   // phone: Yup.string()
   //   .matches(/^[0-9]+$/, 'Must be only digits')
@@ -200,7 +200,7 @@ export default function Signup() {
               </div>
               <div>
                 <Input
-                  label="Referral Code (Optional)"
+                  label="Referral Code "
                   type="text"
                   // leftIcon={LockIcon}
                   // rightIcon={EyeIcon}
@@ -210,11 +210,11 @@ export default function Signup() {
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                 />
-                {/* {formik.touched.referredBy && formik.errors.referredBy && (
+                {formik.touched.referredBy && formik.errors.referredBy && (
                   <span className={styles.error}>
                     {formik.errors.referredBy}
                   </span>
-                )} */}
+                )}
               </div>
               <div className={styles.checkboxdesign}>
                 <label>

@@ -1,8 +1,7 @@
 import { Manrope, Red_Hat_Display } from 'next/font/google';
 import './globals.css';
 import StoreProvider from '@/store/provider';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { Toaster } from 'react-hot-toast';
 
 const manrope = Manrope({
   variable: '--font-manrope',
@@ -29,7 +28,19 @@ export default function RootLayout({ children }) {
       <body>
         <StoreProvider>
           {children}
-          <ToastContainer position="top-right" autoClose={2500} />
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              duration: 2500,
+              style: {
+                background: '#0a1a1a',
+                color: '#fafafa',
+                border: '1px solid rgba(255,255,255,0.1)',
+                fontFamily: 'var(--font-manrope)',
+                fontSize: '14px',
+              },
+            }}
+          />
         </StoreProvider>
       </body>
     </html>

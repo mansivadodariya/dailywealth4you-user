@@ -227,6 +227,68 @@
   }
 }
 
+// Deposit / Withdraw buttons in header
+.txBtn {
+  height: 38px;
+  padding: 0 16px;
+  border-radius: 8px;
+  border: none;
+  background: #02df82;
+  color: #030f0f;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: var(--font-manrope);
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  white-space: nowrap;
+
+  &:hover {
+    opacity: 0.85;
+  }
+
+  &.txBtnOutline {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fafafa;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
+  }
+}
+
+// Bell icon with badge
+.bellContainer {
+  position: relative;
+}
+
+.bellWrapper {
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.bellBadge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: #ff4d4d;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  font-family: var(--font-manrope);
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  line-height: 1;
+  pointer-events: none;
+}
+
 // Profile icon + dropdown menu
 .profileContainer {
   position: relative;

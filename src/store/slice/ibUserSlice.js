@@ -3,9 +3,11 @@ import {
   APPLY_IB_REQUEST,
   GET_IB_PROFIT_SHARING,
   GET_ALL_IB_USER_REQUEST,
+  GET_IB_CLIENT,
+  GET_IB_INCOME,
 } from '@/service/url';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { toast } from 'react-toastify';
+import toast from 'react-hot-toast';
 
 export const applyIbRequest = createAsyncThunk(
   'ibUser/applyIbRequest',
@@ -57,13 +59,46 @@ export const fetchIbProfitSharing = createAsyncThunk(
   }
 );
 
+export const fetchIbClients = createAsyncThunk(
+  'ibUser/fetchIbClients',
+  async (_, thunkApi) => {
+    try {
+      const response = await api.get(GET_IB_CLIENT);
+      return response;
+    } catch (error) {
+      toast.error(error);
+      return thunkApi.rejectWithValue(error);
+    }
+  }
+);
+
+export const fetchIbIncome = createAsyncThunk(
+  'ibUser/fetchIbIncome',
+  async (filters = {}, thunkApi) => {
+    try {
+      const params = new URLSearchParams();
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== '' && value !== null && value !== undefined) {
+          params.append(key, value);
+        }
+      });
+      const query = params.toString() ? `?${params.toString()}` : '';
+      const response = await api.get(`${GET_IB_INCOME}${query}`);
+      return response;
+    } catch (error) {
+      toast.error(error);
+      return thunkApi.rejectWithValue(error);
+    }
+  }
+);
+
 const ibUserSlice = createSlice({
   name: 'ibUser',
   initialState: {
     loading: false,
     error: null,
     // IB request status
-    ibRequestStatus: null, // 'pending' | 'approved' | 'rejected' | null
+    ibRequestStatus: null,
     ibRequestLoading: false,
     ibRequestError: null,
     // IB Profit Sharing
@@ -72,6 +107,16 @@ const ibUserSlice = createSlice({
     profitSharingCount: 0,
     profitSharingLoading: false,
     profitSharingError: null,
+    // IB Clients
+    ibClients: [],
+    ibClientsLoading: false,
+    ibClientsError: null,
+    // IB Income
+    ibIncomeSummary: null,
+    ibIncomeData: [],
+    ibIncomeCount: 0,
+    ibIncomeLoading: false,
+    ibIncomeError: null,
   },
   reducers: {
     clearIbUserState: (state) => {
@@ -85,6 +130,14 @@ const ibUserSlice = createSlice({
       state.profitSharingCount = 0;
       state.profitSharingLoading = false;
       state.profitSharingError = null;
+      state.ibClients = [];
+      state.ibClientsLoading = false;
+      state.ibClientsError = null;
+      state.ibIncomeSummary = null;
+      state.ibIncomeData = [];
+      state.ibIncomeCount = 0;
+      state.ibIncomeLoading = false;
+      state.ibIncomeError = null;
     },
   },
   extraReducers: (builder) => {
@@ -96,7 +149,6 @@ const ibUserSlice = createSlice({
       })
       .addCase(applyIbRequest.fulfilled, (state) => {
         state.loading = false;
-        // After applying, status becomes pending
         state.ibRequestStatus = 'pending';
       })
       .addCase(applyIbRequest.rejected, (state, action) => {
@@ -112,14 +164,12 @@ const ibUserSlice = createSlice({
         state.ibRequestLoading = false;
         const payload = action?.payload?.payload || action?.payload;
         const data = payload?.data || payload;
-        // Take the latest request's status
         const latest = Array.isArray(data) ? data[0] : data;
         state.ibRequestStatus = latest?.status || null;
       })
       .addCase(fetchIbUserRequest.rejected, (state, action) => {
         state.ibRequestLoading = false;
         state.ibRequestError = action.payload;
-        // No request found — treat as not applied yet
         state.ibRequestStatus = null;
       })
       // fetchIbProfitSharing
@@ -137,6 +187,36 @@ const ibUserSlice = createSlice({
       .addCase(fetchIbProfitSharing.rejected, (state, action) => {
         state.profitSharingLoading = false;
         state.profitSharingError = action.payload;
+      })
+      // fetchIbClients
+      .addCase(fetchIbClients.pending, (state) => {
+        state.ibClientsLoading = true;
+        state.ibClientsError = null;
+      })
+      .addCase(fetchIbClients.fulfilled, (state, action) => {
+        state.ibClientsLoading = false;
+        const payload = action?.payload?.payload || action?.payload;
+        state.ibClients = payload?.data || payload || [];
+      })
+      .addCase(fetchIbClients.rejected, (state, action) => {
+        state.ibClientsLoading = false;
+        state.ibClientsError = action.payload;
+      })
+      // fetchIbIncome
+      .addCase(fetchIbIncome.pending, (state) => {
+        state.ibIncomeLoading = true;
+        state.ibIncomeError = null;
+      })
+      .addCase(fetchIbIncome.fulfilled, (state, action) => {
+        state.ibIncomeLoading = false;
+        const payload = action?.payload?.payload || action?.payload;
+        state.ibIncomeSummary = payload?.summary || null;
+        state.ibIncomeData = payload?.data || [];
+        state.ibIncomeCount = payload?.count || 0;
+      })
+      .addCase(fetchIbIncome.rejected, (state, action) => {
+        state.ibIncomeLoading = false;
+        state.ibIncomeError = action.payload;
       });
   },
 });

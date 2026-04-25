@@ -6,6 +6,10 @@ import loginReducer, {
   resetPassword,
   logout,
   updateUserProfile,
+  fetchNotifications,
+  addNotification,
+  markAllRead,
+  updateNotification,
 } from '@/store/slice/loginSlice';
 import signupReducer, { signupUser } from '@/store/slice/signupSlice';
 import otpReducer, {
@@ -20,12 +24,16 @@ import accountReducer, {
   fetchTradingAccounts,
   fetchTutorials,
   fetchAccountHistory,
+  createTransaction,
+  fetchTransactions,
 } from '@/store/slice/accountSlice';
 import ibUserReducer, {
   applyIbRequest,
   clearIbUserState,
   fetchIbProfitSharing,
   fetchIbUserRequest,
+  fetchIbClients,
+  fetchIbIncome,
 } from '@/store/slice/ibUserSlice';
 
 const reducer = combineReducers({
@@ -44,6 +52,10 @@ export {
   clearLoginState,
   logout,
   updateUserProfile,
+  fetchNotifications,
+  addNotification,
+  markAllRead,
+  updateNotification,
   sendOtp,
   verifyOtp,
   forgotPassword,
@@ -52,10 +64,14 @@ export {
   fetchTradingAccounts,
   fetchTutorials,
   fetchAccountHistory,
+  createTransaction,
+  fetchTransactions,
   clearAccountState,
   applyIbRequest,
   clearIbUserState,
   fetchIbProfitSharing,
   fetchIbUserRequest,
+  fetchIbClients,
+  fetchIbIncome,
 };
 export default reducer;

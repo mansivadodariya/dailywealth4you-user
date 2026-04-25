@@ -37,6 +37,19 @@
       line-height: 100%;
     }
 
+    // Yellow left accent — same as account cards
+    &:not(:first-child)::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 20px;
+      width: 4px;
+      height: 28px;
+      background-color: #dbe64c;
+      border-radius: 0 4px 4px 0;
+      box-shadow: 0 0 10px rgba(219, 230, 76, 0.4);
+    }
+
     &::before {
       content: '';
       position: absolute;

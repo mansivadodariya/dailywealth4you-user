@@ -11,7 +11,7 @@ import * as Yup from 'yup';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginUser } from '@/store/reducers';
 import { useRouter } from 'next/navigation';
-import { toast } from 'react-toastify';
+import toast from 'react-hot-toast';
 
 const EmailIcon = '/assets/icons/email.svg';
 const EyeIcon = '/assets/icons/eye.svg';

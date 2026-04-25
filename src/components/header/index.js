@@ -7,9 +7,13 @@ import styles from './header.module.scss';
 import Mt5Account from '../modal/Mt5Account';
 import EditProfile from '../modal/editProfile';
 import ChangePassword from '../modal/changePassword';
+import NotificationDropdown from '../notificationDropdown';
+import DepositModal from '../modal/depositModal';
+import WithdrawModal from '../modal/withdrawModal';
 import { fetchTradingAccounts } from '@/store/slice/accountSlice';
 import { logout } from '@/store/slice/loginSlice';
 import { getUserFromCookie, clearAuthCookies } from '@/service/cookies';
+import { disconnectSocket } from '@/service/socket';
 import AuthButton from '../authButton';
 
 const BellIcon = '/assets/icons/bell.svg';
@@ -49,19 +53,23 @@ export default function Header() {
   const [isMt5ModalOpen, setIsMt5ModalOpen] = useState(false);
   const [isAccountDropdownOpen, setIsAccountDropdownOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [selectedAccountId, setSelectedAccountId] = useState(null);
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [activeAccountBreadcrumb, setActiveAccountBreadcrumb] = useState(null);
+  const [showDepositModal, setShowDepositModal] = useState(false);
+  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
 
   const pathname = usePathname();
   const router = useRouter();
   const accountDropdownRef = useRef(null);
   const profileMenuRef = useRef(null);
+  const notifRef = useRef(null);
 
   const dispatch = useDispatch();
   const { tradingAccounts } = useSelector((state) => state.account);
-  const { user } = useSelector((state) => state.login);
+  const { user, unreadCount } = useSelector((state) => state.login);
   const isDashboard = pathname === '/dashboard' || pathname === '/';
   const isAccountsPage = pathname === '/accounts';
 
@@ -73,7 +81,7 @@ export default function Header() {
   const email = currentUser?.email || '';
   const isKycVerified = currentUser?.isKYCVerified === 'approved';
 
-  // Listen for account selection events from the Accounts page
+  // ── Account breadcrumb ────────────────────────────────────────────────────
   useEffect(() => {
     const handler = (e) =>
       setActiveAccountBreadcrumb(e.detail?.accountId || null);
@@ -81,17 +89,17 @@ export default function Header() {
     return () => window.removeEventListener('accountSelected', handler);
   }, []);
 
-  // Reset breadcrumb when leaving accounts page
   useEffect(() => {
     if (!isAccountsPage) setActiveAccountBreadcrumb(null);
   }, [isAccountsPage]);
 
+  // ── Trading accounts ──────────────────────────────────────────────────────
   useEffect(() => {
-    const user = getUserFromCookie();
-    if (user?.id) dispatch(fetchTradingAccounts(user.id));
+    const u = getUserFromCookie();
+    if (u?.id) dispatch(fetchTradingAccounts(u.id));
   }, [dispatch]);
 
-  // Close dropdowns on outside click
+  // ── Outside click handler ─────────────────────────────────────────────────
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (
@@ -105,6 +113,9 @@ export default function Header() {
         !profileMenuRef.current.contains(e.target)
       ) {
         setIsProfileMenuOpen(false);
+      }
+      if (notifRef.current && !notifRef.current.contains(e.target)) {
+        setIsNotifOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -137,7 +148,13 @@ export default function Header() {
     if (u?.id) dispatch(fetchTradingAccounts(u.id));
   };
 
+  const handleBellClick = () => {
+    setIsNotifOpen((prev) => !prev);
+    setIsProfileMenuOpen(false);
+  };
+
   const handleLogout = () => {
+    disconnectSocket();
     dispatch(logout());
     clearAuthCookies();
     router.push('/');
@@ -159,8 +176,23 @@ export default function Header() {
             <h2>{getTitleFromPath(pathname)}</h2>
           )}
         </div>
+
         <div className={styles.rightAlignment}>
-          <img src={BellIcon} alt="Notifications" />
+          {/* Bell icon with badge + dropdown */}
+          <div className={styles.bellContainer} ref={notifRef}>
+            <div className={styles.bellWrapper} onClick={handleBellClick}>
+              <img src={BellIcon} alt="Notifications" />
+              {unreadCount > 0 && (
+                <span className={styles.bellBadge}>
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
+              )}
+            </div>
+            {isNotifOpen && (
+              <NotificationDropdown onClose={() => setIsNotifOpen(false)} />
+            )}
+          </div>
+
           <div className={styles.line} />
 
           {isDashboard && (
@@ -224,11 +256,24 @@ export default function Header() {
                       )}
                     </div>
                   </div>
-
                   <AuthButton
                     icon={PlusIcon}
                     onClick={() => setIsMt5ModalOpen(true)}
                   />
+
+                  {/* Deposit & Withdraw buttons */}
+                  <button
+                    className={styles.txBtn}
+                    onClick={() => setShowDepositModal(true)}
+                  >
+                    Deposit
+                  </button>
+                  <button
+                    className={`${styles.txBtn} ${styles.txBtnOutline}`}
+                    onClick={() => setShowWithdrawModal(true)}
+                  >
+                    Withdraw
+                  </button>
                 </div>
               ) : (
                 <AuthButton
@@ -243,15 +288,16 @@ export default function Header() {
           {/* Profile icon + dropdown */}
           <div className={styles.profileContainer} ref={profileMenuRef}>
             <div
-              // className={styles.profileIcon}
-              onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+              onClick={() => {
+                setIsProfileMenuOpen(!isProfileMenuOpen);
+                setIsNotifOpen(false);
+              }}
             >
               <img src={UserIcon} alt="Profile" />
             </div>
 
             {isProfileMenuOpen && (
               <div className={styles.profileMenu}>
-                {/* User info */}
                 <div className={styles.profileMenuHeader}>
                   <div className={styles.profileMenuInfo}>
                     <span className={styles.profileMenuName}>{fullName}</span>
@@ -264,7 +310,6 @@ export default function Header() {
 
                 <div className={styles.profileMenuDivider} />
 
-                {/* Menu items */}
                 <div
                   className={styles.profileMenuItem}
                   onClick={() => {
@@ -351,6 +396,18 @@ export default function Header() {
       )}
       {showChangePassword && (
         <ChangePassword onClose={() => setShowChangePassword(false)} />
+      )}
+      {showDepositModal && (
+        <DepositModal
+          activeAccount={activeAccount}
+          onClose={() => setShowDepositModal(false)}
+        />
+      )}
+      {showWithdrawModal && (
+        <WithdrawModal
+          activeAccount={activeAccount}
+          onClose={() => setShowWithdrawModal(false)}
+        />
       )}
     </>
   );

@@ -156,7 +156,7 @@
 
   .subMenuItem {
     position: relative;
-    padding: 9px 10px 9px 28px;
+    padding: 9px 10px 9px 36px;
     border-radius: 8px;
     display: flex;
     align-items: center;
@@ -186,20 +186,45 @@
     // Vertical + horizontal connector lines
     .subMenuConnector {
       position: absolute;
-      left: 10px;
+      left: 7px;
       top: 0;
       bottom: 0;
       width: 1px;
-      background: rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.25);
 
       &::after {
         content: '';
         position: absolute;
-        left: 0;
+        left: 1px;
         top: 50%;
-        width: 10px;
+        width: 18px;
         height: 1px;
-        background: rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.25);
+      }
+
+      &::before {
+        content: '';
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        width: 6px;
+        height: 6px;
+        border-right: 1px solid rgba(255, 255, 255, 0.25);
+        border-top: 1px solid rgba(255, 255, 255, 0.25);
+        transform: translateY(-50%) rotate(45deg);
+        z-index: 1;
+      }
+    }
+
+    &:first-child {
+      .subMenuConnector {
+        top: -16px;
+      }
+    }
+
+    &:last-child {
+      .subMenuConnector {
+        bottom: 50%;
       }
     }
 

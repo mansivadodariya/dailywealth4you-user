@@ -3,30 +3,39 @@
 
 .wrapper {
   width: 100%;
-  min-height: calc(100vh - 80px);
+  height: 100%;
+  min-height: calc(100vh - 120px);
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
 .modal {
-  width: 420px;
-  padding: 60px 40px;
-  border-radius: 16px;
-
-  // background: rgba(10, 25, 25, 0.6);
-  backdrop-filter: blur(20px);
-
+  max-width: 440px;
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 28px;
+  gap: 20px;
   text-align: center;
 }
 
 .title {
-  color: #fafafa;
-  font-size: 22px;
-  font-weight: 600;
+  color: #fff;
+  font-size: 26px;
+  font-weight: 500;
   line-height: 1.4;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  color: #8e8e8e;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.buttonWrapper {
+  width: 100%;
+  max-width: 360px;
 }

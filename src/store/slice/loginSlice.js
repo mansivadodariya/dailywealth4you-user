@@ -6,8 +6,15 @@ import {
   getUserFromCookie,
   setAuthCookies,
 } from '@/service/cookies';
-import { ADMIN_LOGIN, LOGIN, RESET_PASSWORD, UPDATE_USER } from '@/service/url';
-import { toast } from 'react-toastify';
+import {
+  ADMIN_LOGIN,
+  LOGIN,
+  RESET_PASSWORD,
+  UPDATE_USER,
+  GET_ALL_NOTIFICATION,
+  UPDATE_NOTIFICATION,
+} from '@/service/url';
+import toast from 'react-hot-toast';
 
 const getRoleFromUser = (user) =>
   user?.role ??
@@ -66,6 +73,34 @@ export const updateUserProfile = createAsyncThunk(
   }
 );
 
+export const fetchNotifications = createAsyncThunk(
+  'login/fetchNotifications',
+  async (_, thunkApi) => {
+    try {
+      const response = await api.get(GET_ALL_NOTIFICATION);
+      return response;
+    } catch (error) {
+      return thunkApi.rejectWithValue(error);
+    }
+  }
+);
+
+// Mark all as read — PUT /notification/updateNotification?id=null&isReadAll=true
+export const updateNotification = createAsyncThunk(
+  'login/updateNotification',
+  async (_, thunkApi) => {
+    try {
+      const response = await api.put(
+        `${UPDATE_NOTIFICATION}?id=null&isReadAll=true`,
+        { isRead: true }
+      );
+      return response;
+    } catch (error) {
+      return thunkApi.rejectWithValue(error);
+    }
+  }
+);
+
 export const resetPassword = createAsyncThunk(
   'login/resetPassword',
   async (payload, thunkApi) => {
@@ -103,6 +138,9 @@ const initialState = {
   updateProfileLoading: false,
   updateProfileError: null,
   role: getRoleFromUser(initialUser),
+  notifications: [],
+  notificationsLoading: false,
+  unreadCount: 0,
 };
 
 const loginSlice = createSlice({
@@ -124,6 +162,18 @@ const loginSlice = createSlice({
       state.resetPasswordData = null;
       state.updateProfileLoading = false;
       state.updateProfileError = null;
+    },
+    // Called by socket when a new notification arrives
+    addNotification: (state, action) => {
+      state.notifications.unshift(action.payload);
+      state.unreadCount = state.notifications.filter((n) => !n.isRead).length;
+    },
+    markAllRead: (state) => {
+      state.notifications = state.notifications.map((n) => ({
+        ...n,
+        isRead: true,
+      }));
+      state.unreadCount = 0;
     },
   },
   extraReducers: (builder) => {
@@ -232,9 +282,22 @@ const loginSlice = createSlice({
       .addCase(updateUserProfile.rejected, (state, action) => {
         state.updateProfileLoading = false;
         state.updateProfileError = action.payload || 'Failed to update profile';
+      })
+      .addCase(fetchNotifications.pending, (state) => {
+        state.notificationsLoading = true;
+      })
+      .addCase(fetchNotifications.fulfilled, (state, action) => {
+        state.notificationsLoading = false;
+        const payload = action?.payload?.payload || action?.payload;
+        state.notifications = payload?.data || payload || [];
+        state.unreadCount = state.notifications.filter((n) => !n.isRead).length;
+      })
+      .addCase(fetchNotifications.rejected, (state) => {
+        state.notificationsLoading = false;
       });
   },
 });
 
-export const { logout, clearLoginState } = loginSlice.actions;
+export const { logout, clearLoginState, addNotification, markAllRead } =
+  loginSlice.actions;
 export default loginSlice.reducer;
