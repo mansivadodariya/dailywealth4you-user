@@ -45,8 +45,8 @@ export default function Login() {
       if (result.meta.requestStatus === 'fulfilled') {
         toast.success('Login Successfully');
         router.push('/dashboard');
+        resetForm();
       }
-      resetForm();
     },
   });
 

@@ -62,6 +62,21 @@
   }
 }
 
+.wordCount {
+  position: absolute;
+  bottom: 8px;
+  right: 12px;
+  font-size: 11px;
+  font-family: var(--font-manrope);
+  color: rgba(255, 255, 255, 0.4);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.wordCountLimit {
+  color: #ff4d4d;
+}
+
 .inputWrapper {
   border-radius: 8px;
   position: relative;

@@ -36,9 +36,22 @@ export default function ContactUs() {
     }
   }, [user]);
 
+  const MAX_WORDS = 150;
+
+  const countWords = (text) =>
+    text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
+
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    if (name === 'description') {
+      // Allow editing as long as word count stays within limit
+      const words = countWords(value);
+      if (words > MAX_WORDS) return;
+    }
+    setFormData({ ...formData, [name]: value });
   };
+
+  const wordCount = countWords(formData.description);
 
   const handleSubmit = () => {
     // const payload = formData; // Commented out formData
@@ -122,7 +135,13 @@ export default function ContactUs() {
             className={styles.textarea}
             value={formData.description}
             onChange={handleChange}
+            placeholder="Describe your concern (max 150 words)"
           />
+          <span
+            className={`${styles.wordCount} ${wordCount >= MAX_WORDS ? styles.wordCountLimit : ''}`}
+          >
+            {wordCount} / {MAX_WORDS} words
+          </span>
         </div>
 
         <div className={styles.submitBtn} onClick={handleSubmit}>

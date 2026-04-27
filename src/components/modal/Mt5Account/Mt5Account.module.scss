@@ -165,6 +165,9 @@
           .iconBox {
             img {
               display: block;
+              width: 28px;
+              height: 28px;
+              object-fit: contain;
               border-radius: 4px;
             }
           }

@@ -17,6 +17,7 @@ const EyeIcon = '/assets/icons/eye.svg';
 const LockIcon = '/assets/icons/lock.svg';
 const RightIcon = '/assets/icons/right.svg';
 const logo = '/assets/logo/sidebar-logo.svg';
+const EmailIcon = '/assets/icons/email.svg';
 
 const initialFormValues = {
   email: '',
@@ -52,8 +53,15 @@ const SignupSchema = Yup.object().shape({
   // state: Yup.string().required('State is required'),
   // country: Yup.string().required('Country is required'),
   password: Yup.string()
-
-    .required('Please enter your password!'),
+    .required('Please enter your password!')
+    .min(8, 'Password must be at least 8 characters')
+    .matches(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .matches(/[a-z]/, 'Password must contain at least one lowercase letter')
+    .matches(/[0-9]/, 'Password must contain at least one number')
+    .matches(
+      /[!@#$%^&*(),.?":{}|<>]/,
+      'Password must contain at least one special character'
+    ),
   confirmPassword: Yup.string()
     .oneOf([Yup.ref('password')], 'Passwords must match')
     .required('Please enter your confirm password!'),
@@ -150,6 +158,7 @@ export default function Signup() {
                   <Input
                     label={field.label}
                     spacingRemove
+                    leftIcon={EmailIcon}
                     name={field.name}
                     type={field.type || 'text'}
                     value={formik.values[field.name]}

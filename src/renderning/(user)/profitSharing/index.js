@@ -24,7 +24,7 @@ export default function ProfitSharing() {
       <ProfitSharingTable />
       {/* <EditProfile /> */}
       {/* <ChangePassword /> */}
-      <WithdrawModal />
+      {/* <WithdrawModal /> */}
     </div>
   );
 }

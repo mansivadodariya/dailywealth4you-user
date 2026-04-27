@@ -12,7 +12,7 @@ import toast from 'react-hot-toast';
 
 const RightIcon = '/assets/icons/right.svg';
 const CloseIcon = '/assets/icons/close.svg';
-const UploadPlaceholderIcon = '/assets/icons/upload-image.svg';
+const UploadPlaceholderIcon = '/assets/icons/KycSelectIcon.svg';
 
 // Helper: extract URL from uploadImage response
 const getUrlFromRes = (res) => {
@@ -25,7 +25,9 @@ const getUrlFromRes = (res) => {
 };
 
 // Single upload box component
-function UploadBox({ id, label, preview, isUploading, error, onChange }) {
+function UploadBox({ id, preview, isUploading, error, onChange }) {
+  const [hovered, setHovered] = useState(false);
+
   return (
     <div className={styles.uploadBoxWrapper}>
       <input
@@ -35,9 +37,19 @@ function UploadBox({ id, label, preview, isUploading, error, onChange }) {
         style={{ display: 'none' }}
         id={id}
       />
-      <label htmlFor={id} className={styles.uploadBox}>
+      <label
+        htmlFor={id}
+        className={styles.uploadBox}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+      >
         {preview ? (
-          <img src={preview} alt={label} className={styles.previewImage} />
+          <>
+            <img src={preview} alt="preview" className={styles.previewImage} />
+            {hovered && (
+              <div className={styles.changeImageOverlay}>Change Image</div>
+            )}
+          </>
         ) : (
           <>
             <div className={styles.uploadIcon}>
@@ -49,7 +61,6 @@ function UploadBox({ id, label, preview, isUploading, error, onChange }) {
                 }}
               />
             </div>
-            <span className={styles.uploadLabel}>{label}</span>
             <span className={styles.uploadHint}>PNG or JPG. Upto 3 MB</span>
           </>
         )}
@@ -96,6 +107,18 @@ export default function KycModal() {
   const handleUpload = async (e, type) => {
     const file = e.target.files[0];
     if (!file) return;
+
+    // 3 MB size validation
+    const MAX_SIZE_MB = 3;
+    if (file.size > MAX_SIZE_MB * 1024 * 1024) {
+      setErrors((prev) => ({
+        ...prev,
+        [type]: `File size must not exceed ${MAX_SIZE_MB} MB.`,
+      }));
+      // Reset the input so the same file can be re-selected after correction
+      e.target.value = '';
+      return;
+    }
 
     // Immediate local preview
     setPreviews((prev) => ({ ...prev, [type]: URL.createObjectURL(file) }));

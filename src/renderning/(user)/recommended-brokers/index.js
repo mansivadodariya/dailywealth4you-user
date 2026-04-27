@@ -62,16 +62,27 @@ export default function RecommendedBrokers() {
             >
               {/* Bordered box — logo only */}
               <div className={styles.card}>
-                <img
-                  src={broker?.logo}
-                  alt={broker?.name}
-                  className={styles.brokerLogo}
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                    e.currentTarget.nextSibling.style.display = 'flex';
-                  }}
-                />
-                <span className={styles.logoFallback}>{broker?.name}</span>
+                {broker?.logo ? (
+                  <img
+                    src={broker.logo}
+                    alt={broker?.name}
+                    className={styles.brokerLogo}
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                      const fallback =
+                        e.currentTarget.parentElement?.querySelector(
+                          `.${styles.logoFallback}`
+                        );
+                      if (fallback) fallback.style.display = 'flex';
+                    }}
+                  />
+                ) : null}
+                <span
+                  className={styles.logoFallback}
+                  style={{ display: broker?.logo ? 'none' : 'flex' }}
+                >
+                  {broker?.name}
+                </span>
               </div>
 
               {/* Text outside the card */}
@@ -86,7 +97,7 @@ export default function RecommendedBrokers() {
           <p className={styles.emptyText}>No brokers available.</p>
         )}
 
-        {brokers?.length > 1 && (
+        {brokers?.length && totalPages > 1 && (
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}

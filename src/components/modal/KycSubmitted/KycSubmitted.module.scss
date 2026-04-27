@@ -23,6 +23,18 @@
     background-color: #030f0f;
     text-align: center;
 
+    .iconWrapper {
+      padding: 28px 32px 0;
+      display: flex;
+      justify-content: center;
+
+      img {
+        width: 98px;
+        height: 98px;
+        display: block;
+      }
+    }
+
     .modalHeader {
       padding: 24px 32px 32px;
       // border-bottom: 1px solid rgba(255, 255, 255, 0.1);
