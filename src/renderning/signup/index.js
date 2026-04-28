@@ -40,8 +40,8 @@ const SignupSchema = Yup.object().shape({
   firstName: Yup.string().required('Please enter your first name!'),
   lastName: Yup.string().required('Please enter your last name!'),
   email: Yup.string()
-    .email('Invalid email')
-    .required('Please enter your last name!'),
+    .email('Invalid email address')
+    .required('Please enter your email address!'),
   referredBy: Yup.string().required('Please enter your Referral code '),
   // birthday: Yup.string().required('Birthday is required'),
   // phone: Yup.string()
@@ -114,8 +114,8 @@ export default function Signup() {
               <div className={styles.inputgrid}>
                 <Input
                   label="First Name"
-                  spacingRemove
                   name="firstName"
+                  spacingRemove
                   value={formik.values.firstName}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
@@ -127,11 +127,11 @@ export default function Signup() {
                 )}
               </div>
 
-              <div>
+              <div className={styles.inputgrid}>
                 <Input
                   label="Last Name"
-                  spacingRemove
                   name="lastName"
+                  spacingRemove
                   value={formik.values.lastName}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
@@ -143,35 +143,27 @@ export default function Signup() {
             </div>
 
             <div className={styles.inputgrid}>
-              {[
-                { label: 'Email Address', name: 'email', type: 'email' },
-                //  { label: 'Referral  Code', name: 'referredBy', type: 'text' },
-                // { label: 'Birthday', name: 'birthday', type: 'date' },
-                // { label: 'Phone', name: 'phone' },
-                // { label: 'Location', name: 'location' },
-                // { label: 'Country Code', name: 'countryCode' },
-                // { label: 'City', name: 'city' },
-                // { label: 'State', name: 'state' },
-                // { label: 'Country', name: 'country' },
-              ].map((field) => (
-                <div key={field.name}>
-                  <Input
-                    label={field.label}
-                    spacingRemove
-                    leftIcon={EmailIcon}
-                    name={field.name}
-                    type={field.type || 'text'}
-                    value={formik.values[field.name]}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                  />
-                  {formik.touched[field.name] && formik.errors[field.name] && (
-                    <span className={styles.error}>
-                      {formik.errors[field.name]}
-                    </span>
-                  )}
-                </div>
-              ))}
+              {[{ label: 'Email Address', name: 'email', type: 'email' }].map(
+                (field) => (
+                  <div key={field.name}>
+                    <Input
+                      label={field.label}
+                      leftIcon={EmailIcon}
+                      name={field.name}
+                      type={field.type || 'text'}
+                      value={formik.values[field.name]}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                    />
+                    {formik.touched[field.name] &&
+                      formik.errors[field.name] && (
+                        <span className={styles.error}>
+                          {formik.errors[field.name]}
+                        </span>
+                      )}
+                  </div>
+                )
+              )}
 
               <div>
                 <Input

@@ -13,8 +13,9 @@ import {
   GET_ACCOUNT_HISTORY,
   CREATE_TRANSACTION,
   GET_ALL_TRANSACTION,
+  GET_ALL_DOCUMENT,
+  GET_DASHBOARD_STATS,
 } from '@/service/url';
-import { getUserFromCookie } from '@/service/cookies';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import toast from 'react-hot-toast';
 
@@ -201,15 +202,74 @@ export const createTransaction = createAsyncThunk(
   }
 );
 
-// type: 'deposit' | 'withdrwal'
+// payload: { type, userId, search?, page?, limit?, startDate?, endDate?, minAmount?, maxAmount?, status?, mt5Account? }
 export const fetchTransactions = createAsyncThunk(
   'account/fetchTransactions',
-  async (type, thunkApi) => {
+  async (payload, thunkApi) => {
     try {
-      const response = await api.get(`${GET_ALL_TRANSACTION}?type=${type}`);
+      const {
+        type,
+        userId,
+        search,
+        page = 1,
+        limit = 10,
+        startDate,
+        endDate,
+        minAmount,
+        maxAmount,
+        status,
+        mt5Account,
+      } = payload;
+
+      const params = new URLSearchParams();
+      params.append('type', type);
+      if (userId) params.append('userId', userId);
+      if (search) params.append('search', search);
+      if (page) params.append('page', page);
+      if (limit) params.append('limit', limit);
+      if (startDate) params.append('startDate', startDate);
+      if (endDate) params.append('endDate', endDate);
+      if (minAmount !== undefined && minAmount !== '')
+        params.append('minAmount', minAmount);
+      if (maxAmount !== undefined && maxAmount !== '')
+        params.append('maxAmount', maxAmount);
+      if (status) params.append('status', status);
+      if (mt5Account) params.append('mt5Account', mt5Account);
+
+      const response = await api.get(
+        `${GET_ALL_TRANSACTION}?${params.toString()}`
+      );
       return { response, type };
     } catch (error) {
       toast.error(error);
+      return thunkApi.rejectWithValue(error);
+    }
+  }
+);
+
+export const fetchDashboardStats = createAsyncThunk(
+  'account/fetchDashboardStats',
+  async (userId, thunkApi) => {
+    try {
+      const response = await api.get(
+        `${GET_DASHBOARD_STATS}${userId ? `?userId=${userId}` : ''}`
+      );
+      return response;
+    } catch (error) {
+      return thunkApi.rejectWithValue(error);
+    }
+  }
+);
+
+export const fetchAllDocument = createAsyncThunk(
+  'account/fetchAllDocument',
+  async (userId, thunkApi) => {
+    try {
+      const response = await api.get(
+        `${GET_ALL_DOCUMENT}${userId ? `?userId=${userId}` : ''}`
+      );
+      return response;
+    } catch (error) {
       return thunkApi.rejectWithValue(error);
     }
   }
@@ -234,12 +294,21 @@ const accountSlice = createSlice({
     withdrawals: [],
     transactionsLoading: false,
     transactionsError: null,
+    depositsTotalPages: 1,
+    withdrawalsTotalPages: 1,
     loading: false,
     tradingAccountsLoading: false,
     faqsLoading: false,
     error: null,
     tradingAccountsError: null,
     faqsError: null,
+    // KYC document status
+    kycStatus: undefined,
+    kycStatusLoading: false,
+    // Dashboard stats
+    dashboardStats: null,
+    dashboardStatsLoading: false,
+    dashboardStatsError: null,
   },
   reducers: {
     clearAccountState: (state) => {
@@ -249,6 +318,9 @@ const accountSlice = createSlice({
       state.tradingAccountsLoading = false;
       state.error = null;
       state.tradingAccountsError = null;
+      state.kycStatus = undefined;
+      state.kycStatusLoading = false;
+      state.kycRejectionReason = null;
     },
   },
   extraReducers: (builder) => {
@@ -414,15 +486,55 @@ const accountSlice = createSlice({
           response?.data ||
           response ||
           [];
+        const totalPages =
+          response?.payload?.totalPages ||
+          response?.payload?.pagination?.totalPages ||
+          response?.totalPages ||
+          1;
         if (type === 'deposit') {
           state.deposits = Array.isArray(data) ? data : [];
+          state.depositsTotalPages = totalPages;
         } else {
           state.withdrawals = Array.isArray(data) ? data : [];
+          state.withdrawalsTotalPages = totalPages;
         }
       })
       .addCase(fetchTransactions.rejected, (state, action) => {
         state.transactionsLoading = false;
         state.transactionsError = action.payload;
+      })
+      .addCase(fetchAllDocument.pending, (state) => {
+        state.kycStatusLoading = true;
+      })
+      .addCase(fetchAllDocument.fulfilled, (state, action) => {
+        // debugger
+        state.kycStatusLoading = false;
+
+        const data = action?.payload?.payload?.data;
+        const doc = Array.isArray(data) ? data[0] : data;
+        state.kycStatus = doc?.status ?? null;
+        // state.kycRejectionReason = doc?.rejectionReason ?? null;
+      })
+      .addCase(fetchAllDocument.rejected, (state) => {
+        state.kycStatusLoading = false;
+        state.kycStatus = null;
+      })
+      .addCase(fetchDashboardStats.pending, (state) => {
+        state.dashboardStatsLoading = true;
+        state.dashboardStatsError = null;
+      })
+      .addCase(fetchDashboardStats.fulfilled, (state, action) => {
+        state.dashboardStatsLoading = false;
+        const data =
+          action?.payload?.payload?.data ||
+          action?.payload?.data ||
+          action?.payload?.payload ||
+          action?.payload;
+        state.dashboardStats = data || null;
+      })
+      .addCase(fetchDashboardStats.rejected, (state, action) => {
+        state.dashboardStatsLoading = false;
+        state.dashboardStatsError = action.payload;
       });
   },
 });

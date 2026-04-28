@@ -227,7 +227,7 @@ export default function Accounts() {
                   </div>
                 </div>
                 <h3>
-                  ${(item?.currentDeposit || 0).toLocaleString()}
+                  ${(item?.sizeOfAccount || 0).toLocaleString()}
                   <span className={styles.profitText}>
                     (+ ${(item?.currentDeposit || 0).toLocaleString()})
                   </span>

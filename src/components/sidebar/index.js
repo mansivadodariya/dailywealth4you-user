@@ -12,19 +12,23 @@ const SidebarLogo = '/assets/logo/sidebar-logo.svg';
 const DashboardIcon = '/assets/icons/dashboard.svg';
 const AccountsIcon = '/assets/icons/Accounts.svg';
 const IntoducingIcon = '/assets/icons/Intoducing.svg';
-const TransactionsIcon = '/assets/icons/Transactions.svg';
+const Deposite = '/assets/icons/Deposite.svg';
+const withdrawal = '/assets/icons/withdrawal.svg';
 const ContactIcon = '/assets/icons/Contact.svg';
 const FaqIcon = '/assets/icons/Faq.svg';
-const TutorialsIcon = '/assets/icons/Tutorials.svg';
+const RecommendedBrokers = '/assets/icons/RecommendedBroker (2).svg';
+const Tutorial = '/assets/icons/Tutorial.svg';
 const EconomicIcon = '/assets/icons/Economic.svg';
 const OctafxIcon = '/assets/icons/octafx.svg';
 const ExnessIcon = '/assets/icons/exness-sidebar.svg';
 const OlymptradeIcon = '/assets/icons/olymptrade.svg';
 const XmIcon = '/assets/icons/xm.svg';
 const IgIcon = '/assets/icons/ig.svg';
-const MyClientsIcon = '/assets/icons/Accounts.svg';
-const ProfitSharingIcon = '/assets/icons/Transactions.svg';
-const IbIncomeIcon = '/assets/icons/Accounts.svg';
+const MyClientsIcon = '/assets/icons/MyClient.svg';
+const ProfitSharingIcon = '/assets/icons/ProfitSharing.svg';
+const IbIncomeIcon = '/assets/icons/IBIncome.svg';
+const TransactionsIcon ='/assets/icons/Transactions.svg';
+
 
 const topMenuItems = [
   {
@@ -40,7 +44,7 @@ const bottomMenuItems = [
   {
     id: 'recommended-brokers',
     label: 'Recommended Brokers',
-    icon: TutorialsIcon,
+    icon: RecommendedBrokers,
     route: '/recommended-brokers',
   },
   {
@@ -53,7 +57,7 @@ const bottomMenuItems = [
   {
     id: 'tutorials',
     label: 'Tutorials',
-    icon: TutorialsIcon,
+    icon: Tutorial,
     route: '/tutorials',
   },
   {
@@ -215,7 +219,7 @@ export default function Sidebar() {
             onClick={() => setTxExpanded((prev) => !prev)}
           >
             <div className={styles.leftAlignment}>
-              <img src={TransactionsIcon} alt="Transactions" />
+              <img src={TransactionsIcon} alt="Transactions"/>
               <span>Transactions</span>
             </div>
             <div className={styles.rightAlignment}>
@@ -235,7 +239,7 @@ export default function Sidebar() {
               >
                 <div className={styles.subMenuConnector} />
                 <div className={styles.subMenuLeft}>
-                  <img src={TransactionsIcon} alt="Withdrawals" />
+                  <img src={withdrawal} alt="Withdrawals" />
                   <span>Withdrawals</span>
                 </div>
                 <div className={styles.rightAlignment}>
@@ -249,7 +253,7 @@ export default function Sidebar() {
               >
                 <div className={styles.subMenuConnector} />
                 <div className={styles.subMenuLeft}>
-                  <img src={TransactionsIcon} alt="Deposits" />
+                  <img src={Deposite} alt="Deposits" />
                   <span>Deposits</span>
                 </div>
                 <div className={styles.rightAlignment}>

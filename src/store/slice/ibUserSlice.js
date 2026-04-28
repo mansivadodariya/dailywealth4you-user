@@ -61,9 +61,16 @@ export const fetchIbProfitSharing = createAsyncThunk(
 
 export const fetchIbClients = createAsyncThunk(
   'ibUser/fetchIbClients',
-  async (_, thunkApi) => {
+  async (filters = {}, thunkApi) => {
     try {
-      const response = await api.get(GET_IB_CLIENT);
+      const params = new URLSearchParams();
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== '' && value !== null && value !== undefined) {
+          params.append(key, value);
+        }
+      });
+      const query = params.toString() ? `?${params.toString()}` : '';
+      const response = await api.get(`${GET_IB_CLIENT}${query}`);
       return response;
     } catch (error) {
       toast.error(error);
@@ -107,10 +114,12 @@ const ibUserSlice = createSlice({
     profitSharingCount: 0,
     profitSharingLoading: false,
     profitSharingError: null,
+    profitSharingTotalPages: 1,
     // IB Clients
     ibClients: [],
     ibClientsLoading: false,
     ibClientsError: null,
+    ibClientsTotalPages: 1,
     // IB Income
     ibIncomeSummary: null,
     ibIncomeData: [],
@@ -183,6 +192,8 @@ const ibUserSlice = createSlice({
         state.profitSharingSummary = payload?.summary || null;
         state.profitSharingData = payload?.data || [];
         state.profitSharingCount = payload?.count || 0;
+        state.profitSharingTotalPages =
+          payload?.totalPages || payload?.pagination?.totalPages || 1;
       })
       .addCase(fetchIbProfitSharing.rejected, (state, action) => {
         state.profitSharingLoading = false;
@@ -197,6 +208,8 @@ const ibUserSlice = createSlice({
         state.ibClientsLoading = false;
         const payload = action?.payload?.payload || action?.payload;
         state.ibClients = payload?.data || payload || [];
+        state.ibClientsTotalPages =
+          payload?.totalPages || payload?.pagination?.totalPages || 1;
       })
       .addCase(fetchIbClients.rejected, (state, action) => {
         state.ibClientsLoading = false;

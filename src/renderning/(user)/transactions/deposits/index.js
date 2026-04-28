@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchTransactions } from '@/store/slice/accountSlice';
+import { getUserFromCookie } from '@/service/cookies';
 import DataTableHeader from '@/components/common/DataTableHeader';
 import FilterModal from '@/components/modal/filterModal';
 import Pagination from '@/components/pagination';
@@ -10,9 +11,8 @@ import Loader from '@/components/Loader';
 import styles from '../transactions.module.scss';
 import moment from 'moment';
 
-const ITEMS_PER_PAGE = 10;
+const LIMIT = 10;
 
-// Deposit filter fields
 const DEPOSIT_FILTER_GROUPS = [
   {
     group: 'Select Date Range',
@@ -39,6 +39,17 @@ const DEPOSIT_FILTER_GROUPS = [
     ],
   },
   {
+    group: 'Status',
+    fields: [
+      {
+        key: 'status',
+        label: 'Status',
+        type: 'text',
+        placeholder: 'e.g. pending, completed',
+      },
+    ],
+  },
+  {
     group: 'MT5 Account',
     fields: [
       {
@@ -53,77 +64,70 @@ const DEPOSIT_FILTER_GROUPS = [
 
 export default function Deposits() {
   const dispatch = useDispatch();
-  const { deposits, transactionsLoading, transactionsError } = useSelector(
-    (state) => state.account
-  );
+  const {
+    deposits,
+    transactionsLoading,
+    transactionsError,
+    depositsTotalPages,
+  } = useSelector((state) => state.account);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [search, setSearch] = useState('');
   const [activeFilters, setActiveFilters] = useState({});
 
+  // Debounce ref — avoids firing API on every keystroke
+  const debounceRef = useRef(null);
+
+  const userId = getUserFromCookie()?.id;
+
+  const loadData = useCallback(
+    (page, searchVal, filters) => {
+      dispatch(
+        fetchTransactions({
+          type: 'deposit',
+          userId,
+          search: searchVal || undefined,
+          page,
+          limit: LIMIT,
+          ...filters,
+        })
+      );
+    },
+    [dispatch, userId]
+  );
+
+  // Initial load
   useEffect(() => {
-    dispatch(fetchTransactions('deposit'));
-  }, [dispatch]);
+    loadData(1, '', {});
+  }, [loadData]);
+
+  // Re-fetch when page changes (search/filter changes reset page to 1 themselves)
+  useEffect(() => {
+    loadData(currentPage, search, activeFilters);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage]);
+
+  const handleSearch = (val) => {
+    setSearch(val);
+    clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      setCurrentPage(1);
+      loadData(1, val, activeFilters);
+    }, 400);
+  };
 
   const handleApplyFilters = (filters) => {
     setActiveFilters(filters);
     setCurrentPage(1);
+    loadData(1, search, filters);
   };
-
-  // Client-side filter + search
-  const filtered = useMemo(() => {
-    return (deposits || []).filter((row) => {
-      // Search
-      if (search) {
-        const q = search.toLowerCase();
-        if (
-          !(row?.mt5Account || '').toLowerCase().includes(q) &&
-          !(row?.broker || '').toLowerCase().includes(q)
-        )
-          return false;
-      }
-      // Date
-      if (activeFilters.startDate && row?.createdAt) {
-        if (new Date(row.createdAt) < new Date(activeFilters.startDate))
-          return false;
-      }
-      if (activeFilters.endDate && row?.createdAt) {
-        if (
-          new Date(row.createdAt) >
-          new Date(activeFilters.endDate + 'T23:59:59')
-        )
-          return false;
-      }
-      // Amount
-      const amt = Number(row?.amount) || 0;
-      if (activeFilters.minAmount && amt < Number(activeFilters.minAmount))
-        return false;
-      if (activeFilters.maxAmount && amt > Number(activeFilters.maxAmount))
-        return false;
-      // MT5 Account
-      if (activeFilters.mt5Account && row?.mt5Account) {
-        if (
-          !row.mt5Account
-            .toLowerCase()
-            .includes(activeFilters.mt5Account.toLowerCase())
-        )
-          return false;
-      }
-      return true;
-    });
-  }, [deposits, search, activeFilters]);
-
-  const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
-  const paginated = filtered.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
 
   const getStatusClass = (status) => {
     if (!status) return styles.neutral;
     const s = status.toLowerCase();
     if (s === 'completed' || s === 'approved') return styles.success;
     if (s === 'failed' || s === 'rejected') return styles.danger;
+    if (s === 'pending') return styles.warning;
     return styles.neutral;
   };
 
@@ -156,10 +160,7 @@ export default function Deposits() {
   return (
     <>
       <DataTableHeader
-        onSearch={(val) => {
-          setSearch(val);
-          setCurrentPage(1);
-        }}
+        onSearch={handleSearch}
         filterModal={
           <FilterModal
             onApply={handleApplyFilters}
@@ -180,7 +181,7 @@ export default function Deposits() {
             </tr>
           </thead>
           <tbody>
-            {paginated.length === 0 ? (
+            {!deposits || deposits.length === 0 ? (
               <tr>
                 <td colSpan="5" className={styles.emptyRow}>
                   {search || Object.keys(activeFilters).length > 0
@@ -189,7 +190,7 @@ export default function Deposits() {
                 </td>
               </tr>
             ) : (
-              paginated.map((row) => (
+              deposits.map((row) => (
                 <tr key={row?.id || row?._id}>
                   <td>
                     {row?.createdAt
@@ -213,11 +214,11 @@ export default function Deposits() {
         </table>
       </div>
 
-      {totalPages > 1 && (
+      {depositsTotalPages > 1 && (
         <Pagination
           currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
+          totalPages={depositsTotalPages}
+          onPageChange={(p) => setCurrentPage(p)}
         />
       )}
     </>

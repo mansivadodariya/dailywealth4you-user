@@ -43,27 +43,25 @@ export default function Tutorials() {
       </p>
     );
   }
-  const handleClick = (tutorial) => {
-    if (tutorial?.videoUrl) {
-      window.open(tutorial.videoUrl, '_blank');
-    }
-  };
 
   return (
     <div className={styles.wrapper}>
       <div className={styles.grid}>
         {tutorials?.map((tutorial) => (
-          <div key={tutorial?.id} className={styles.item}>
+          <div key={tutorial?.id || tutorial?._id} className={styles.item}>
             {/* Bordered box — thumbnail only */}
             <div className={styles.card}>
               <img
-                src={tutorial?.thumbnail}
+                src={
+                  tutorial?.thumbnail ||
+                  tutorial?.image ||
+                  tutorial?.thumbnailUrl
+                }
                 alt={tutorial?.title || 'Tutorial'}
                 className={styles.thumbnail}
                 onError={(e) => {
                   e.currentTarget.style.display = 'none';
                 }}
-                onClick={() => handleClick(tutorial)}
               />
               {/* <div className={styles.playOverlay}>
                 <div className={styles.playIcon}>▶</div>

@@ -1,0 +1,445 @@
+@use '../../../scss/main.scss' as *;
+@use '../../../scss/breakpoints/breakpoints.scss' as *;
+// ─── Layout ──────────────────────────────────────────────────────────────────
+
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+// ─── Stat Cards Row ───────────────────────────────────────────────────────────
+
+.statsRow {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+
+  @include respond-to('lg') {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  @include respond-to('sm') {
+    grid-template-columns: 1fr;
+  }
+}
+
+.statCard {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.07) 0%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+  border-radius: 12px;
+  padding: 18px 20px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  // yellow left accent
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 18px;
+    width: 4px;
+    height: 26px;
+    background: #dbe64c;
+    border-radius: 0 4px 4px 0;
+    box-shadow: 0 0 8px rgba(219, 230, 76, 0.4);
+  }
+
+  // gradient border
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      97.52deg,
+      rgba(255, 255, 255, 0.18) 0.15%,
+      rgba(255, 255, 255, 0.04) 11.93%
+    );
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+}
+
+.statCardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.statLabel {
+  color: #fafafa;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: var(--font-manrope);
+}
+
+.statValueRow {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.statValue {
+  color: #fafafa;
+  font-size: 28px;
+  font-weight: 700;
+  font-family: var(--font-red-hat-display);
+  line-height: 1;
+}
+
+.statChange {
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-manrope);
+
+  &.positive {
+    color: #02df82;
+  }
+  &.negative {
+    color: #ff4d4d;
+  }
+}
+
+.periodSelect {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: #fafafa;
+  font-size: 11px;
+  font-family: var(--font-manrope);
+  padding: 3px 8px;
+  cursor: pointer;
+  outline: none;
+
+  option {
+    background: #0d1f1f;
+    color: #fafafa;
+  }
+}
+
+// ─── Main 2-column Row ────────────────────────────────────────────────────────
+
+.mainRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  align-items: start;
+
+  @include respond-to('lg') {
+    grid-template-columns: 1fr;
+  }
+}
+
+.leftCol,
+.rightCol {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+// ─── Generic Card ─────────────────────────────────────────────────────────────
+
+.card {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.06) 0%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+  border-radius: 14px;
+  padding: 18px 20px;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      97.52deg,
+      rgba(255, 255, 255, 0.15) 0.15%,
+      rgba(255, 255, 255, 0.04) 11.93%
+    );
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  position: relative;
+  padding-left: 12px;
+
+  // yellow left accent
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 16px;
+    background: #dbe64c;
+    border-radius: 2px;
+  }
+}
+
+.cardTitle {
+  color: #fafafa;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: var(--font-manrope);
+}
+
+// ─── Chart wrappers ───────────────────────────────────────────────────────────
+
+.chartWrap {
+  width: 100%;
+  overflow: hidden;
+}
+
+.lineSvg {
+  width: 100%;
+  height: auto;
+  display: block;
+  min-height: 160px;
+}
+
+.barSvg {
+  width: 100%;
+  height: auto;
+  display: block;
+  min-height: 140px;
+}
+
+.chartSkeleton {
+  width: 100%;
+  height: 160px;
+  border-radius: 8px;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.04) 25%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.04) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+}
+
+.chartEmpty {
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #8e8e8e;
+  font-size: 13px;
+  font-family: var(--font-manrope);
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+// ─── Sharing Model Card ───────────────────────────────────────────────────────
+
+.sharingCard {
+  padding-bottom: 20px;
+}
+
+.sharingBody {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 8px 0 4px;
+}
+
+.donutSvg {
+  width: 140px;
+  height: 140px;
+  display: block;
+}
+
+// ─── Wallet Card ──────────────────────────────────────────────────────────────
+
+.walletCard {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.walletLabel {
+  color: #fafafa;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: var(--font-manrope);
+}
+
+.walletValue {
+  color: #fafafa;
+  font-size: 32px;
+  font-weight: 700;
+  font-family: var(--font-red-hat-display);
+  line-height: 1;
+}
+
+.walletActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.depositBtn {
+  height: 42px;
+  border-radius: 8px;
+  border: none;
+  background: #02df82;
+  color: #030f0f;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: var(--font-manrope);
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+
+  &:hover {
+    opacity: 0.85;
+  }
+}
+
+.withdrawBtn {
+  height: 42px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: transparent;
+  color: #fafafa;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: var(--font-manrope);
+  cursor: pointer;
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.06);
+  }
+}
+
+// ─── Recent Transactions ──────────────────────────────────────────────────────
+
+.seeAllBtn {
+  background: transparent;
+  border: none;
+  color: #fafafa;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: var(--font-manrope);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.txList {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.txItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  margin-bottom: 6px;
+  transition: background 0.2s ease;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.06);
+  }
+}
+
+.txLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.txType {
+  color: #fafafa;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: var(--font-manrope);
+}
+
+.txDate {
+  color: #8e8e8e;
+  font-size: 11px;
+  font-family: var(--font-manrope);
+}
+
+.txAmount {
+  color: #fafafa;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: var(--font-manrope);
+}
+
+.txEmpty {
+  color: #8e8e8e;
+  font-size: 13px;
+  font-family: var(--font-manrope);
+  text-align: center;
+  padding: 20px 0;
+}
+
+// ─── Skeleton ─────────────────────────────────────────────────────────────────
+
+.skeleton {
+  display: inline-block;
+  border-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.06) 25%,
+    rgba(255, 255, 255, 0.12) 50%,
+    rgba(255, 255, 255, 0.06) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  width: 100px;
+  height: 28px;
+  vertical-align: middle;
+}

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchIbIncome } from '@/store/slice/ibUserSlice';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -15,9 +15,8 @@ import config from '@/config';
 import toast from 'react-hot-toast';
 
 const CopyIcon = '/assets/icons/copy.svg';
-const ITEMS_PER_PAGE = 10;
+const LIMIT = 10;
 
-// IB Income filter fields match the API: startDate, endDate, minLots, maxLots, minCommission, maxCommission
 const IB_INCOME_FILTER_GROUPS = [
   {
     group: 'Select Date Range',
@@ -40,13 +39,13 @@ const IB_INCOME_FILTER_GROUPS = [
         key: 'minCommission',
         label: 'Min',
         type: 'number',
-        placeholder: 'Min',
+        placeholder: 'Min Commission',
       },
       {
         key: 'maxCommission',
         label: 'Max',
         type: 'number',
-        placeholder: 'Max',
+        placeholder: 'Max Commission',
       },
     ],
   },
@@ -59,35 +58,66 @@ export default function IbIncome() {
   const user = useSelector((state) => state.login.user);
 
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [expandedKey, setExpandedKey] = useState(null);
-  const [filters, setFilters] = useState({});
+  const [search, setSearch] = useState('');
+  const [activeFilters, setActiveFilters] = useState({});
 
-  useEffect(() => {
-    dispatch(fetchIbIncome(filters));
-  }, [dispatch]);
+  const debounceRef = useRef(null);
 
   const referralUrl = `${config.API_URL || ''}/signup/${user?.referralCode || ''}`;
+
+  const loadData = useCallback(
+    (page, searchVal, filters) => {
+      const params = { page, limit: LIMIT };
+      if (searchVal) params.search = searchVal;
+      Object.entries(filters).forEach(([k, v]) => {
+        if (v !== '' && v !== null && v !== undefined) params[k] = v;
+      });
+      dispatch(fetchIbIncome(params));
+    },
+    [dispatch]
+  );
+
+  // Initial load
+  useEffect(() => {
+    loadData(1, '', {});
+  }, [loadData]);
+
+  // Re-fetch when page changes
+  useEffect(() => {
+    loadData(currentPage, search, activeFilters);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage]);
+
+  const handleSearch = (val) => {
+    setSearch(val);
+    clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      setCurrentPage(1);
+      setExpandedKey(null);
+      loadData(1, val, activeFilters);
+    }, 400);
+  };
+
+  const handleApplyFilters = (filters) => {
+    setActiveFilters(filters);
+    setCurrentPage(1);
+    setExpandedKey(null);
+    loadData(1, search, filters);
+  };
 
   const handleCopyReferral = () => {
     if (!referralUrl) return;
     navigator.clipboard
       .writeText(referralUrl)
-      .then(() => {
-        toast.success('Referral link copied!');
-      })
-      .catch(() => {
-        toast.error('Failed to copy link.');
-      });
+      .then(() => toast.success('Referral link copied!'))
+      .catch(() => toast.error('Failed to copy link.'));
   };
 
-  const handleApplyFilters = (newFilters) => {
-    setFilters(newFilters);
-    setCurrentPage(1);
-    setExpandedKey(null);
-    dispatch(fetchIbIncome(newFilters));
-  };
+  // Flatten: one row per user+broker combination
   const allRows = [];
-  ibIncomeData?.forEach((entry) => {
+  (ibIncomeData || []).forEach((entry) => {
     const entryUser = entry?.user;
     (entry?.brokers || []).forEach((brokerEntry, bIdx) => {
       const trades = brokerEntry?.trades || [];
@@ -110,17 +140,13 @@ export default function IbIncome() {
     });
   });
 
-  const totalPages = Math.max(1, Math.ceil(allRows.length / ITEMS_PER_PAGE));
-  const rows = allRows.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
+  // Use server totalPages if available, else derive from local rows
+  const computedTotalPages = Math.max(1, Math.ceil(allRows.length / LIMIT));
 
   return (
     <div>
-      {/* Summary Cards — same layout as profit sharing */}
+      {/* Summary Cards */}
       <div className={styles.cardRow}>
-        {/* Referral link */}
         <div
           className={styles.cardItem}
           style={{ cursor: 'pointer' }}
@@ -144,12 +170,7 @@ export default function IbIncome() {
         <div className={styles.cardItem}>
           <p>Total Lots Traded</p>
           <h3>
-            $
-            {ibIncomeLoading
-              ? '...'
-              : (ibIncomeSummary?.totalLots ??
-                ibIncomeSummary?.totalLots ??
-                '—')}
+            {ibIncomeLoading ? '...' : (ibIncomeSummary?.totalLots ?? '—')}
           </h3>
         </div>
         <div className={styles.cardItem}>
@@ -158,14 +179,15 @@ export default function IbIncome() {
             {ibIncomeLoading
               ? '...'
               : ibIncomeSummary?.totalCommission != null
-                ? `$${ibIncomeSummary.totalCommission}`
+                ? `${ibIncomeSummary.totalCommission}`
                 : '—'}
           </h3>
         </div>
       </div>
 
-      {/* Header — same as profit sharing */}
+      {/* Search + Filter toolbar */}
       <DataTableHeader
+        onSearch={handleSearch}
         filterModal={
           <FilterModal
             onApply={handleApplyFilters}
@@ -197,130 +219,136 @@ export default function IbIncome() {
                   <th>Date</th>
                   <th>Name</th>
                   <th>Email</th>
-                  <th>lots</th>
+                  <th>Lots</th>
                   <th>Broker</th>
-                  <th> Commission</th>
+                  <th>Commission</th>
                   <th className={styles.actionCol}>Action</th>
                 </tr>
               </thead>
               <tbody>
-                {rows.length === 0 && (
+                {allRows.length === 0 ? (
                   <tr>
                     <td colSpan="7" className={styles.emptyRow}>
-                      No data available.
+                      {search || Object.keys(activeFilters).length > 0
+                        ? 'No results match your search or filters.'
+                        : 'No data available.'}
                     </td>
                   </tr>
-                )}
-                {rows.map((row) => (
-                  <React.Fragment key={row.key}>
-                    <tr
-                      className={
-                        expandedKey === row.key ? styles.activeRow : ''
-                      }
-                    >
-                      <td>
-                        {row.latestDate
-                          ? moment(row.latestDate).format(
-                              'DD-MM-YYYY | hh:mm A'
-                            )
-                          : '—'}
-                      </td>
-                      <td>
-                        {`${row.user?.firstName ?? ''} ${row.user?.lastName ?? ''}`.trim() ||
-                          '—'}
-                      </td>
-                      <td>{row.user?.email || '—'}</td>
-                      <td>${row.totalLots ?? '—'}</td>
-                      <td>{row.broker?.name || '—'}</td>
-                      <td>${row.totalCommission ?? '—'}</td>
-                      <td className={styles.actionCol}>
-                        <button
-                          className={`${styles.viewBtn} ${expandedKey === row.key ? styles.active : ''}`}
-                          onClick={() =>
-                            setExpandedKey(
-                              expandedKey === row.key ? null : row.key
-                            )
-                          }
-                        >
-                          {expandedKey === row.key ? 'Close' : 'View'}
-                        </button>
-                      </td>
-                    </tr>
+                ) : (
+                  allRows.map((row) => (
+                    <React.Fragment key={row.key}>
+                      <tr
+                        className={
+                          expandedKey === row.key ? styles.activeRow : ''
+                        }
+                      >
+                        <td>
+                          {row.latestDate
+                            ? moment(row.latestDate).format(
+                                'DD-MM-YYYY | hh:mm A'
+                              )
+                            : '—'}
+                        </td>
+                        <td>
+                          {`${row.user?.firstName ?? ''} ${row.user?.lastName ?? ''}`.trim() ||
+                            '—'}
+                        </td>
+                        <td>{row.user?.email || '—'}</td>
+                        <td>{row.totalLots ?? '—'}</td>
+                        <td>{row.broker?.name || '—'}</td>
+                        <td>${row.totalCommission ?? '—'}</td>
+                        <td className={styles.actionCol}>
+                          <button
+                            className={`${styles.viewBtn} ${expandedKey === row.key ? styles.active : ''}`}
+                            onClick={() =>
+                              setExpandedKey(
+                                expandedKey === row.key ? null : row.key
+                              )
+                            }
+                          >
+                            {expandedKey === row.key ? 'Close' : 'View'}
+                          </button>
+                        </td>
+                      </tr>
 
-                    <AnimatePresence>
-                      {expandedKey === row.key && row.trades.length > 0 && (
-                        <tr className={styles.detailsRow}>
-                          <td colSpan="7">
-                            <motion.div
-                              initial={{ height: 0, opacity: 0 }}
-                              animate={{ height: 'auto', opacity: 1 }}
-                              exit={{ height: 0, opacity: 0 }}
-                              transition={{ duration: 0.3, ease: 'easeInOut' }}
-                              className={styles.detailsWrapper}
-                            >
-                              <div className={styles.innerTableContainer}>
-                                <div className={styles.innerHeader}>
-                                  <div>Order ID</div>
-                                  <div>MT5 Account</div>
-                                  <div>Symbol</div>
-                                  <div>Lots</div>
-                                  <div>P&L</div>
-                                  <div>Commission</div>
-                                </div>
-                                <div className={styles.innerBody}>
-                                  {row.trades.map((trade) => (
-                                    <div
-                                      className={styles.innerRow}
-                                      key={trade?.id}
-                                    >
-                                      <div>{trade?.orderId || '—'}</div>
-                                      <div>{trade?.accountId || '—'}</div>
-                                      <div>
-                                        <span className={styles.symbolBadge}>
-                                          {trade?.item || '—'}
-                                        </span>
+                      <AnimatePresence>
+                        {expandedKey === row.key && row.trades.length > 0 && (
+                          <tr className={styles.detailsRow}>
+                            <td colSpan="7">
+                              <motion.div
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: 'auto', opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                transition={{
+                                  duration: 0.3,
+                                  ease: 'easeInOut',
+                                }}
+                                className={styles.detailsWrapper}
+                              >
+                                <div className={styles.innerTableContainer}>
+                                  <div className={styles.innerHeader}>
+                                    <div>Order ID</div>
+                                    <div>MT5 Account</div>
+                                    <div>Symbol</div>
+                                    <div>Lots</div>
+                                    <div>P&L</div>
+                                    <div>Commission</div>
+                                  </div>
+                                  <div className={styles.innerBody}>
+                                    {row.trades.map((trade) => (
+                                      <div
+                                        className={styles.innerRow}
+                                        key={trade?.id}
+                                      >
+                                        <div>{trade?.orderId || '—'}</div>
+                                        <div>{trade?.accountId || '—'}</div>
+                                        <div>
+                                          <span className={styles.symbolBadge}>
+                                            {trade?.item || '—'}
+                                          </span>
+                                        </div>
+                                        <div>{trade?.volume ?? '—'}</div>
+                                        <div>
+                                          <span
+                                            className={styles.pnlBadge}
+                                            style={{
+                                              borderColor:
+                                                (trade?.profitLoss ?? 0) >= 0
+                                                  ? '#02df82'
+                                                  : '#ff4d4d',
+                                              background:
+                                                (trade?.profitLoss ?? 0) >= 0
+                                                  ? 'rgba(2,223,130,0.1)'
+                                                  : 'rgba(255,77,77,0.1)',
+                                            }}
+                                          >
+                                            {(trade?.profitLoss ?? 0) >= 0
+                                              ? '+'
+                                              : ''}
+                                            ${trade?.profitLoss ?? '—'}
+                                          </span>
+                                        </div>
+                                        <div>${trade?.commission ?? '—'}</div>
                                       </div>
-                                      <div>{trade?.volume ?? '—'}</div>
-                                      <div>
-                                        <span
-                                          className={styles.pnlBadge}
-                                          style={{
-                                            borderColor:
-                                              (trade?.profitLoss ?? 0) >= 0
-                                                ? '#02df82'
-                                                : '#ff4d4d',
-                                            background:
-                                              (trade?.profitLoss ?? 0) >= 0
-                                                ? 'rgba(2,223,130,0.1)'
-                                                : 'rgba(255,77,77,0.1)',
-                                          }}
-                                        >
-                                          {(trade?.profitLoss ?? 0) >= 0
-                                            ? '+'
-                                            : ''}
-                                          ${trade?.profitLoss ?? '—'}
-                                        </span>
-                                      </div>
-                                      <div>${trade?.commission ?? '—'}</div>
-                                    </div>
-                                  ))}
+                                    ))}
+                                  </div>
                                 </div>
-                              </div>
-                            </motion.div>
-                          </td>
-                        </tr>
-                      )}
-                    </AnimatePresence>
-                  </React.Fragment>
-                ))}
+                              </motion.div>
+                            </td>
+                          </tr>
+                        )}
+                      </AnimatePresence>
+                    </React.Fragment>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
 
-          {totalPages > 1 && (
+          {computedTotalPages > 1 && (
             <Pagination
               currentPage={currentPage}
-              totalPages={totalPages}
+              totalPages={computedTotalPages}
               onPageChange={(p) => {
                 setCurrentPage(p);
                 setExpandedKey(null);

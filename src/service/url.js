@@ -26,3 +26,5 @@ export const UPDATE_NOTIFICATION = '/notification/updateNotification';
 export const GET_IB_INCOME = '/ibUser/getIbIncome';
 export const CREATE_TRANSACTION = '/transaction/createTransaction';
 export const GET_ALL_TRANSACTION = '/transaction/getAllTransaction';
+export const GET_ALL_DOCUMENT = '/userDocument/getAllDocument';
+export const GET_DASHBOARD_STATS = '/tradingAccount/getDashboardStats';

@@ -227,6 +227,43 @@
   }
 }
 
+// Account button loader
+.accountBtnLoader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  height: 38px;
+}
+
+.accountBtnSpinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  border-top-color: #02df82;
+  border-radius: 50%;
+  animation: spinAccount 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+.accountBtnLoaderText {
+  color: #8e8e8e;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: var(--font-manrope);
+  white-space: nowrap;
+}
+
+@keyframes spinAccount {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 // Deposit / Withdraw buttons in header
 .txBtn {
   height: 38px;

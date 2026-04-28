@@ -32,7 +32,7 @@ export default function UseExisting({
   const [loginId, setLoginId] = useState('');
   const [password, setPassword] = useState('');
   const [sizeOfAccount, setSizeOfAccount] = useState('');
-  const [accountId, setAccountId] = useState('');
+  // const [accountId, setAccountId] = useState('');
   const [showMt5Modal, setShowMt5Modal] = useState(false);
 
   useEffect(() => {
@@ -42,7 +42,7 @@ export default function UseExisting({
       setLoginId(account?.brokerUserId || account?.accountId || '');
       setPassword(account?.password || '');
       setSizeOfAccount(account?.sizeOfAccount || '');
-      setAccountId(account?.accountId || '');
+      // setAccountId(account?.accountId || '');
     }
   }, [account]);
 
@@ -57,7 +57,7 @@ export default function UseExisting({
         id: account?.id || account?._id || '',
         userId:
           account?.userId || account?.user?.id || account?.user?._id || '',
-        accountId: account?.accountId,
+        // accountId: account?.accountId,
         brokerId: account?.broker?.id || account?.brokerId || '',
         brokerName: brokerName || account?.brokerName || '',
 
@@ -87,14 +87,14 @@ export default function UseExisting({
         return;
       }
 
-      if (!brokerName || !server || !loginId || !password || !accountId) {
+      if (!brokerName || !server || !loginId || !password) {
         toast.error('Please fill in all required fields.');
         return;
       }
 
       const payload = {
         userId: user?.id || '',
-        accountId: accountId,
+        // accountId: accountId,
         brokerId: brokerId,
         brokerName: brokerName,
         sizeOfAccount: sizeOfAccount,
@@ -122,7 +122,7 @@ export default function UseExisting({
         setLoginId('');
         setPassword('');
         setSizeOfAccount('');
-        setAccountId('');
+        // setAccountId('');
         setAgreed(false);
         if (onClose) onClose();
       } catch (error) {
@@ -158,12 +158,12 @@ export default function UseExisting({
                 value={brokerName}
                 onChange={(e) => setBrokerName(e.target.value)}
               />
-              <Input
+              {/* <Input
                 label="Account ID"
                 leftSpacingRemove
                 value={accountId}
                 onChange={(e) => setAccountId(e.target.value)}
-              />
+              /> */}
               <Input
                 label="Server"
                 leftSpacingRemove

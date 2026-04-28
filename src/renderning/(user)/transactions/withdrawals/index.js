@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchTransactions } from '@/store/slice/accountSlice';
+import { getUserFromCookie } from '@/service/cookies';
 import DataTableHeader from '@/components/common/DataTableHeader';
 import FilterModal from '@/components/modal/filterModal';
 import Pagination from '@/components/pagination';
@@ -10,9 +11,8 @@ import Loader from '@/components/Loader';
 import styles from '../transactions.module.scss';
 import moment from 'moment';
 
-const ITEMS_PER_PAGE = 10;
+const LIMIT = 10;
 
-// Withdrawal filter fields
 const WITHDRAWAL_FILTER_GROUPS = [
   {
     group: 'Select Date Range',
@@ -64,89 +64,61 @@ const WITHDRAWAL_FILTER_GROUPS = [
 
 export default function Withdrawals() {
   const dispatch = useDispatch();
-  const { withdrawals, transactionsLoading, transactionsError } = useSelector(
-    (state) => state.account
-  );
+  const {
+    withdrawals,
+    transactionsLoading,
+    transactionsError,
+    withdrawalsTotalPages,
+  } = useSelector((state) => state.account);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [search, setSearch] = useState('');
   const [activeFilters, setActiveFilters] = useState({});
 
+  const debounceRef = useRef(null);
+  const userId = getUserFromCookie()?.id;
+
+  const loadData = useCallback(
+    (page, searchVal, filters) => {
+      dispatch(
+        fetchTransactions({
+          type: 'withdrawal',
+          userId,
+          search: searchVal || undefined,
+          page,
+          limit: LIMIT,
+          ...filters,
+        })
+      );
+    },
+    [dispatch, userId]
+  );
+
+  // Initial load
   useEffect(() => {
-    dispatch(fetchTransactions('withdrawal'));
-  }, [dispatch]);
+    loadData(1, '', {});
+  }, [loadData]);
+
+  // Re-fetch when page changes
+  useEffect(() => {
+    loadData(currentPage, search, activeFilters);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage]);
+
+  const handleSearch = (val) => {
+    setSearch(val);
+    clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      setCurrentPage(1);
+      loadData(1, val, activeFilters);
+    }, 400);
+  };
 
   const handleApplyFilters = (filters) => {
     setActiveFilters(filters);
     setCurrentPage(1);
+    loadData(1, search, filters);
   };
-
-  // Compute summary stats from raw data
-  // const totalWithdrawal = useMemo(() => {
-  //   return (withdrawals || []).reduce((sum, r) => sum + (Number(r?.amount) || 0), 0);
-  // }, [withdrawals]);
-
-  // const requestedWithdrawal = useMemo(() => {
-  //   return (withdrawals || [])
-  //     .filter((r) => (r?.status || '').toLowerCase() === 'pending')
-  //     .reduce((sum, r) => sum + (Number(r?.amount) || 0), 0);
-  // }, [withdrawals]);
-
-  // Client-side filter + search
-  const filtered = useMemo(() => {
-    return (withdrawals || []).filter((row) => {
-      // Search
-      if (search) {
-        const q = search.toLowerCase();
-        if (
-          !(row?.mt5Account || '').toLowerCase().includes(q) &&
-          !(row?.address || '').toLowerCase().includes(q)
-        )
-          return false;
-      }
-      // Date
-      if (activeFilters.startDate && row?.createdAt) {
-        if (new Date(row.createdAt) < new Date(activeFilters.startDate))
-          return false;
-      }
-      if (activeFilters.endDate && row?.createdAt) {
-        if (
-          new Date(row.createdAt) >
-          new Date(activeFilters.endDate + 'T23:59:59')
-        )
-          return false;
-      }
-      // Amount
-      const amt = Number(row?.amount) || 0;
-      if (activeFilters.minAmount && amt < Number(activeFilters.minAmount))
-        return false;
-      if (activeFilters.maxAmount && amt > Number(activeFilters.maxAmount))
-        return false;
-      // Status
-      if (activeFilters.status && row?.status) {
-        if (
-          !row.status.toLowerCase().includes(activeFilters.status.toLowerCase())
-        )
-          return false;
-      }
-      // MT5 Account
-      if (activeFilters.mt5Account && row?.mt5Account) {
-        if (
-          !row.mt5Account
-            .toLowerCase()
-            .includes(activeFilters.mt5Account.toLowerCase())
-        )
-          return false;
-      }
-      return true;
-    });
-  }, [withdrawals, search, activeFilters]);
-
-  const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
-  const paginated = filtered.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
 
   const getStatusClass = (status) => {
     if (!status) return styles.neutral;
@@ -158,7 +130,14 @@ export default function Withdrawals() {
   };
 
   if (transactionsLoading) {
-    return <Loader variant="dots" size="large" color="success" />;
+    return (
+      <Loader
+        variant="dots"
+        size="large"
+        color="success"
+        text="Loading withdrawals..."
+      />
+    );
   }
 
   if (transactionsError) {
@@ -182,21 +161,27 @@ export default function Withdrawals() {
       <div className={styles.summaryCards}>
         <div className={styles.summaryCard}>
           <p>Requested Withdrawal</p>
-          {/* <h3>${requestedWithdrawal.toLocaleString() || '—'}</h3> */}
-          <h3>${'0'}</h3>
+          <h3>
+            $
+            {(withdrawals || [])
+              .filter((r) => (r?.status || '').toLowerCase() === 'pending')
+              .reduce((sum, r) => sum + (Number(r?.amount) || 0), 0)
+              .toLocaleString() || '0'}
+          </h3>
         </div>
         <div className={styles.summaryCard}>
           <p>Total Withdrawal</p>
-          {/* <h3>${totalWithdrawal.toLocaleString() || '—'}</h3> */}
-          <h3>${'0'}</h3>
+          <h3>
+            $
+            {(withdrawals || [])
+              .reduce((sum, r) => sum + (Number(r?.amount) || 0), 0)
+              .toLocaleString() || '0'}
+          </h3>
         </div>
       </div>
 
       <DataTableHeader
-        onSearch={(val) => {
-          setSearch(val);
-          setCurrentPage(1);
-        }}
+        onSearch={handleSearch}
         filterModal={
           <FilterModal
             onApply={handleApplyFilters}
@@ -218,7 +203,7 @@ export default function Withdrawals() {
             </tr>
           </thead>
           <tbody>
-            {paginated.length === 0 ? (
+            {!withdrawals || withdrawals.length === 0 ? (
               <tr>
                 <td colSpan="6" className={styles.emptyRow}>
                   {search || Object.keys(activeFilters).length > 0
@@ -227,7 +212,7 @@ export default function Withdrawals() {
                 </td>
               </tr>
             ) : (
-              paginated.map((row) => (
+              withdrawals.map((row) => (
                 <tr key={row?.id || row?._id}>
                   <td>
                     {row?.createdAt
@@ -275,11 +260,11 @@ export default function Withdrawals() {
         </table>
       </div>
 
-      {totalPages > 1 && (
+      {withdrawalsTotalPages > 1 && (
         <Pagination
           currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
+          totalPages={withdrawalsTotalPages}
+          onPageChange={(p) => setCurrentPage(p)}
         />
       )}
     </>

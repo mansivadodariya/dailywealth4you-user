@@ -13,8 +13,9 @@ import WithdrawModal from '../modal/withdrawModal';
 import { fetchTradingAccounts } from '@/store/slice/accountSlice';
 import { logout } from '@/store/slice/loginSlice';
 import { getUserFromCookie, clearAuthCookies } from '@/service/cookies';
-import { disconnectSocket } from '@/service/socket';
+// import { disconnectSocket } from '@/service/socket';
 import AuthButton from '../authButton';
+import Loader from '../Loader';
 
 const BellIcon = '/assets/icons/bell.svg';
 const UserIcon = '/assets/icons/userIcon.svg';
@@ -68,7 +69,12 @@ export default function Header() {
   const notifRef = useRef(null);
 
   const dispatch = useDispatch();
-  const { tradingAccounts } = useSelector((state) => state.account);
+  const {
+    tradingAccounts,
+    tradingAccountsLoading,
+    kycStatus,
+    kycStatusLoading,
+  } = useSelector((state) => state.account);
   const { user, unreadCount } = useSelector((state) => state.login);
   const isDashboard = pathname === '/dashboard' || pathname === '/';
   const isAccountsPage = pathname === '/accounts';
@@ -79,7 +85,7 @@ export default function Header() {
     `${currentUser?.firstName || ''} ${currentUser?.lastName || ''}`.trim() ||
     'User';
   const email = currentUser?.email || '';
-  const isKycVerified = currentUser?.isKYCVerified === 'approved';
+  const isKycVerified = kycStatus === 'approved';
 
   // ── Account breadcrumb ────────────────────────────────────────────────────
   useEffect(() => {
@@ -154,7 +160,7 @@ export default function Header() {
   };
 
   const handleLogout = () => {
-    disconnectSocket();
+    // disconnectSocket();
     dispatch(logout());
     clearAuthCookies();
     router.push('/');
@@ -197,7 +203,19 @@ export default function Header() {
 
           {isDashboard && (
             <>
-              {tradingAccounts?.length > 0 ? (
+              {kycStatusLoading || tradingAccountsLoading ? (
+                // <div className={styles.accountBtnLoader}>
+                //   <span className={styles.accountBtnSpinner} />
+                //   <span className={styles.accountBtnLoaderText}>Loading...</span>
+                // </div>
+                <Loader
+                  fullScreen
+                  variant="dots"
+                  size="large"
+                  color="success"
+                  text="Loading ..."
+                />
+              ) : tradingAccounts?.length > 0 ? (
                 <div className={styles.accountSelectorWrapper}>
                   <div className={styles.accountSelector}>
                     <span className={styles.accountLabel}>Account:</span>
@@ -248,7 +266,7 @@ export default function Header() {
                                 }}
                               />
                               <span className={styles.accountIdText}>
-                                {account?.accountId}
+                                {account?.mt5LoginId}
                               </span>
                             </div>
                           ))}

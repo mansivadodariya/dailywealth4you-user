@@ -26,6 +26,8 @@ import accountReducer, {
   fetchAccountHistory,
   createTransaction,
   fetchTransactions,
+  fetchAllDocument,
+  fetchDashboardStats,
 } from '@/store/slice/accountSlice';
 import ibUserReducer, {
   applyIbRequest,
@@ -73,5 +75,7 @@ export {
   fetchIbUserRequest,
   fetchIbClients,
   fetchIbIncome,
+  fetchAllDocument,
+  fetchDashboardStats,
 };
 export default reducer;

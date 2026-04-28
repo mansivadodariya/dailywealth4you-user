@@ -10,6 +10,7 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginUser } from '@/store/reducers';
+import { fetchAllDocument } from '@/store/slice/accountSlice';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 
@@ -43,6 +44,16 @@ export default function Login() {
       const result = await dispatch(loginUser(values));
 
       if (result.meta.requestStatus === 'fulfilled') {
+        // Fetch KYC document status immediately after login
+        const userId =
+          result.payload?.payload?.data?.user?.id ||
+          result.payload?.payload?.user?.id ||
+          result.payload?.data?.user?.id ||
+          result.payload?.user?.id ||
+          result.payload?.id;
+        if (userId) {
+          dispatch(fetchAllDocument(userId));
+        }
         toast.success('Login Successfully');
         router.push('/dashboard');
         resetForm();

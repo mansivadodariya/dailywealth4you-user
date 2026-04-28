@@ -14,7 +14,7 @@ export default function KycRejected({ rejectionMessage, onSubmitAgain }) {
           <h2>KYC Rejected</h2>
           <p>
             {rejectionMessage ||
-              'Your KYC documents were not approved. Please review the reason below and resubmit.'}
+              'Your KYC documents were not approved. Please contact the admin and resubmit.'}
           </p>
         </div>
 

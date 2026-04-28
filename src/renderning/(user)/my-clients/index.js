@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchIbClients } from '@/store/slice/ibUserSlice';
 import DataTableHeader from '@/components/common/DataTableHeader';
@@ -11,9 +11,8 @@ import moment from 'moment';
 import Loader from '@/components/Loader';
 import Pagination from '@/components/pagination';
 
-const ITEMS_PER_PAGE = 10;
+const LIMIT = 10;
 
-// My Clients filter fields: date, profit, deposit
 const MY_CLIENTS_FILTER_GROUPS = [
   {
     group: 'Select Date Range',
@@ -60,90 +59,57 @@ const MY_CLIENTS_FILTER_GROUPS = [
 
 export default function MyClients() {
   const dispatch = useDispatch();
-  const { ibClients, ibClientsLoading, ibClientsError } = useSelector(
-    (state) => state.ibUser
-  );
-  //   console.log(ibClients, "ibClients")
+  const { ibClients, ibClientsLoading, ibClientsError, ibClientsTotalPages } =
+    useSelector((state) => state.ibUser);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [search, setSearch] = useState('');
-  const [selectedClient, setSelectedClient] = useState(null);
   const [activeFilters, setActiveFilters] = useState({});
+  const [selectedClient, setSelectedClient] = useState(null);
 
+  const debounceRef = useRef(null);
+
+  const loadData = useCallback(
+    (page, searchVal, filters) => {
+      const params = { page, limit: LIMIT };
+      if (searchVal) params.search = searchVal;
+      Object.entries(filters).forEach(([k, v]) => {
+        if (v !== '' && v !== null && v !== undefined) params[k] = v;
+      });
+      dispatch(fetchIbClients(params));
+    },
+    [dispatch]
+  );
+
+  // Initial load
   useEffect(() => {
-    dispatch(fetchIbClients());
-  }, [dispatch]);
+    loadData(1, '', {});
+  }, [loadData]);
+
+  // Re-fetch when page changes
+  useEffect(() => {
+    loadData(currentPage, search, activeFilters);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage]);
+
+  const handleSearch = (val) => {
+    setSearch(val);
+    clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      setCurrentPage(1);
+      loadData(1, val, activeFilters);
+    }, 400);
+  };
 
   const handleApplyFilters = (filters) => {
     setActiveFilters(filters);
     setCurrentPage(1);
-    // Client-side filter applied below — wire to API when backend supports it
+    loadData(1, search, filters);
   };
-
-  const filtered = (ibClients || []).filter((client) => {
-    const user = client?.user || client;
-
-    // Search filter
-    if (search) {
-      const q = search.toLowerCase();
-      const name =
-        `${user?.firstName || ''} ${user?.lastName || ''}`.toLowerCase();
-      const email = (user?.email || '').toLowerCase();
-      if (!name.includes(q) && !email.includes(q)) return false;
-    }
-
-    // Date filter
-    if (activeFilters.startDate && client?.createdAt) {
-      if (new Date(client.createdAt) < new Date(activeFilters.startDate))
-        return false;
-    }
-    if (activeFilters.endDate && client?.createdAt) {
-      if (
-        new Date(client.createdAt) >
-        new Date(activeFilters.endDate + 'T23:59:59')
-      )
-        return false;
-    }
-
-    // Profit filter
-    const profit = client?.totalProfit ?? 0;
-    if (
-      activeFilters.minProfit !== undefined &&
-      profit < Number(activeFilters.minProfit)
-    )
-      return false;
-    if (
-      activeFilters.maxProfit !== undefined &&
-      profit > Number(activeFilters.maxProfit)
-    )
-      return false;
-
-    // Deposit filter
-    const deposit = client?.deposit ?? client?.totalDeposit ?? 0;
-    if (
-      activeFilters.minDeposit !== undefined &&
-      deposit < Number(activeFilters.minDeposit)
-    )
-      return false;
-    if (
-      activeFilters.maxDeposit !== undefined &&
-      deposit > Number(activeFilters.maxDeposit)
-    )
-      return false;
-
-    return true;
-  });
-
-  const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
-  const paginated = filtered.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
 
   if (ibClientsLoading) {
     return (
       <Loader
-        fullScreen
         variant="dots"
         size="large"
         color="success"
@@ -170,10 +136,7 @@ export default function MyClients() {
   return (
     <>
       <DataTableHeader
-        onSearch={(val) => {
-          setSearch(val);
-          setCurrentPage(1);
-        }}
+        onSearch={handleSearch}
         filterModal={
           <FilterModal
             onApply={handleApplyFilters}
@@ -195,41 +158,37 @@ export default function MyClients() {
             </tr>
           </thead>
           <tbody>
-            {paginated.length === 0 ? (
+            {!ibClients || ibClients.length === 0 ? (
               <tr>
                 <td colSpan="6" className={styles.emptyRow}>
-                  {search
+                  {search || Object.keys(activeFilters).length > 0
                     ? 'No clients match your search.'
                     : 'No clients found.'}
                 </td>
               </tr>
             ) : (
-              paginated.map((client, i) => {
+              ibClients.map((client, i) => {
                 const user = client?.user || client;
                 const name =
                   `${user?.firstName || ''} ${user?.lastName || ''}`.trim() ||
                   '—';
                 const email = user?.email || '—';
                 const dateReferred = client?.createdAt
-                  ? moment(client.createdAt).format('DD-MM-YYYY |  hh:mm A')
+                  ? moment(client.createdAt).format('DD-MM-YYYY | hh:mm A')
                   : '—';
                 const deposit = client?.deposit ?? client?.totalDeposit ?? '—';
                 const profit = client?.totalProfit ?? '—';
 
                 return (
                   <tr key={client?.id || client?._id || i}>
-                    <td>{dateReferred}.</td>
+                    <td>{dateReferred}</td>
                     <td>{name}</td>
                     <td>{email}</td>
                     <td>
-                      {deposit !== '—'
-                        ? `$${Number(deposit).toLocaleString()}`
-                        : '—'}
+                      {deposit !== '—' ? Number(deposit).toLocaleString() : '—'}
                     </td>
                     <td>
-                      {profit !== '—'
-                        ? `$${Number(profit).toLocaleString()}`
-                        : '—'}
+                      {profit !== '—' ? Number(profit).toLocaleString() : '—'}
                     </td>
                     <td className={styles.actionCol}>
                       <button
@@ -247,11 +206,11 @@ export default function MyClients() {
         </table>
       </div>
 
-      {totalPages > 1 && (
+      {ibClientsTotalPages > 1 && (
         <Pagination
           currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
+          totalPages={ibClientsTotalPages}
+          onPageChange={(p) => setCurrentPage(p)}
         />
       )}
 
