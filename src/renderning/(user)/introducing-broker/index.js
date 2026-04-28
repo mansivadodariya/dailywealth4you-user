@@ -61,7 +61,7 @@ export default function IntroducingBroker() {
         <img
           src="/assets/icons/Ibuser.svg"
           alt="broker"
-          style={{ width: 160, height: 160 }}
+          style={{ width: 180, height: 180, marginRight: 50 }}
         />
         <h2 className={styles.title}>
           Please apply to start receiving commissions

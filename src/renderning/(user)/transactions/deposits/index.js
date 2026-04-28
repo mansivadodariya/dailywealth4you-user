@@ -133,12 +133,7 @@ export default function Deposits() {
 
   if (transactionsLoading) {
     return (
-      <Loader
-        variant="dots"
-        size="large"
-        color="success"
-        text="Loading deposits..."
-      />
+      <Loader variant="dots" size="large" color="success" text="Loading..." />
     );
   }
 

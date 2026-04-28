@@ -33,7 +33,7 @@ export default function FAQS() {
           variant="dots"
           size="large"
           color="success"
-          text="Loading faqs..."
+          text="Loading ..."
         />
       ) : faqsError ? (
         <p style={{ color: '#ff4d4d' }}>Error loading FAQs</p>

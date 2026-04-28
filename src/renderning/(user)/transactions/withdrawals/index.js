@@ -131,12 +131,7 @@ export default function Withdrawals() {
 
   if (transactionsLoading) {
     return (
-      <Loader
-        variant="dots"
-        size="large"
-        color="success"
-        text="Loading withdrawals..."
-      />
+      <Loader variant="dots" size="large" color="success" text="Loading..." />
     );
   }
 

@@ -27,8 +27,7 @@ const IgIcon = '/assets/icons/ig.svg';
 const MyClientsIcon = '/assets/icons/MyClient.svg';
 const ProfitSharingIcon = '/assets/icons/ProfitSharing.svg';
 const IbIncomeIcon = '/assets/icons/IBIncome.svg';
-const TransactionsIcon ='/assets/icons/Transactions.svg';
-
+const TransactionsIcon = '/assets/icons/Transactions.svg';
 
 const topMenuItems = [
   {
@@ -219,7 +218,7 @@ export default function Sidebar() {
             onClick={() => setTxExpanded((prev) => !prev)}
           >
             <div className={styles.leftAlignment}>
-              <img src={TransactionsIcon} alt="Transactions"/>
+              <img src={TransactionsIcon} alt="Transactions" />
               <span>Transactions</span>
             </div>
             <div className={styles.rightAlignment}>

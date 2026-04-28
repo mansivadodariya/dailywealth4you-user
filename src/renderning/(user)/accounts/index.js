@@ -83,7 +83,7 @@ export default function Accounts() {
         variant="dots"
         size="large"
         color="success"
-        text="Loading data..."
+        text="Loading ..."
       />
     );
   }
@@ -116,7 +116,7 @@ export default function Accounts() {
               variant="dots"
               size="large"
               color="success"
-              text="Loading history..."
+              text="Loading..."
             />
           ) : (
             <div className={styles.historyTableContainer}>
@@ -182,11 +182,14 @@ export default function Accounts() {
           )}
         </div>
 
-        {showEditModal && selectedAccount && (
+        {showEditModal && activeAccount && (
           <UseExisting
             isEdit
-            account={selectedAccount}
-            onClose={() => setShowEditModal(false)}
+            account={activeAccount}
+            onClose={() => {
+              setShowEditModal(false);
+              dispatch(fetchTradingAccounts(userId));
+            }}
           />
         )}
       </>
@@ -206,7 +209,7 @@ export default function Accounts() {
             >
               <div className={styles.headerAlignment}>
                 <div className={styles.cardHeader}>
-                  <p>Account No: {item?.accountId}</p>
+                  <p>Account No: {item?.mt5LoginId}</p>
                   <div className={styles.buttonContainer}>
                     <div
                       className={styles.editBtn}
@@ -295,7 +298,11 @@ export default function Accounts() {
         <UseExisting
           isEdit
           account={selectedAccount}
-          onClose={() => setShowEditModal(false)}
+          onClose={() => {
+            setShowEditModal(false);
+            setSelectedAccount(null);
+            dispatch(fetchTradingAccounts(userId));
+          }}
         />
       )}
 

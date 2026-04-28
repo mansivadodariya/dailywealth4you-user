@@ -247,20 +247,6 @@ export const fetchTransactions = createAsyncThunk(
   }
 );
 
-export const fetchDashboardStats = createAsyncThunk(
-  'account/fetchDashboardStats',
-  async (userId, thunkApi) => {
-    try {
-      const response = await api.get(
-        `${GET_DASHBOARD_STATS}${userId ? `?userId=${userId}` : ''}`
-      );
-      return response;
-    } catch (error) {
-      return thunkApi.rejectWithValue(error);
-    }
-  }
-);
-
 export const fetchAllDocument = createAsyncThunk(
   'account/fetchAllDocument',
   async (userId, thunkApi) => {
@@ -518,23 +504,6 @@ const accountSlice = createSlice({
       .addCase(fetchAllDocument.rejected, (state) => {
         state.kycStatusLoading = false;
         state.kycStatus = null;
-      })
-      .addCase(fetchDashboardStats.pending, (state) => {
-        state.dashboardStatsLoading = true;
-        state.dashboardStatsError = null;
-      })
-      .addCase(fetchDashboardStats.fulfilled, (state, action) => {
-        state.dashboardStatsLoading = false;
-        const data =
-          action?.payload?.payload?.data ||
-          action?.payload?.data ||
-          action?.payload?.payload ||
-          action?.payload;
-        state.dashboardStats = data || null;
-      })
-      .addCase(fetchDashboardStats.rejected, (state, action) => {
-        state.dashboardStatsLoading = false;
-        state.dashboardStatsError = action.payload;
       });
   },
 });

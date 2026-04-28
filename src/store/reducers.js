@@ -37,6 +37,11 @@ import ibUserReducer, {
   fetchIbClients,
   fetchIbIncome,
 } from '@/store/slice/ibUserSlice';
+import dashboardReducer, {
+  fetchRecentTransactions,
+  fetchDashboardCharts,
+  clearDashboardState,
+} from '@/store/slice/dashboardSlice';
 
 const reducer = combineReducers({
   signup: signupReducer,
@@ -44,6 +49,7 @@ const reducer = combineReducers({
   otp: otpReducer,
   account: accountReducer,
   ibUser: ibUserReducer,
+  dashboard: dashboardReducer,
 });
 
 export {
@@ -76,6 +82,8 @@ export {
   fetchIbClients,
   fetchIbIncome,
   fetchAllDocument,
-  fetchDashboardStats,
+  fetchRecentTransactions,
+  fetchDashboardCharts,
+  clearDashboardState,
 };
 export default reducer;

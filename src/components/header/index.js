@@ -140,12 +140,14 @@ export default function Header() {
   const activeAccount =
     tradingAccounts?.find((acc) => acc?.id === selectedAccountId) ||
     tradingAccounts?.[0];
-  const accountIdStr = activeAccount?.accountId || 'No Account';
+  const accountIdStr = activeAccount?.mt5LoginId || 'No Account';
   const brokerLogo = activeAccount?.broker?.logo || moneyIcon;
 
   const handleSelectAccount = (account) => {
     setSelectedAccountId(account?.id);
     setIsAccountDropdownOpen(false);
+    // Emit a custom event with the selected account object
+    window.dispatchEvent(new CustomEvent('dashboardAccountChanged', { detail: { account } }));
   };
 
   const handleMt5ModalClose = () => {
@@ -280,7 +282,7 @@ export default function Header() {
                   />
 
                   {/* Deposit & Withdraw buttons */}
-                  <button
+                  {/* <button
                     className={styles.txBtn}
                     onClick={() => setShowDepositModal(true)}
                   >
@@ -291,7 +293,7 @@ export default function Header() {
                     onClick={() => setShowWithdrawModal(true)}
                   >
                     Withdraw
-                  </button>
+                  </button> */}
                 </div>
               ) : (
                 <AuthButton

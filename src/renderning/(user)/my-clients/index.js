@@ -109,12 +109,7 @@ export default function MyClients() {
 
   if (ibClientsLoading) {
     return (
-      <Loader
-        variant="dots"
-        size="large"
-        color="success"
-        text="Loading clients..."
-      />
+      <Loader variant="dots" size="large" color="success" text="Loading..." />
     );
   }
 

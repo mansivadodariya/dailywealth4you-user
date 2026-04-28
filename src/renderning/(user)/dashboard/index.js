@@ -3,17 +3,24 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/navigation';
+import { fetchIbIncome, fetchIbProfitSharing } from '@/store/slice/ibUserSlice';
 import {
-  fetchDashboardStats,
-  fetchTransactions,
-} from '@/store/slice/accountSlice';
+  fetchRecentTransactions,
+  fetchDashboardCharts,
+  getDateRangeForPeriod,
+} from '@/store/slice/dashboardSlice';
 import { getUserFromCookie } from '@/service/cookies';
 import DepositModal from '@/components/modal/depositModal';
 import WithdrawModal from '@/components/modal/withdrawModal';
 import moment from 'moment';
 import styles from './dashboard.module.scss';
+import AuthButton from '@/components/authButton';
+
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
+
+const PlusIcon = '/assets/icons/plus.svg';
+const UpDirection = '/assets/icons/Updirection.svg';
 
 function fmt(val) {
   if (val === null || val === undefined || val === '—') return '—';
@@ -374,12 +381,18 @@ export default function Dashboard() {
   const dispatch = useDispatch();
   const router = useRouter();
 
+
   const {
-    dashboardStats,
-    dashboardStatsLoading,
+    portfolioGrowth,
+    lotsTraded,
+    chartsLoading,
+    recentTransactions,
+    recentTransactionsLoading,
+  } = useSelector((state) => state.dashboard);
+    const {
+   
     tradingAccounts,
-    deposits,
-    withdrawals,
+
   } = useSelector((state) => state.account);
 
   const [showDeposit, setShowDeposit] = useState(false);
@@ -387,106 +400,79 @@ export default function Dashboard() {
   const [chartPeriod, setChartPeriod] = useState('Last 7 Days');
 
   const userId = getUserFromCookie()?.id;
-  const activeAccount = tradingAccounts?.[0] || null;
+    // Track the active account for dashboard charts
+    const [activeAccount, setActiveAccount] = useState(tradingAccounts?.[0] || null);
 
+    // Listen for account change events from header
+    useEffect(() => {
+      const handler = (e) => {
+        if (e.detail?.account) setActiveAccount(e.detail.account);
+      };
+      window.addEventListener('dashboardAccountChanged', handler);
+      return () => window.removeEventListener('dashboardAccountChanged', handler);
+    }, []);
+
+    // Update local state if tradingAccounts change (initial load or account list update)
+    useEffect(() => {
+      if (!activeAccount && tradingAccounts?.length > 0) {
+        setActiveAccount(tradingAccounts[0]);
+      }
+    }, [tradingAccounts]);
+
+  // Fetch dashboard charts and transactions when account or period changes
   useEffect(() => {
-    if (userId) {
-      dispatch(fetchDashboardStats(userId));
-      dispatch(fetchTransactions({ type: 'deposit', userId, limit: 5 }));
-      dispatch(fetchTransactions({ type: 'withdrawal', userId, limit: 5 }));
+    if (userId && activeAccount) {
+      const { startDate, endDate } = getDateRangeForPeriod(chartPeriod);
+      dispatch(
+        fetchDashboardCharts({
+          userId,
+          startDate,
+          endDate,
+          accountId: activeAccount?.mt5LoginId,
+        })
+      );
+      dispatch(fetchRecentTransactions({     accountId: activeAccount.mt5LoginId, userId, limit: 6 }));
     }
-  }, [dispatch, userId]);
+  }, [dispatch, userId, activeAccount, chartPeriod]);
 
-  // ── Derive chart data from dashboardStats ──────────────────────────────────
-  const portfolioPoints = (() => {
-    const raw =
-      dashboardStats?.portfolioGrowth ||
-      dashboardStats?.chartData ||
-      dashboardStats?.growthData ||
-      [];
-    if (Array.isArray(raw) && raw.length > 0) {
-      return raw.map((p) => ({
-        label: p.date ? moment(p.date).format('D-M') : p.label || '',
-        value: p.value ?? p.amount ?? p.balance ?? 0,
-      }));
-    }
-    // Fallback: generate placeholder from account size
-    const base = Number(activeAccount?.sizeOfAccount) || 12894;
-    return Array.from({ length: 15 }, (_, i) => ({
-      label: `${10 + i}-5`,
-      value: base * (0.7 + Math.random() * 0.6),
-    }));
-  })();
+  // ── Chart data from dashboardSlice (real API) ─────────────────────────────
+  const portfolioPoints = (portfolioGrowth || []).map((p) => ({
+    label: p.date ? moment(p.date).format('D-M') : p.label || '',
+    value: p.value ?? 0,
+  }));
 
-  const lotsPoints = (() => {
-    const raw =
-      dashboardStats?.lotsTraded ||
-      dashboardStats?.lotsData ||
-      dashboardStats?.lots ||
-      [];
-    if (Array.isArray(raw) && raw.length > 0) {
-      return raw.map((p) => ({
-        label: p.date ? moment(p.date).format('D-M-YY') : p.label || '',
-        value: p.value ?? p.lots ?? p.volume ?? 0,
-      }));
-    }
-    return Array.from({ length: 7 }, (_, i) => ({
-      label: `${10 + i}-5-26`,
-      value: Math.floor(20 + Math.random() * 120),
-    }));
-  })();
+  const lotsPoints = (lotsTraded || []).map((p) => ({
+    label: p.date ? moment(p.date).format('D-M') : p.label || '',
+    value: p.value ?? 0,
+  }));
 
-  // ── Stats ──────────────────────────────────────────────────────────────────
-  const stats = dashboardStats || {};
-  const investment =
-    stats.investment ??
-    stats.totalInvestment ??
-    activeAccount?.sizeOfAccount ??
-    0;
-  const currentValue =
-    stats.currentValue ??
-    stats.currentBalance ??
-    activeAccount?.currentDeposit ??
-    0;
-  const grossPnl = stats.grossPnl ?? stats.grossPL ?? stats.grossProfit ?? 0;
-  const netPnl = stats.netPnl ?? stats.netPL ?? stats.netProfit ?? 0;
-  const grossChange = pct(stats.grossPnlChange ?? stats.grossChange);
-  const netChange = pct(stats.netPnlChange ?? stats.netChange);
-  const walletBalance =
-    stats.walletBalance ?? stats.balance ?? currentValue ?? 0;
-  const sharingPct = Number(stats.sharingPercentage ?? stats.userShare ?? 50);
+  // ── Recent transactions from dashboardSlice ───────────────────────────────
 
-  // ── Recent transactions: merge deposits + withdrawals, sort by date ────────
-  const recentTx = [...(deposits || []), ...(withdrawals || [])]
-    .sort((a, b) => new Date(b?.createdAt) - new Date(a?.createdAt))
-    .slice(0, 6);
 
   return (
     <div className={styles.dashboard}>
       {/* ── Row 1: Stat Cards ─────────────────────────────────────────────── */}
       <div className={styles.statsRow}>
+        <StatCard label="Investment" 
+        // value={investment}
+         loading={false} />
         <StatCard
-          label="Investment"
-          value={investment}
-          loading={dashboardStatsLoading}
-        />
-        <StatCard
-          label="Current Value"
-          value={currentValue}
-          loading={dashboardStatsLoading}
-        />
+         label="Current Value"
+        
+        // value={currentValue}
+         loading={false} />
         <StatCard
           label="Gross P&L"
-          value={grossPnl}
-          change={grossChange}
-          loading={dashboardStatsLoading}
+          // value={grossPnl}
+          // change={grossChange}
+          loading={false}
           showPeriod
         />
         <StatCard
           label="Net P&L"
-          value={netPnl}
-          change={netChange}
-          loading={dashboardStatsLoading}
+          // value={netPnl}
+          // change={netChange}
+          loading={false}
           showPeriod
         />
       </div>
@@ -510,20 +496,55 @@ export default function Dashboard() {
               </select>
             </div>
             <div className={styles.chartWrap}>
-              <LineChart
-                data={portfolioPoints}
-                loading={dashboardStatsLoading}
-              />
+              <LineChart data={portfolioPoints} loading={chartsLoading} />
             </div>
           </div>
 
-          {/* Current Sharing Model */}
-          <div className={`${styles.card} ${styles.sharingCard}`}>
-            <div className={styles.cardHeader}>
-              <span className={styles.cardTitle}>Current Sharing Model</span>
+          {/* Current Sharing Model + IB Revenue boxes */}
+          <div className={styles.sharingRow}>
+            {/* Left: donut */}
+            <div className={`${styles.card} ${styles.sharingCard}`}>
+              <div className={styles.cardHeader}>
+                <span className={styles.cardTitle}>Current Sharing Model</span>
+              </div>
+              <div className={styles.sharingBody}>
+                <DonutChart  />
+              </div>
             </div>
-            <div className={styles.sharingBody}>
-              <DonutChart userPct={sharingPct} />
+
+            {/* Right: two stacked revenue boxes */}
+            <div className={styles.revenueCol}>
+              {/* IB Income */}
+              <div className={`${styles.card} ${styles.revenueCard}`}>
+                <div className={styles.revenueLabel}>IB Income</div>
+                <div className={styles.revenueValue}>
+                  {/* {ibIncomeLoading ? (
+                    <span className={styles.skeleton} />
+                  ) : ibIncomeTotal !== null ? (
+                    `$${fmt(ibIncomeTotal)}`
+                  ) : (
+                    '0'
+                  )} */}
+                 {0} 
+                </div>
+              </div>
+
+              {/* Profit Sharing Revenue */}
+              <div className={`${styles.card} ${styles.revenueCard}`}>
+                <div className={styles.revenueLabel}>
+                  Profit Sharing Revenue
+                </div>
+                <div className={styles.revenueValue}>
+                  {/* {profitSharingLoading ? (
+                    <span className={styles.skeleton} />
+                  ) : profitSharingRevenue !== null ? (
+                    `$${fmt(profitSharingRevenue)}`
+                  ) : (
+                    '0'
+                  )} */}
+                  {0}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -534,28 +555,31 @@ export default function Dashboard() {
           <div className={`${styles.card} ${styles.walletCard}`}>
             <span className={styles.walletLabel}>Wallet Balance</span>
             <span className={styles.walletValue}>
-              {dashboardStatsLoading ? (
+              {chartsLoading ? (
                 <span
                   className={styles.skeleton}
                   style={{ width: 120, height: 32, display: 'inline-block' }}
                 />
               ) : (
-                `$${fmt(walletBalance)}`
+                // `$${fmt(walletBalance)}`
+                0
               )}
             </span>
             <div className={styles.walletActions}>
-              <button
+              <AuthButton
+                text="Deposite"
+                icon={PlusIcon}
                 className={styles.depositBtn}
                 onClick={() => setShowDeposit(true)}
-              >
-                Deposit +
-              </button>
-              <button
+              />
+
+              <AuthButton
+                outline
+                icon={UpDirection}
+                text="Withdraw"
                 className={styles.withdrawBtn}
                 onClick={() => setShowWithdraw(true)}
-              >
-                Withdraw ↑
-              </button>
+              />
             </div>
           </div>
 
@@ -565,7 +589,7 @@ export default function Dashboard() {
               <span className={styles.cardTitle}>Lots Traded</span>
             </div>
             <div className={styles.chartWrap}>
-              <BarChart data={lotsPoints} loading={dashboardStatsLoading} />
+              <BarChart data={lotsPoints} loading={chartsLoading} />
             </div>
           </div>
 
@@ -581,11 +605,35 @@ export default function Dashboard() {
               </button>
             </div>
             <div className={styles.txList}>
-              {recentTx.length === 0 ? (
+              {recentTransactionsLoading ? (
+                Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className={styles.txItem}>
+                    <div className={styles.txLeft}>
+                      <span
+                        className={styles.skeleton}
+                        style={{ width: 80, height: 13, display: 'block' }}
+                      />
+                      <span
+                        className={styles.skeleton}
+                        style={{
+                          width: 120,
+                          height: 11,
+                          display: 'block',
+                          marginTop: 4,
+                        }}
+                      />
+                    </div>
+                    <span
+                      className={styles.skeleton}
+                      style={{ width: 60, height: 14, display: 'block' }}
+                    />
+                  </div>
+                ))
+              ) : recentTransactions.length === 0 ? (
                 <p className={styles.txEmpty}>No transactions yet.</p>
               ) : (
-                recentTx.map((tx, i) => (
-                  <div key={tx?.id || tx?._id || i} className={styles.txItem}>
+                recentTransactions.map((tx, i) => (
+                  <div key={tx?.id} className={styles.txItem}>
                     <div className={styles.txLeft}>
                       <span className={styles.txType}>
                         {tx?.type

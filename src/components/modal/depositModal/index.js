@@ -11,6 +11,7 @@ const RightIcon = '/assets/icons/right.svg';
 const CloseIcon = '/assets/icons/close.svg';
 
 export default function DepositModal({ onClose, activeAccount }) {
+  console.log("deposite ",activeAccount)
   const dispatch = useDispatch();
   const { transactionLoading } = useSelector((state) => state.account);
 
@@ -19,7 +20,7 @@ export default function DepositModal({ onClose, activeAccount }) {
   // Resolve account info — prefer prop, fall back to first trading account
   const { tradingAccounts } = useSelector((state) => state.account);
   const account = activeAccount || tradingAccounts?.[0];
-  const mt5Account = account?.accountId || '';
+  const mt5Account = account?.mt5LoginId || '';
   const broker =
     typeof account?.broker === 'object'
       ? account?.broker?.name
