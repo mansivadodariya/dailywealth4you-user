@@ -84,15 +84,16 @@ export default function Header() {
 
   const cookieUser = getUserFromCookie();
   const currentUser = user || cookieUser;
-  //  console.log(currentUser)
   const fullName =
     `${currentUser?.firstName || ''} ${currentUser?.lastName || ''}`.trim() ||
     'User';
   const email = currentUser?.email || '';
   const isKycVerified = kycStatus === 'approved';
-  const profileUrl= currentUser?.payload?.profileUrl
-  console.log(profileUrl)
-  
+
+  // Resolve profile image — check all common field names the API might return
+  const profileUrl =
+  currentUser?.payload?.profileUrl
+    null;
 
   // ── Account breadcrumb ────────────────────────────────────────────────────
   useEffect(() => {
@@ -319,18 +320,31 @@ export default function Header() {
           {/* Profile icon + dropdown */}
           <div className={styles.profileContainer} ref={profileMenuRef}>
             <div
+              className={styles.profileTrigger}
               onClick={() => {
                 setIsProfileMenuOpen(!isProfileMenuOpen);
                 setIsNotifOpen(false);
               }}
             >
-             <img
-    src={profileUrl}
-    alt="Profile"
-    width={40}
-    height={40}
-        className={styles.profileImage}
-  />
+              {profileUrl ? (
+                <img
+                  src={profileUrl}
+                  alt={fullName}
+                  className={styles.profileImage}
+                  onError={(e) => {
+                    // If the URL is broken, swap to the default icon
+                    e.target.onerror = null;
+                    e.target.src = UserIcon;
+                    e.target.className = styles.profileIconDefault;
+                  }}
+                />
+              ) : (
+                <img
+                  src={UserIcon}
+                  alt="Profile"
+                  className={styles.profileIconDefault}
+                />
+              )}
             </div>
 
             {isProfileMenuOpen && (

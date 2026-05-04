@@ -22,7 +22,7 @@ export default function ProfitSharingCard() {
       ? `${profitSharingSummary.totalCommission}`
       : '—';
 
-  const referralUrl = `${config.API_URL || ''}/signup/${user?.referralCode || ''}`;
+  const referralUrl = `${config?.API_URL_VERCEL_URL || ''}/signup/${user?.referralCode || ''}`;
 
   const handleCopyReferral = () => {
     if (!referralUrl) return;

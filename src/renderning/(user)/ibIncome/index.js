@@ -70,7 +70,7 @@ export default function IbIncome() {
 
   const debounceRef = useRef(null);
 
-  const referralUrl = `${config.API_URL || ''}/signup/${user?.referralCode || ''}`;
+  const referralUrl = `${config?.API_URL_VERCEL_URL || ''}/signup/${user?.referralCode || ''}`;
 
   const loadData = useCallback(
     (page, searchVal, filters) => {

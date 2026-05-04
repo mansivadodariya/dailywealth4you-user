@@ -22,7 +22,7 @@ const DownIcon = '/assets/icons/down.svg';
 // ─── Validation schemas ───────────────────────────────────────────────────────
 const createSchema = Yup.object({
   brokerId: Yup.string().required('Please select a broker'),
-  server: Yup.number().required('Server is required').typeError('Server must be a number'),
+  server: Yup.string().required('Server is required'),
   loginId: Yup.string().required('MT5 Login ID is required'),
   password: Yup.string()
     .required('Password is required'),

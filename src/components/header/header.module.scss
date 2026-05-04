@@ -331,6 +331,42 @@
   position: relative;
 }
 
+.profileTrigger {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// When a real profile photo is available
+.profileImage {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  transition: border-color 0.2s ease;
+
+  &:hover {
+    border-color: rgba(2, 223, 130, 0.5);
+  }
+}
+
+// Default icon fallback (no profile photo)
+.profileIconDefault {
+  width: 32px;
+  height: 32px;
+  display: block;
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
 .profileIcon {
   width: 40px;
   height: 40px;

@@ -26,7 +26,7 @@ export default function SummaryCards({ cards = [], showReferral = false }) {
             placeholderWhite
             leftSpacingRemove
             rightIcon={CopyIcon}
-            value={`${config.API_URL || ''}/signup/${user?.referralCode || ''}`}
+            value={`${config.API_URL_VERCEL_URL || ''}/signup/${user?.referralCode || ''}`}
             readOnly
           />
         </div>
