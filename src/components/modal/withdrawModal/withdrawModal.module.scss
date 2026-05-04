@@ -15,21 +15,27 @@
   z-index: 9999;
 
   .modal {
-    border-radius: var(--Radius-12, 12px);
+    border-radius: 12px;
     box-shadow:
       0 8px 16px -8px rgba(0, 0, 0, 0.06),
       0 8px 16px -4px rgba(20, 21, 26, 0.06);
     width: 460px;
     background-color: #030f0f;
+    max-height: 90vh;
+    overflow-y: auto;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
 
     .modalHeader {
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
       padding: 32px;
 
       h2 {
-        color: var(--Text-Primary, #fafafa);
+        color: #fafafa;
         font-size: 28px;
-        font-style: normal;
         font-weight: 700;
         font-family: var(--font-red-hat-display);
         line-height: 110%;
@@ -38,185 +44,224 @@
       }
 
       p {
-        color: var(--Text-Secondary, #8e8e8e);
+        color: #8e8e8e;
         text-align: center;
         font-size: 16px;
-        font-style: normal;
         font-weight: 600;
         line-height: 100%;
         letter-spacing: -0.176px;
+        margin: 0;
       }
     }
 
     .modalbody {
-      padding: 64px 32px 32px 32px;
-
-      .amountRow {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 4px;
-      }
-
-      .currencySymbol {
-        color: var(--Text-Primary, #fafafa);
-        font-size: 28px;
-        font-weight: 600;
-        font-family: var(--font-red-hat-display);
-        line-height: 150%;
-        flex-shrink: 0;
-  
-      }
-
-      .counter {
-        input {
-          width: auto;
-          min-width: 60px;
-          max-width: 260px;
-          color: var(--Text-Primary, #fafafa);
-          font-size: 28px;
-          font-style: normal;
-          font-weight: 600;
-          font-family: var(--font-red-hat-display);
-          border: none;
-          background-color: transparent;
-          text-align: left;
-          line-height: 150%;
-          outline: none;
-        }
-
-        ::placeholder {
-          color: rgba(255, 255, 255, 0.4);
-          font-size: 28px;
-          font-style: normal;
-          font-weight: 600;
-        }
-      }
-
-      // Shared input style for the amountRow input
-      input[type='text'] {
-        width: auto;
-        min-width: 60px;
-        max-width: 260px;
-        color: var(--Text-Primary, #fafafa);
-        font-size: 18px;
-        font-weight: 600;
-        font-family: var(--font-red-hat-display);
-        border: none;
-        background-color: transparent;
-        text-align: left;
-        line-height: 150%;
-        outline: none;
-
-        &::placeholder {
-          color: rgba(255, 255, 255, 0.4);
-        }
-      }
-
-      .buttonTop {
-        padding: 20px 0 12px 0;
-      }
-
-      .inputAlignment {
-        padding: 64px 0 12px 0;
-      }
-
-      .networkWrapper {
-        position: relative;
-        margin-bottom: 0;
-      }
-
-      .networkSelector {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0 16px;
-        height: 44px;
-        background: rgba(255, 255, 255, 0.04);
-        border-radius: 8px;
-        cursor: pointer;
-        position: relative;
-        transition: background 0.2s ease;
-
-        &:hover {
-          background: rgba(255, 255, 255, 0.08);
-        }
-
-        &::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          border-radius: 8px;
-          padding: 1px;
-          background: linear-gradient(
-            97.52deg,
-            rgba(255, 255, 255, 0.2) 0.15%,
-            rgba(255, 255, 255, 0.04) 11.93%
-          );
-          -webkit-mask:
-            linear-gradient(#fff 0 0) content-box,
-            linear-gradient(#fff 0 0);
-          -webkit-mask-composite: xor;
-          mask-composite: exclude;
-          pointer-events: none;
-        }
-      }
-
-      .networkValue {
-        color: #fafafa;
-        font-size: 14px;
-        font-family: var(--font-manrope);
-      }
-
-      .networkChevron {
-        color: #8e8e8e;
-        font-size: 14px;
-        transition: transform 0.2s ease;
-
-        &.open {
-          transform: rotate(180deg);
-        }
-      }
-
-      .networkDropdown {
-        position: absolute;
-        top: calc(100% + 4px);
-        left: 0;
-        right: 0;
-        background: #0d1919;
-        border-radius: 8px;
-        overflow: hidden;
-        z-index: 10;
-        border: 1px solid rgba(255, 255, 255, 0.08);
-      }
-
-      .networkOption {
-        padding: 12px 16px;
-        color: #8e8e8e;
-        font-size: 14px;
-        font-family: var(--font-manrope);
-        cursor: pointer;
-        transition: background 0.15s ease;
-
-        &:hover {
-          background: rgba(255, 255, 255, 0.06);
-          color: #fafafa;
-        }
-        &.selected {
-          color: #02df82;
-        }
-      }
-
-      p {
-        margin-top: 12px;
-        color: var(--Text-Secondary, #8e8e8e);
-        text-align: center;
-        font-size: 16px;
-        font-style: normal;
-        font-weight: 600;
-        line-height: 100%;
-        letter-spacing: -0.176px;
-      }
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
     }
   }
+}
+
+// ── Amount section ──────────────────────────────────────────────────────────
+
+.amountSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 8px;
+}
+
+// Single full-width centered input — $ is part of the value string
+.amountRow {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.amountInput {
+  width: 100%;
+  color: #fafafa;
+  font-size: 36px;
+  font-weight: 700;
+  font-family: var(--font-red-hat-display);
+  line-height: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  caret-color: #02df82;
+  text-align: center;
+  padding: 0;
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.25);
+  }
+}
+
+// Hide the separate $ span — no longer needed
+.currencySymbol {
+  display: none;
+}
+
+.hintText {
+  color: #8e8e8e;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: var(--font-manrope);
+  text-align: center;
+  margin: 0;
+}
+
+.errorText {
+  color: #ff4d4d;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: var(--font-manrope);
+  text-align: center;
+  margin: 0;
+}
+
+// ── Field group ─────────────────────────────────────────────────────────────
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fieldLabel {
+  color: #fafafa;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: var(--font-manrope);
+}
+
+.fieldError {
+  color: #ff4d4d;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--font-manrope);
+}
+
+// ── Wallet address input ─────────────────────────────────────────────────────
+// Uses a full-width block input so long addresses never cause layout shift.
+// overflow: hidden + text-overflow: ellipsis only applies when not focused;
+// when focused the user can scroll the text naturally inside the fixed box.
+
+.walletInput {
+  width: 100%;
+  box-sizing: border-box;
+  height: 44px;
+  padding: 0 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #fafafa;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: var(--font-manrope);
+  outline: none;
+  transition: border-color 0.2s ease;
+  // Prevent the input from growing or shrinking the layout
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.35);
+  }
+
+  &:focus {
+    border-color: rgba(255, 255, 255, 0.25);
+    // When focused, let the user scroll through the text normally
+    text-overflow: clip;
+  }
+
+  &.walletInputError {
+    border-color: rgba(255, 77, 77, 0.5);
+  }
+}
+
+// ── Network selector ─────────────────────────────────────────────────────────
+
+.networkWrapper {
+  position: relative;
+}
+
+.networkSelector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  height: 44px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.07);
+  }
+
+  &.networkSelectorError {
+    border-color: rgba(255, 77, 77, 0.5);
+  }
+}
+
+.networkValue {
+  color: #fafafa;
+  font-size: 14px;
+  font-family: var(--font-manrope);
+}
+
+.networkPlaceholder {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.networkChevron {
+  color: #8e8e8e;
+  font-size: 14px;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+
+  &.open {
+    transform: rotate(180deg);
+  }
+}
+
+.networkDropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: #0d1919;
+  border-radius: 8px;
+  overflow: hidden;
+  z-index: 10;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.networkOption {
+  padding: 12px 16px;
+  color: #8e8e8e;
+  font-size: 14px;
+  font-family: var(--font-manrope);
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: #fafafa;
+  }
+
+  &.selected {
+    color: #02df82;
+    background: rgba(2, 223, 130, 0.06);
+  }
+}
+
+.buttonTop {
+  padding-top: 4px;
 }

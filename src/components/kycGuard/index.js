@@ -22,12 +22,13 @@ export default function KycGuard({ children }) {
     setMounted(true);
   }, []);
 
-  // If kycStatus hasn't been fetched yet (e.g. page refresh), fetch it now
+  // Fetch KYC document status if not yet loaded (page refresh or first load)
   useEffect(() => {
     if (!mounted) return;
+    // Only fetch if status is unknown AND not already in flight
     if (kycStatus === undefined && !kycStatusLoading) {
       const cookieUser = getUserFromCookie();
-      const userId = user?.id || cookieUser?.id;
+      const userId = user?.id || user?._id || cookieUser?.id || cookieUser?._id;
       if (userId) {
         dispatch(fetchAllDocument(userId));
       }

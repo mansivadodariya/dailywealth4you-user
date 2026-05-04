@@ -352,7 +352,11 @@
     opacity: 0.7;
   }
 }
-
+.profileImage {
+  border-radius: 50%;
+  object-fit: cover;
+  cursor: pointer;
+}
 .profileMenu {
   position: absolute;
   top: calc(100% + 12px);

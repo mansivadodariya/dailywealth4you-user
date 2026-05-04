@@ -19,6 +19,7 @@ import { getUserFromCookie, clearAuthCookies } from '@/service/cookies';
 
 import AuthButton from '../authButton';
 
+
 const BellIcon = '/assets/icons/bell.svg';
 const UserIcon = '/assets/icons/userIcon.svg';
 const moneyIcon = '/assets/icons/money.svg';
@@ -83,11 +84,14 @@ export default function Header() {
 
   const cookieUser = getUserFromCookie();
   const currentUser = user || cookieUser;
+  //  console.log(currentUser)
   const fullName =
     `${currentUser?.firstName || ''} ${currentUser?.lastName || ''}`.trim() ||
     'User';
   const email = currentUser?.email || '';
   const isKycVerified = kycStatus === 'approved';
+  const profileUrl= currentUser?.payload?.profileUrl
+  console.log(profileUrl)
   
 
   // ── Account breadcrumb ────────────────────────────────────────────────────
@@ -320,7 +324,13 @@ export default function Header() {
                 setIsNotifOpen(false);
               }}
             >
-              <img src={UserIcon} alt="Profile" />
+             <img
+    src={profileUrl}
+    alt="Profile"
+    width={40}
+    height={40}
+        className={styles.profileImage}
+  />
             </div>
 
             {isProfileMenuOpen && (

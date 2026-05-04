@@ -41,19 +41,24 @@ export default function Login() {
     initialValues,
     validationSchema,
     onSubmit: async (values, { resetForm }) => {
-      const result = await dispatch(loginUser(values));
+      const result = await dispatch(loginUser(values)).unwrap().catch(() => null);
 
-      if (result.meta.requestStatus === 'fulfilled') {
-        // Fetch KYC document status immediately after login
-        const userId =
-          result.payload?.payload?.data?.user?.id ||
-          result.payload?.payload?.user?.id ||
-          result.payload?.data?.user?.id ||
-          result.payload?.user?.id ||
-          result.payload?.id;
+      if (result) {
+        // Normalise the nested response to extract userId
+        const responseData = result?.data || result;
+        const payloadData = responseData?.payload || responseData?.data || responseData;
+        const user =
+          payloadData?.user ||
+          payloadData ||
+          responseData?.user ||
+          responseData ||
+          null;
+        const userId = user?.id || user?._id;
+
         if (userId) {
           dispatch(fetchAllDocument(userId));
         }
+
         toast.success('Login Successfully');
         router.push('/dashboard');
         resetForm();

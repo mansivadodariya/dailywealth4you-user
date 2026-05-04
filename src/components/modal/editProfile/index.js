@@ -128,7 +128,7 @@ export default function EditProfile({ onClose }) {
 
   const displayImage =
     profilePreview ||
-    currentUser?.profileUrl ||
+    currentUser?.payload?.profileUrl ||
     currentUser?.profileImage ||
     ProfileImage;
 
