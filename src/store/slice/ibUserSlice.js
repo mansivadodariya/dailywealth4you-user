@@ -126,6 +126,7 @@ const ibUserSlice = createSlice({
     ibIncomeCount: 0,
     ibIncomeLoading: false,
     ibIncomeError: null,
+    ibIncomeTotalPages: 1,
   },
   reducers: {
     clearIbUserState: (state) => {
@@ -226,6 +227,8 @@ const ibUserSlice = createSlice({
         state.ibIncomeSummary = payload?.summary || null;
         state.ibIncomeData = payload?.data || [];
         state.ibIncomeCount = payload?.count || 0;
+        state.ibIncomeTotalPages =
+          payload?.totalPages || payload?.pagination?.totalPages || 1;
       })
       .addCase(fetchIbIncome.rejected, (state, action) => {
         state.ibIncomeLoading = false;

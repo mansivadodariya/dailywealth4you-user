@@ -10,6 +10,7 @@ import Pagination from '@/components/pagination';
 import DataTableHeader from '@/components/common/DataTableHeader';
 import FilterModal from '@/components/modal/filterModal';
 import ProfitSharingCard from './profitSharingCard';
+import { exportToCsv } from '@/utils/exportToCsv';
 import styles from './profitSharingTable/profitSharingTable.module.scss';
 
 const LIMIT = 10;
@@ -114,6 +115,28 @@ export default function ProfitSharing() {
     loadData(1, search, filters);
   };
 
+  // Export all flattened rows to CSV
+  const handleExport = () => {
+    const exportRows = allRows.map((row) => ({
+      Date: row.latestDate
+        ? moment(row.latestDate).format('DD-MM-YYYY | hh:mm A')
+        : '—',
+      Name:
+        `${row.user?.firstName ?? ''} ${row.user?.lastName ?? ''}`.trim() ||
+        '—',
+      Email: row.user?.email || '—',
+      Profit: row.totalProfit ?? '—',
+      Broker: row.broker?.name || '—',
+      'Total Commission': row.totalCommission ?? '—',
+    }));
+    exportToCsv(
+      exportRows,
+      ['Date', 'Name', 'Email', 'Profit', 'Broker', 'Total Commission'],
+      {},
+      'profit-sharing'
+    );
+  };
+
   // Flatten: one row per user+broker combination
   const allRows = [];
   (profitSharingData || []).forEach((entry) => {
@@ -147,6 +170,7 @@ export default function ProfitSharing() {
       {/* Search + Filter toolbar */}
       <DataTableHeader
         onSearch={handleSearch}
+        onExport={handleExport}
         filterModal={
           <FilterModal
             onApply={handleApplyFilters}

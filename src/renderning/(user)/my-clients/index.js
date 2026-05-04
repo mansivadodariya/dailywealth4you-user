@@ -6,6 +6,7 @@ import { fetchIbClients } from '@/store/slice/ibUserSlice';
 import DataTableHeader from '@/components/common/DataTableHeader';
 import FilterModal from '@/components/modal/filterModal';
 import ClientModal from '@/components/modal/clientModal';
+import { exportToCsv } from '@/utils/exportToCsv';
 import styles from './myClients.module.scss';
 import moment from 'moment';
 import Loader from '@/components/Loader';
@@ -107,9 +108,30 @@ export default function MyClients() {
     loadData(1, search, filters);
   };
 
+  const handleExport = () => {
+    const rows = (ibClients || []).map((client) => {
+      const user = client?.user || client;
+      return {
+        'Date Referred': client?.createdAt
+          ? moment(client.createdAt).format('DD-MM-YYYY | hh:mm A')
+          : '—',
+        Name: `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || '—',
+        Email: user?.email || '—',
+        Deposit: client?.deposit ?? client?.totalDeposit ?? '—',
+        Profit: client?.totalProfit ?? '—',
+      };
+    });
+    exportToCsv(
+      rows,
+      ['Date Referred', 'Name', 'Email', 'Deposit', 'Profit'],
+      {},
+      'my-clients'
+    );
+  };
+
   if (ibClientsLoading) {
     return (
-      <Loader variant="dots" size="large" color="success" text="Loading..." />
+      <Loader fullScreen={true} variant="dots" size="large" color="success" />
     );
   }
 
@@ -132,6 +154,7 @@ export default function MyClients() {
     <>
       <DataTableHeader
         onSearch={handleSearch}
+        onExport={handleExport}
         filterModal={
           <FilterModal
             onApply={handleApplyFilters}

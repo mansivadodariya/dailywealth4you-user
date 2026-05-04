@@ -1,6 +1,11 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import api from '@/service/api';
-import { GET_ALL_TRANSACTION, GET_DASHBOARD_CHARTS } from '@/service/url';
+import {
+  GET_ALL_TRANSACTION,
+  GET_DASHBOARD_CHARTS,
+  GET_DASHBOARD_INVESTMENT,
+  GET_DASHBOARD_COMMISSION,
+} from '@/service/url';
 import moment from 'moment';
 
 // ─── Helper: compute date range from period label ─────────────────────────────
@@ -22,23 +27,21 @@ export function getDateRangeForPeriod(period) {
   return { startDate, endDate };
 }
 
-// ─── Thunk: fetch portfolio growth + lots traded charts ───────────────────────
-// GET /tradesHistory/getUserDashboardProfitLots?userId=&startDate=&endDate=
+// ─── Thunk: portfolio growth + lots traded charts ─────────────────────────────
+// GET /tradesHistory/getUserDashboardProfitLots?userId=&accountId=&startDate=&endDate=
 export const fetchDashboardCharts = createAsyncThunk(
   'dashboard/fetchDashboardCharts',
-  async ({ userId, startDate, endDate, accountId } = {}, thunkApi) => {
+  async ({ userId, accountId, startDate, endDate } = {}, thunkApi) => {
     try {
       const params = new URLSearchParams();
       if (userId) params.append('userId', userId);
+      if (accountId) params.append('accountId', accountId);
       if (startDate) params.append('startDate', startDate);
       if (endDate) params.append('endDate', endDate);
-      if (accountId) params.append('accountId', accountId);
 
       const response = await api.get(
         `${GET_DASHBOARD_CHARTS}?${params.toString()}`
       );
-
-      // Response shape: { payload: { portfolioGrowth: [...], lotsTraded: [...] } }
       const payload = response?.payload || response?.data || response;
       return {
         portfolioGrowth: payload?.portfolioGrowth || [],
@@ -50,11 +53,58 @@ export const fetchDashboardCharts = createAsyncThunk(
   }
 );
 
-// ─── Thunk: fetch recent transactions ────────────────────────────────────────
+// ─── Thunk: investment amount, current value, gross P&L ──────────────────────
+// GET /tradesHistory/getUserDashboardInvestmentAmount?accountId=&startDate=&endDate=
+export const fetchDashboardInvestment = createAsyncThunk(
+  'dashboard/fetchDashboardInvestment',
+  async ({ accountId, startDate, endDate } = {}, thunkApi) => {
+    try {
+      const params = new URLSearchParams();
+      if (accountId) params.append('accountId', accountId);
+      if (startDate) params.append('startDate', startDate);
+      if (endDate) params.append('endDate', endDate);
+
+      const response = await api.get(
+        `${GET_DASHBOARD_INVESTMENT}?${params.toString()}`
+      );
+      // Response: { payload: { investmentAmount, currentValue, grossPL } }
+      const payload = response?.payload || response?.data || response;
+      return {
+        investmentAmount: payload?.investmentAmount ?? null,
+        currentValue: payload?.currentValue ?? null,
+        grossPL: payload?.grossPL ?? null,
+      };
+    } catch (error) {
+      return thunkApi.rejectWithValue(error);
+    }
+  }
+);
+
+// ─── Thunk: commission profit (IB income + profit sharing) ───────────────────
+// GET /tradesHistory/getUserDashboardCommissionProfit
+export const fetchDashboardCommission = createAsyncThunk(
+  'dashboard/fetchDashboardCommission',
+  async (_, thunkApi) => {
+    try {
+      const response = await api.get(GET_DASHBOARD_COMMISSION);
+      // Response: { payload: { totalProfitSharing, totalIbIncome, totalCommission } }
+      const payload = response?.payload || response?.data || response;
+      return {
+        totalProfitSharing: payload?.totalProfitSharing ?? null,
+        totalIbIncome: payload?.totalIbIncome ?? null,
+        totalCommission: payload?.totalCommission ?? null,
+      };
+    } catch (error) {
+      return thunkApi.rejectWithValue(error);
+    }
+  }
+);
+
+// ─── Thunk: recent transactions ──────────────────────────────────────────────
 // GET /transaction/getAllTransaction?userId=&limit=
 export const fetchRecentTransactions = createAsyncThunk(
   'dashboard/fetchRecentTransactions',
-  async ({ userId,accountId, limit = 6 } = {}, thunkApi) => {
+  async ({ userId, accountId, limit = 6 } = {}, thunkApi) => {
     try {
       const params = new URLSearchParams();
       if (userId) params.append('userId', userId);
@@ -64,14 +114,12 @@ export const fetchRecentTransactions = createAsyncThunk(
       const response = await api.get(
         `${GET_ALL_TRANSACTION}?${params.toString()}`
       );
-
       const data =
         response?.payload?.data ||
         response?.payload ||
         response?.data ||
         response ||
         [];
-
       return Array.isArray(data) ? data : [];
     } catch (error) {
       return thunkApi.rejectWithValue(error);
@@ -89,6 +137,18 @@ const dashboardSlice = createSlice({
     lotsTraded: [],
     chartsLoading: false,
     chartsError: null,
+    // Investment stats
+    investmentAmount: null,
+    currentValue: null,
+    grossPL: null,
+    investmentLoading: false,
+    investmentError: null,
+    // Commission / IB stats
+    totalProfitSharing: null,
+    totalIbIncome: null,
+    totalCommission: null,
+    commissionLoading: false,
+    commissionError: null,
     // Recent transactions
     recentTransactions: [],
     recentTransactionsLoading: false,
@@ -100,6 +160,16 @@ const dashboardSlice = createSlice({
       state.lotsTraded = [];
       state.chartsLoading = false;
       state.chartsError = null;
+      state.investmentAmount = null;
+      state.currentValue = null;
+      state.grossPL = null;
+      state.investmentLoading = false;
+      state.investmentError = null;
+      state.totalProfitSharing = null;
+      state.totalIbIncome = null;
+      state.totalCommission = null;
+      state.commissionLoading = false;
+      state.commissionError = null;
       state.recentTransactions = [];
       state.recentTransactionsLoading = false;
       state.recentTransactionsError = null;
@@ -107,7 +177,7 @@ const dashboardSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // ── fetchDashboardCharts ──────────────────────────────────────────────
+      // fetchDashboardCharts
       .addCase(fetchDashboardCharts.pending, (state) => {
         state.chartsLoading = true;
         state.chartsError = null;
@@ -121,7 +191,37 @@ const dashboardSlice = createSlice({
         state.chartsLoading = false;
         state.chartsError = action.payload;
       })
-      // ── fetchRecentTransactions ───────────────────────────────────────────
+      // fetchDashboardInvestment
+      .addCase(fetchDashboardInvestment.pending, (state) => {
+        state.investmentLoading = true;
+        state.investmentError = null;
+      })
+      .addCase(fetchDashboardInvestment.fulfilled, (state, action) => {
+        state.investmentLoading = false;
+        state.investmentAmount = action.payload.investmentAmount;
+        state.currentValue = action.payload.currentValue;
+        state.grossPL = action.payload.grossPL;
+      })
+      .addCase(fetchDashboardInvestment.rejected, (state, action) => {
+        state.investmentLoading = false;
+        state.investmentError = action.payload;
+      })
+      // fetchDashboardCommission
+      .addCase(fetchDashboardCommission.pending, (state) => {
+        state.commissionLoading = true;
+        state.commissionError = null;
+      })
+      .addCase(fetchDashboardCommission.fulfilled, (state, action) => {
+        state.commissionLoading = false;
+        state.totalProfitSharing = action.payload.totalProfitSharing;
+        state.totalIbIncome = action.payload.totalIbIncome;
+        state.totalCommission = action.payload.totalCommission;
+      })
+      .addCase(fetchDashboardCommission.rejected, (state, action) => {
+        state.commissionLoading = false;
+        state.commissionError = action.payload;
+      })
+      // fetchRecentTransactions
       .addCase(fetchRecentTransactions.pending, (state) => {
         state.recentTransactionsLoading = true;
         state.recentTransactionsError = null;

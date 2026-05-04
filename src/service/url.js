@@ -28,3 +28,7 @@ export const CREATE_TRANSACTION = '/transaction/createTransaction';
 export const GET_ALL_TRANSACTION = '/transaction/getAllTransaction';
 export const GET_ALL_DOCUMENT = '/userDocument/getAllDocument';
 export const GET_DASHBOARD_CHARTS = '/tradesHistory/getUserDashboardProfitLots';
+export const GET_DASHBOARD_INVESTMENT =
+  '/tradesHistory/getUserDashboardInvestmentAmount';
+export const GET_DASHBOARD_COMMISSION =
+  '/tradesHistory/getUserDashboardCommissionProfit';

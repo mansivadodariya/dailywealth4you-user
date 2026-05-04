@@ -56,7 +56,7 @@ export default function KycGuard({ children }) {
         variant="dots"
         size="large"
         color="success"
-        text="Loading ..."
+        // text="Loading ..."
       />
     );
   }

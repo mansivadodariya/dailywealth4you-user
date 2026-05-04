@@ -295,6 +295,8 @@ const accountSlice = createSlice({
     dashboardStats: null,
     dashboardStatsLoading: false,
     dashboardStatsError: null,
+    // Currently selected account from header dropdown
+    selectedAccountId: null,
   },
   reducers: {
     clearAccountState: (state) => {
@@ -307,6 +309,10 @@ const accountSlice = createSlice({
       state.kycStatus = undefined;
       state.kycStatusLoading = false;
       state.kycRejectionReason = null;
+    },
+    // Tracks which trading account is selected in the header dropdown
+    setSelectedAccountId: (state, action) => {
+      state.selectedAccountId = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -508,5 +514,5 @@ const accountSlice = createSlice({
   },
 });
 
-export const { clearAccountState } = accountSlice.actions;
+export const { clearAccountState, setSelectedAccountId } = accountSlice.actions;
 export default accountSlice.reducer;

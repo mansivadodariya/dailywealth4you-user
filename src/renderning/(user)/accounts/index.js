@@ -78,13 +78,7 @@ export default function Accounts() {
 
   if (tradingAccountsLoading) {
     return (
-      <Loader
-        fullScreen={true}
-        variant="dots"
-        size="large"
-        color="success"
-        text="Loading ..."
-      />
+      <Loader fullScreen={true} variant="dots" size="large" color="success" />
     );
   }
 

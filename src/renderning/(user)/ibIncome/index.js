@@ -9,6 +9,7 @@ import Loader from '@/components/Loader';
 import Pagination from '@/components/pagination';
 import DataTableHeader from '@/components/common/DataTableHeader';
 import FilterModal from '@/components/modal/filterModal';
+import { exportToCsv } from '@/utils/exportToCsv';
 import styles from './ibIncome.module.scss';
 import Input from '@/components/input';
 import config from '@/config';
@@ -53,12 +54,16 @@ const IB_INCOME_FILTER_GROUPS = [
 
 export default function IbIncome() {
   const dispatch = useDispatch();
-  const { ibIncomeSummary, ibIncomeData, ibIncomeLoading, ibIncomeError } =
-    useSelector((state) => state.ibUser);
+  const {
+    ibIncomeSummary,
+    ibIncomeData,
+    ibIncomeLoading,
+    ibIncomeError,
+    ibIncomeTotalPages,
+  } = useSelector((state) => state.ibUser);
   const user = useSelector((state) => state.login.user);
 
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [expandedKey, setExpandedKey] = useState(null);
   const [search, setSearch] = useState('');
   const [activeFilters, setActiveFilters] = useState({});
@@ -107,6 +112,28 @@ export default function IbIncome() {
     loadData(1, search, filters);
   };
 
+  // Export all flattened rows to CSV
+  const handleExport = () => {
+    const exportRows = allRows.map((row) => ({
+      Date: row.latestDate
+        ? moment(row.latestDate).format('DD-MM-YYYY | hh:mm A')
+        : '—',
+      Name:
+        `${row.user?.firstName ?? ''} ${row.user?.lastName ?? ''}`.trim() ||
+        '—',
+      Email: row.user?.email || '—',
+      Lots: row.totalLots ?? '—',
+      Broker: row.broker?.name || '—',
+      Commission: row.totalCommission ?? '—',
+    }));
+    exportToCsv(
+      exportRows,
+      ['Date', 'Name', 'Email', 'Lots', 'Broker', 'Commission'],
+      {},
+      'ib-income'
+    );
+  };
+
   const handleCopyReferral = () => {
     if (!referralUrl) return;
     navigator.clipboard
@@ -140,8 +167,8 @@ export default function IbIncome() {
     });
   });
 
-  // Use server totalPages if available, else derive from local rows
-  const computedTotalPages = Math.max(1, Math.ceil(allRows.length / LIMIT));
+  // Use server-provided totalPages from Redux
+  const totalPages = ibIncomeTotalPages || 1;
 
   return (
     <div>
@@ -188,6 +215,7 @@ export default function IbIncome() {
       {/* Search + Filter toolbar */}
       <DataTableHeader
         onSearch={handleSearch}
+        onExport={handleExport}
         filterModal={
           <FilterModal
             onApply={handleApplyFilters}
@@ -345,10 +373,10 @@ export default function IbIncome() {
             </table>
           </div>
 
-          {computedTotalPages > 1 && (
+          {totalPages > 1 && (
             <Pagination
               currentPage={currentPage}
-              totalPages={computedTotalPages}
+              totalPages={totalPages}
               onPageChange={(p) => {
                 setCurrentPage(p);
                 setExpandedKey(null);

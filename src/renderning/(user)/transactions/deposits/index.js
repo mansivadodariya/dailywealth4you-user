@@ -8,6 +8,7 @@ import DataTableHeader from '@/components/common/DataTableHeader';
 import FilterModal from '@/components/modal/filterModal';
 import Pagination from '@/components/pagination';
 import Loader from '@/components/Loader';
+import { exportToCsv } from '@/utils/exportToCsv';
 import styles from '../transactions.module.scss';
 import moment from 'moment';
 
@@ -122,6 +123,24 @@ export default function Deposits() {
     loadData(1, search, filters);
   };
 
+  const handleExport = () => {
+    const rows = (deposits || []).map((row) => ({
+      Date: row?.createdAt
+        ? moment(row.createdAt).format('DD-MM-YYYY | hh:mm A')
+        : '—',
+      'MT5 Account': row?.mt5Account || '—',
+      Broker: row?.broker || '—',
+      'Deposit Amount': row?.amount ?? '—',
+      Status: row?.status || 'pending',
+    }));
+    exportToCsv(
+      rows,
+      ['Date', 'MT5 Account', 'Broker', 'Deposit Amount', 'Status'],
+      {},
+      'deposits'
+    );
+  };
+
   const getStatusClass = (status) => {
     if (!status) return styles.neutral;
     const s = status.toLowerCase();
@@ -133,7 +152,7 @@ export default function Deposits() {
 
   if (transactionsLoading) {
     return (
-      <Loader variant="dots" size="large" color="success" text="Loading..." />
+      <Loader fullScreen={true} variant="dots" size="large" color="success" />
     );
   }
 
@@ -156,6 +175,7 @@ export default function Deposits() {
     <>
       <DataTableHeader
         onSearch={handleSearch}
+        onExport={handleExport}
         filterModal={
           <FilterModal
             onApply={handleApplyFilters}

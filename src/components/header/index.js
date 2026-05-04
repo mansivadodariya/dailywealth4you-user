@@ -10,12 +10,14 @@ import ChangePassword from '../modal/changePassword';
 import NotificationDropdown from '../notificationDropdown';
 import DepositModal from '../modal/depositModal';
 import WithdrawModal from '../modal/withdrawModal';
-import { fetchTradingAccounts } from '@/store/slice/accountSlice';
+import {
+  fetchTradingAccounts,
+  setSelectedAccountId as setSelectedAccountIdAction,
+} from '@/store/slice/accountSlice';
 import { logout } from '@/store/slice/loginSlice';
 import { getUserFromCookie, clearAuthCookies } from '@/service/cookies';
 // import { disconnectSocket } from '@/service/socket';
 import AuthButton from '../authButton';
-import Loader from '../Loader';
 
 const BellIcon = '/assets/icons/bell.svg';
 const UserIcon = '/assets/icons/userIcon.svg';
@@ -133,7 +135,11 @@ export default function Header() {
       const exists = tradingAccounts.find(
         (acc) => acc?.id === selectedAccountId
       );
-      if (!exists) setSelectedAccountId(tradingAccounts[0]?.id);
+      if (!exists) {
+        const defaultId = tradingAccounts[0]?.id;
+        setSelectedAccountId(defaultId);
+        dispatch(setSelectedAccountIdAction(defaultId));
+      }
     }
   }, [tradingAccounts, selectedAccountId]);
 
@@ -145,9 +151,8 @@ export default function Header() {
 
   const handleSelectAccount = (account) => {
     setSelectedAccountId(account?.id);
+    dispatch(setSelectedAccountIdAction(account?.id));
     setIsAccountDropdownOpen(false);
-    // Emit a custom event with the selected account object
-    window.dispatchEvent(new CustomEvent('dashboardAccountChanged', { detail: { account } }));
   };
 
   const handleMt5ModalClose = () => {
@@ -206,17 +211,12 @@ export default function Header() {
           {isDashboard && (
             <>
               {kycStatusLoading || tradingAccountsLoading ? (
-                // <div className={styles.accountBtnLoader}>
-                //   <span className={styles.accountBtnSpinner} />
-                //   <span className={styles.accountBtnLoaderText}>Loading...</span>
-                // </div>
-                <Loader
-                  fullScreen
-                  variant="dots"
-                  size="large"
-                  color="success"
-                  text="Loading ..."
-                />
+                <div className={styles.accountBtnLoader}>
+                  <span className={styles.accountBtnSpinner} />
+                  <span className={styles.accountBtnLoaderText}>
+                    Loading...
+                  </span>
+                </div>
               ) : tradingAccounts?.length > 0 ? (
                 <div className={styles.accountSelectorWrapper}>
                   <div className={styles.accountSelector}>

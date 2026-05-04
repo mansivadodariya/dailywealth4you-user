@@ -72,9 +72,12 @@
 
       .cardArrow {
         opacity: 1;
+
+        span {
+          color: #02df82;
+        }
       }
     }
-
     &::before {
       content: '';
       position: absolute;

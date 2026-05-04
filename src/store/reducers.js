@@ -28,6 +28,7 @@ import accountReducer, {
   fetchTransactions,
   fetchAllDocument,
   fetchDashboardStats,
+  setSelectedAccountId,
 } from '@/store/slice/accountSlice';
 import ibUserReducer, {
   applyIbRequest,
@@ -40,6 +41,8 @@ import ibUserReducer, {
 import dashboardReducer, {
   fetchRecentTransactions,
   fetchDashboardCharts,
+  fetchDashboardInvestment,
+  fetchDashboardCommission,
   clearDashboardState,
 } from '@/store/slice/dashboardSlice';
 
@@ -84,6 +87,9 @@ export {
   fetchAllDocument,
   fetchRecentTransactions,
   fetchDashboardCharts,
+  fetchDashboardInvestment,
+  fetchDashboardCommission,
   clearDashboardState,
+  setSelectedAccountId,
 };
 export default reducer;

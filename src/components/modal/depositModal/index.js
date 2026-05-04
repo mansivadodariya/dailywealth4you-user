@@ -11,15 +11,17 @@ const RightIcon = '/assets/icons/right.svg';
 const CloseIcon = '/assets/icons/close.svg';
 
 export default function DepositModal({ onClose, activeAccount }) {
-  console.log("deposite ",activeAccount)
   const dispatch = useDispatch();
   const { transactionLoading } = useSelector((state) => state.account);
 
   const [amount, setAmount] = useState('');
+  const displayValue = amount ? `$${amount}` : '';
 
   // Resolve account info — prefer prop, fall back to first trading account
   const { tradingAccounts } = useSelector((state) => state.account);
+
   const account = activeAccount || tradingAccounts?.[0];
+  const tradingAccountId = account?.id || '';
   const mt5Account = account?.mt5LoginId || '';
   const broker =
     typeof account?.broker === 'object'
@@ -32,6 +34,7 @@ export default function DepositModal({ onClose, activeAccount }) {
     const user = getUserFromCookie();
     const payload = {
       userId: user?.id || '',
+      tradingAccountId,
       mt5Account,
       broker,
       amount: String(amount),
@@ -64,10 +67,14 @@ export default function DepositModal({ onClose, activeAccount }) {
         </div>
         <div className={styles.modalbody}>
           <input
-            type="number"
+            type="text"
             placeholder="$0"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
+            value={displayValue}
+            onChange={(e) => {
+              // Remove $ and any non-numeric characters except decimal
+              const value = e.target.value.replace(/[^0-9.]/g, '');
+              setAmount(value);
+            }}
             min="0"
           />
           <p>Enter Deposit Amount</p>

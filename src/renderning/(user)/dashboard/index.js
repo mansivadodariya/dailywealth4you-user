@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/navigation';
-import { fetchIbIncome, fetchIbProfitSharing } from '@/store/slice/ibUserSlice';
 import {
   fetchRecentTransactions,
   fetchDashboardCharts,
+  fetchDashboardInvestment,
+  fetchDashboardCommission,
   getDateRangeForPeriod,
 } from '@/store/slice/dashboardSlice';
 import { getUserFromCookie } from '@/service/cookies';
@@ -15,9 +16,20 @@ import WithdrawModal from '@/components/modal/withdrawModal';
 import moment from 'moment';
 import styles from './dashboard.module.scss';
 import AuthButton from '@/components/authButton';
-
-
-// ─── Helpers ────────────────────────────────────────────────────────────────
+import {
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  LineChart as RechartsLineChart,
+  Line,
+  BarChart as RechartsBarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  Cell,
+} from 'recharts';
 
 const PlusIcon = '/assets/icons/plus.svg';
 const UpDirection = '/assets/icons/Updirection.svg';
@@ -25,25 +37,29 @@ const UpDirection = '/assets/icons/Updirection.svg';
 function fmt(val) {
   if (val === null || val === undefined || val === '—') return '—';
   const n = Number(val);
-  if (isNaN(n)) return val;
+  if (isNaN(n)) return String(val);
   return n.toLocaleString('en-US', {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   });
 }
 
-function pct(val) {
-  if (val === null || val === undefined) return null;
-  const n = Number(val);
-  if (isNaN(n)) return null;
-  return n;
-}
-
-// ─── Stat Card ───────────────────────────────────────────────────────────────
-
-function StatCard({ label, value, change, loading, showPeriod }) {
+// ─── Stat Card ────────────────────────────────────────────────────────────────
+function StatCard({
+  label,
+  value,
+  change,
+  loading,
+  showPeriod,
+  onPeriodChange,
+}) {
   const [period, setPeriod] = useState('24 Hours');
-  const isPositive = change >= 0;
+  const isPositive = (change ?? 0) >= 0;
+
+  const handlePeriod = (e) => {
+    setPeriod(e.target.value);
+    if (onPeriodChange) onPeriodChange(e.target.value);
+  };
 
   return (
     <div className={styles.statCard}>
@@ -53,7 +69,7 @@ function StatCard({ label, value, change, loading, showPeriod }) {
           <select
             className={styles.periodSelect}
             value={period}
-            onChange={(e) => setPeriod(e.target.value)}
+            onChange={handlePeriod}
           >
             <option>24 Hours</option>
             <option>7 Days</option>
@@ -62,380 +78,207 @@ function StatCard({ label, value, change, loading, showPeriod }) {
         )}
       </div>
       <div className={styles.statValueRow}>
-        <span className={styles.statValue}>
-          {loading ? <span className={styles.skeleton} /> : `$${fmt(value)}`}
-        </span>
-        {change !== undefined && change !== null && (
-          <span
-            className={`${styles.statChange} ${isPositive ? styles.positive : styles.negative}`}
-          >
-            ({isPositive ? '+' : ''}
-            {fmt(change)}%)
-          </span>
+        {loading ? (
+          <span className={styles.skeletonStatValue} />
+        ) : (
+          <>
+            <span className={styles.statValue}>${fmt(value ?? 0)}</span>
+            {change !== undefined && change !== null && (
+              <span
+                className={`${styles.statChange} ${isPositive ? styles.positive : styles.negative}`}
+              >
+                ({isPositive ? '+' : ''}
+                {fmt(change)}%)
+              </span>
+            )}
+          </>
         )}
       </div>
     </div>
   );
 }
 
-// ─── SVG Line Chart ──────────────────────────────────────────────────────────
-
-function LineChart({ data = [], loading }) {
-  const [tooltip, setTooltip] = useState(null);
-  const svgRef = useRef(null);
-
-  const W = 600;
-  const H = 220;
-  const PAD = { top: 20, right: 20, bottom: 36, left: 10 };
-
-  const chartW = W - PAD.left - PAD.right;
-  const chartH = H - PAD.top - PAD.bottom;
-
-  const points = data.length > 0 ? data : [];
-  const values = points.map((p) => Number(p.value) || 0);
-  const minV = Math.min(...values);
-  const maxV = Math.max(...values);
-  const range = maxV - minV || 1;
-
-  const toX = (i) => PAD.left + (i / Math.max(points.length - 1, 1)) * chartW;
-  const toY = (v) => PAD.top + chartH - ((v - minV) / range) * chartH;
-
-  const linePath = points
-    .map(
-      (p, i) => `${i === 0 ? 'M' : 'L'}${toX(i)},${toY(Number(p.value) || 0)}`
-    )
-    .join(' ');
-
-  const areaPath =
-    points.length > 0
-      ? `${linePath} L${toX(points.length - 1)},${PAD.top + chartH} L${toX(0)},${PAD.top + chartH} Z`
-      : '';
-
-  const handleMouseMove = (e) => {
-    if (!svgRef.current || points.length === 0) return;
-    const rect = svgRef.current.getBoundingClientRect();
-    const mx = ((e.clientX - rect.left) / rect.width) * W;
-    const idx = Math.round(((mx - PAD.left) / chartW) * (points.length - 1));
-    const clamped = Math.max(0, Math.min(points.length - 1, idx));
-    setTooltip({
-      idx: clamped,
-      x: toX(clamped),
-      y: toY(Number(points[clamped]?.value) || 0),
-    });
-  };
-
-  if (loading) {
-    return <div className={styles.chartSkeleton} />;
+// ─── Custom Tooltip for Line Chart ───────────────────────────────────────────
+const CustomLineTooltip = ({ active, payload }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className={styles.customTooltip}>
+        <p className={styles.tooltipDate}>{payload[0].payload.label}</p>
+        <p className={styles.tooltipAmount}>${fmt(payload[0].value)}</p>
+      </div>
+    );
   }
+  return null;
+};
 
-  if (points.length === 0) {
+// ─── Custom Tooltip for Bar Chart ────────────────────────────────────────────
+const CustomBarTooltip = ({ active, payload }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className={styles.customTooltip}>
+        <p className={styles.tooltipAmount}>{fmt(payload[0].value)}</p>
+      </div>
+    );
+  }
+  return null;
+};
+
+// ─── Line Chart using Recharts ────────────────────────────────────────────────
+function LineChart({ data = [] }) {
+  if (data.length === 0) {
     return <div className={styles.chartEmpty}>No data available</div>;
   }
 
   return (
-    <svg
-      ref={svgRef}
-      viewBox={`0 0 ${W} ${H}`}
-      className={styles.lineSvg}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={() => setTooltip(null)}
-      preserveAspectRatio="none"
-    >
-      <defs>
-        <linearGradient id="lineGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#02df82" stopOpacity="0.25" />
-          <stop offset="100%" stopColor="#02df82" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-
-      {/* Area fill */}
-      <path d={areaPath} fill="url(#lineGrad)" />
-
-      {/* Line */}
-      <path
-        d={linePath}
-        fill="none"
-        stroke="#02df82"
-        strokeWidth="2"
-        strokeLinejoin="round"
-      />
-
-      {/* X-axis labels */}
-      {points.map((p, i) => {
-        if (i % Math.ceil(points.length / 8) !== 0 && i !== points.length - 1)
-          return null;
-        return (
-          <text
-            key={i}
-            x={toX(i)}
-            y={H - 6}
-            textAnchor="middle"
-            fontSize="9"
-            fill="rgba(255,255,255,0.35)"
-          >
-            {p.label}
-          </text>
-        );
-      })}
-
-      {/* Tooltip */}
-      {tooltip && (
-        <>
-          <line
-            x1={tooltip.x}
-            y1={PAD.top}
-            x2={tooltip.x}
-            y2={PAD.top + chartH}
-            stroke="rgba(255,255,255,0.15)"
-            strokeDasharray="4 3"
-          />
-          <circle cx={tooltip.x} cy={tooltip.y} r="5" fill="#02df82" />
-          <rect
-            x={tooltip.x - 44}
-            y={tooltip.y - 42}
-            width="88"
-            height="36"
-            rx="6"
-            fill="#0d1f1f"
-            stroke="rgba(255,255,255,0.12)"
-          />
-          <text
-            x={tooltip.x}
-            y={tooltip.y - 26}
-            textAnchor="middle"
-            fontSize="9"
-            fill="rgba(255,255,255,0.6)"
-          >
-            {points[tooltip.idx]?.label}
-          </text>
-          <text
-            x={tooltip.x}
-            y={tooltip.y - 13}
-            textAnchor="middle"
-            fontSize="11"
-            fill="#fafafa"
-            fontWeight="600"
-          >
-            ${fmt(points[tooltip.idx]?.value)}
-          </text>
-        </>
-      )}
-    </svg>
+    <ResponsiveContainer width="100%" height={360}>
+      <RechartsLineChart
+        data={data}
+        margin={{ top: 20, right: 30, bottom: 20, left: 20 }}
+      >
+        <XAxis
+          dataKey="label"
+          stroke="transparent"
+          tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 12 }}
+          tickLine={false}
+          axisLine={false}
+          dy={10}
+        />
+        <YAxis hide />
+        <Tooltip
+          content={<CustomLineTooltip />}
+          cursor={false}
+          position={{ y: 15 }}
+          offset={20}
+        />
+        <Line
+          type="linear"
+          dataKey="value"
+          stroke="#02df82"
+          strokeWidth={2.5}
+          dot={false}
+          activeDot={false}
+        />
+      </RechartsLineChart>
+    </ResponsiveContainer>
   );
 }
 
-// ─── SVG Bar Chart ───────────────────────────────────────────────────────────
-
-function BarChart({ data = [], loading }) {
-  const [hovered, setHovered] = useState(null);
-
-  const W = 460;
-  const H = 180;
-  const PAD = { top: 30, right: 10, bottom: 36, left: 10 };
-  const chartW = W - PAD.left - PAD.right;
-  const chartH = H - PAD.top - PAD.bottom;
-
-  const values = data.map((d) => Number(d.value) || 0);
-  const maxV = Math.max(...values, 1);
-  const barW = Math.max(8, (chartW / Math.max(data.length, 1)) * 0.55);
-  const gap = chartW / Math.max(data.length, 1);
-
-  if (loading) return <div className={styles.chartSkeleton} />;
-  if (data.length === 0)
+// ─── Bar Chart using Recharts ─────────────────────────────────────────────────
+function BarChart({ data = [] }) {
+  if (data.length === 0) {
     return <div className={styles.chartEmpty}>No data available</div>;
+  }
 
   return (
-    <svg
-      viewBox={`0 0 ${W} ${H}`}
-      className={styles.barSvg}
-      preserveAspectRatio="none"
-    >
-      {data.map((d, i) => {
-        const bh = Math.max(4, (Number(d.value) / maxV) * chartH);
-        const bx = PAD.left + i * gap + gap / 2 - barW / 2;
-        const by = PAD.top + chartH - bh;
-        const isHov = hovered === i;
-        return (
-          <g key={i}>
-            <rect
-              x={bx}
-              y={by}
-              width={barW}
-              height={bh}
-              rx="4"
-              fill={isHov ? '#02df82' : 'rgba(255,255,255,0.12)'}
-              style={{ cursor: 'pointer', transition: 'fill 0.2s' }}
-              onMouseEnter={() => setHovered(i)}
-              onMouseLeave={() => setHovered(null)}
-            />
-            {isHov && (
-              <>
-                <rect
-                  x={bx + barW / 2 - 26}
-                  y={by - 28}
-                  width="52"
-                  height="22"
-                  rx="5"
-                  fill="#0d1f1f"
-                  stroke="rgba(255,255,255,0.12)"
-                />
-                <text
-                  x={bx + barW / 2}
-                  y={by - 13}
-                  textAnchor="middle"
-                  fontSize="10"
-                  fill="#fafafa"
-                  fontWeight="600"
-                >
-                  {fmt(d.value)}
-                </text>
-              </>
-            )}
-            <text
-              x={bx + barW / 2}
-              y={H - 6}
-              textAnchor="middle"
-              fontSize="8"
-              fill="rgba(255,255,255,0.35)"
-            >
-              {d.label}
-            </text>
-          </g>
-        );
-      })}
-    </svg>
+    <ResponsiveContainer width="100%" height={210}>
+      <RechartsBarChart
+        data={data}
+        margin={{ top: 40, right: 20, bottom: 20, left: 20 }}
+      >
+        <XAxis
+          dataKey="label"
+          stroke="transparent"
+          tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 11 }}
+          tickLine={false}
+          axisLine={false}
+          dy={10}
+        />
+        <YAxis hide />
+        <Tooltip
+          content={<CustomBarTooltip />}
+          cursor={false}
+          position={{ y: 0 }}
+        />
+        <Bar
+          dataKey="value"
+          fill="rgba(255,255,255,0.08)"
+          radius={[8, 8, 0, 0]}
+          activeBar={{ fill: '#02df82' }}
+          barSize={40}
+        />
+      </RechartsBarChart>
+    </ResponsiveContainer>
   );
 }
 
-// ─── Donut Chart ─────────────────────────────────────────────────────────────
-
-function DonutChart({ userPct = 50 }) {
-  const R = 54;
-  const cx = 70;
-  const cy = 70;
-  const circ = 2 * Math.PI * R;
-  const userDash = (userPct / 100) * circ;
-  const restDash = circ - userDash;
-
-  return (
-    <svg viewBox="0 0 140 140" className={styles.donutSvg}>
-      {/* Track */}
-      <circle
-        cx={cx}
-        cy={cy}
-        r={R}
-        fill="none"
-        stroke="rgba(255,255,255,0.08)"
-        strokeWidth="14"
-      />
-      {/* User portion — green */}
-      <circle
-        cx={cx}
-        cy={cy}
-        r={R}
-        fill="none"
-        stroke="#02df82"
-        strokeWidth="14"
-        strokeDasharray={`${userDash} ${restDash}`}
-        strokeLinecap="round"
-        transform={`rotate(-90 ${cx} ${cy})`}
-      />
-      {/* Rest — dashed grey */}
-      <circle
-        cx={cx}
-        cy={cy}
-        r={R}
-        fill="none"
-        stroke="rgba(255,255,255,0.18)"
-        strokeWidth="10"
-        strokeDasharray="3 5"
-        strokeDashoffset={-userDash}
-        transform={`rotate(-90 ${cx} ${cy})`}
-      />
-      <text
-        x={cx}
-        y={cy - 6}
-        textAnchor="middle"
-        fontSize="10"
-        fill="rgba(255,255,255,0.5)"
-      >
-        You
-      </text>
-      <text
-        x={cx}
-        y={cy + 10}
-        textAnchor="middle"
-        fontSize="16"
-        fill="#fafafa"
-        fontWeight="700"
-      >
-        {userPct}%
-      </text>
-    </svg>
-  );
-}
-
-// ─── Main Dashboard ──────────────────────────────────────────────────────────
-
+// ─── Main Dashboard ───────────────────────────────────────────────────────────
 export default function Dashboard() {
   const dispatch = useDispatch();
   const router = useRouter();
-
 
   const {
     portfolioGrowth,
     lotsTraded,
     chartsLoading,
+    investmentAmount,
+    currentValue,
+    grossPL,
+    investmentLoading,
+    totalProfitSharing,
+    totalIbIncome,
+    commissionLoading,
     recentTransactions,
     recentTransactionsLoading,
+    totalCommission,
   } = useSelector((state) => state.dashboard);
-    const {
-   
-    tradingAccounts,
 
-  } = useSelector((state) => state.account);
+  const { tradingAccounts, selectedAccountId: selectedAccId } = useSelector(
+    (state) => state.account
+  );
+  const isIbUser = useSelector((state) => !!state.login.user?.isIbUser);
 
   const [showDeposit, setShowDeposit] = useState(false);
   const [showWithdraw, setShowWithdraw] = useState(false);
   const [chartPeriod, setChartPeriod] = useState('Last 7 Days');
+  const [donutLabel, setDonutLabel] = useState({ name: 'Investor', value: 50 });
 
   const userId = getUserFromCookie()?.id;
-    // Track the active account for dashboard charts
-    const [activeAccount, setActiveAccount] = useState(tradingAccounts?.[0] || null);
 
-    // Listen for account change events from header
-    useEffect(() => {
-      const handler = (e) => {
-        if (e.detail?.account) setActiveAccount(e.detail.account);
-      };
-      window.addEventListener('dashboardAccountChanged', handler);
-      return () => window.removeEventListener('dashboardAccountChanged', handler);
-    }, []);
+  const donutData = [
+    { name: 'Investor', value: 50 },
+    { name: 'IB', value: 10 },
+    { name: 'Company', value: 40 },
+  ];
+  const DONUT_COLORS = ['#02DF82', '#2B3535', '#1A2B2B'];
 
-    // Update local state if tradingAccounts change (initial load or account list update)
-    useEffect(() => {
-      if (!activeAccount && tradingAccounts?.length > 0) {
-        setActiveAccount(tradingAccounts[0]);
-      }
-    }, [tradingAccounts]);
+  // Resolve active account from Redux-synced header selection
+  const activeAccount =
+    tradingAccounts?.find((acc) => acc?.id === selectedAccId) ||
+    tradingAccounts?.[0] ||
+    null;
+  const mt5LoginId = activeAccount?.mt5LoginId || null;
 
-  // Fetch dashboard charts and transactions when account or period changes
+  // Refresh recent transactions
+  const refreshTransactions = () => {
+    if (userId) dispatch(fetchRecentTransactions({ userId, limit: 6 }));
+  };
+
+  // Initial load — transactions + commission (no accountId needed)
   useEffect(() => {
-    if (userId && activeAccount) {
+    refreshTransactions();
+    dispatch(fetchDashboardCommission());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, userId]);
+
+  // Re-fetch charts + investment stats when account or period changes
+  useEffect(() => {
+    if (userId && mt5LoginId) {
       const { startDate, endDate } = getDateRangeForPeriod(chartPeriod);
       dispatch(
         fetchDashboardCharts({
           userId,
+          accountId: mt5LoginId,
           startDate,
           endDate,
-          accountId: activeAccount?.mt5LoginId,
         })
       );
-      dispatch(fetchRecentTransactions({     accountId: activeAccount.mt5LoginId, userId, limit: 6 }));
+      dispatch(
+        fetchDashboardInvestment({ accountId: mt5LoginId, startDate, endDate })
+      );
     }
-  }, [dispatch, userId, activeAccount, chartPeriod]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, userId, mt5LoginId, chartPeriod]);
 
-  // ── Chart data from dashboardSlice (real API) ─────────────────────────────
   const portfolioPoints = (portfolioGrowth || []).map((p) => ({
     label: p.date ? moment(p.date).format('D-M') : p.label || '',
     value: p.value ?? 0,
@@ -446,38 +289,37 @@ export default function Dashboard() {
     value: p.value ?? 0,
   }));
 
-  // ── Recent transactions from dashboardSlice ───────────────────────────────
-
-
   return (
     <div className={styles.dashboard}>
-      {/* ── Row 1: Stat Cards ─────────────────────────────────────────────── */}
+      {/* Stat Cards */}
       <div className={styles.statsRow}>
-        <StatCard label="Investment" 
-        // value={investment}
-         loading={false} />
         <StatCard
-         label="Current Value"
-        
-        // value={currentValue}
-         loading={false} />
+          label="Investment"
+          value={investmentAmount}
+          loading={investmentLoading}
+        />
+        <StatCard
+          label="Current Value"
+          value={currentValue}
+          loading={investmentLoading}
+        />
         <StatCard
           label="Gross P&L"
-          // value={grossPnl}
-          // change={grossChange}
-          loading={false}
+          value={grossPL}
+          loading={investmentLoading}
           showPeriod
+          onPeriodChange={setChartPeriod}
         />
         <StatCard
           label="Net P&L"
-          // value={netPnl}
-          // change={netChange}
-          loading={false}
+          value={totalCommission}
+          loading={investmentLoading}
           showPeriod
+          onPeriodChange={setChartPeriod}
         />
       </div>
 
-      {/* ── Row 2: Charts + Right Panel ───────────────────────────────────── */}
+      {/* Main 2-column layout */}
       <div className={styles.mainRow}>
         {/* Left column */}
         <div className={styles.leftCol}>
@@ -496,56 +338,101 @@ export default function Dashboard() {
               </select>
             </div>
             <div className={styles.chartWrap}>
-              <LineChart data={portfolioPoints} loading={chartsLoading} />
+              {chartsLoading ? (
+                <div className={styles.lineChartSkeleton} />
+              ) : (
+                <LineChart data={portfolioPoints} />
+              )}
             </div>
           </div>
 
-          {/* Current Sharing Model + IB Revenue boxes */}
+          {/* Current Sharing Model + IB Revenue */}
           <div className={styles.sharingRow}>
-            {/* Left: donut */}
             <div className={`${styles.card} ${styles.sharingCard}`}>
               <div className={styles.cardHeader}>
                 <span className={styles.cardTitle}>Current Sharing Model</span>
               </div>
-              <div className={styles.sharingBody}>
-                <DonutChart  />
+              <div className={styles.donutWrap}>
+                <ResponsiveContainer width="100%" height={190}>
+                  <PieChart>
+                    <defs>
+                      <pattern
+                        id="patternHatch"
+                        width="6"
+                        height="4"
+                        patternUnits="userSpaceOnUse"
+                        patternTransform="rotate(90)"
+                      >
+                        <rect width="6" height="4" fill="transparent" />
+                        <line
+                          x1="0"
+                          y1="0"
+                          x2="0"
+                          y2="4"
+                          stroke="#848A8A"
+                          strokeWidth="2"
+                        />
+                      </pattern>
+                    </defs>
+                    <Pie
+                      data={donutData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={65}
+                      outerRadius={100}
+                      startAngle={270}
+                      endAngle={-90}
+                      cornerRadius={12}
+                      paddingAngle={4}
+                      dataKey="value"
+                      strokeWidth={0}
+                    >
+                      {donutData.map((d, i) => (
+                        <Cell
+                          key={i}
+                          fill={
+                            i === 2 ? 'url(#patternHatch)' : DONUT_COLORS[i]
+                          }
+                          stroke="none"
+                          onClick={() => setDonutLabel(d)}
+                          cursor="pointer"
+                        />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className={styles.donutCenter}>
+                  <span className={styles.donutLabel}>{donutLabel.name}</span>
+                  <span className={styles.donutPct}>{donutLabel.value}%</span>
+                </div>
               </div>
             </div>
-
-            {/* Right: two stacked revenue boxes */}
-            <div className={styles.revenueCol}>
-              {/* IB Income */}
-              <div className={`${styles.card} ${styles.revenueCard}`}>
-                <div className={styles.revenueLabel}>IB Income</div>
-                <div className={styles.revenueValue}>
-                  {/* {ibIncomeLoading ? (
-                    <span className={styles.skeleton} />
-                  ) : ibIncomeTotal !== null ? (
-                    `$${fmt(ibIncomeTotal)}`
-                  ) : (
-                    '0'
-                  )} */}
-                 {0} 
+            {isIbUser && (
+              <div className={styles.revenueCol}>
+                <div className={`${styles.card} ${styles.revenueCard}`}>
+                  <div className={styles.revenueLabel}>IB Income</div>
+                  <div className={styles.revenueValue}>
+                    {commissionLoading ? (
+                      <span className={styles.skeletonStatValue} />
+                    ) : (
+                      `$${fmt(totalIbIncome ?? 0)}`
+                    )}
+                  </div>
+                </div>
+                <div className={`${styles.card} ${styles.revenueCard}`}>
+                  <div className={styles.revenueLabel}>
+                    Profit Sharing Revenue
+                  </div>
+                  <div className={styles.revenueValue}>
+                    {commissionLoading ? (
+                      <span className={styles.skeletonStatValue} />
+                    ) : (
+                      `$${fmt(totalProfitSharing ?? 0)}`
+                    )}
+                  </div>
                 </div>
               </div>
-
-              {/* Profit Sharing Revenue */}
-              <div className={`${styles.card} ${styles.revenueCard}`}>
-                <div className={styles.revenueLabel}>
-                  Profit Sharing Revenue
-                </div>
-                <div className={styles.revenueValue}>
-                  {/* {profitSharingLoading ? (
-                    <span className={styles.skeleton} />
-                  ) : profitSharingRevenue !== null ? (
-                    `$${fmt(profitSharingRevenue)}`
-                  ) : (
-                    '0'
-                  )} */}
-                  {0}
-                </div>
-              </div>
-            </div>
+            )}
           </div>
         </div>
 
@@ -555,29 +442,25 @@ export default function Dashboard() {
           <div className={`${styles.card} ${styles.walletCard}`}>
             <span className={styles.walletLabel}>Wallet Balance</span>
             <span className={styles.walletValue}>
-              {chartsLoading ? (
+              {investmentLoading ? (
                 <span
-                  className={styles.skeleton}
-                  style={{ width: 120, height: 32, display: 'inline-block' }}
+                  className={styles.skeletonStatValue}
+                  style={{ width: 140, height: 36, display: 'inline-block' }}
                 />
               ) : (
-                // `$${fmt(walletBalance)}`
-                0
+                `$${fmt(currentValue ?? 0)}`
               )}
             </span>
             <div className={styles.walletActions}>
               <AuthButton
-                text="Deposite"
+                text="Deposit"
                 icon={PlusIcon}
-                className={styles.depositBtn}
                 onClick={() => setShowDeposit(true)}
               />
-
               <AuthButton
                 outline
                 icon={UpDirection}
                 text="Withdraw"
-                className={styles.withdrawBtn}
                 onClick={() => setShowWithdraw(true)}
               />
             </div>
@@ -589,7 +472,11 @@ export default function Dashboard() {
               <span className={styles.cardTitle}>Lots Traded</span>
             </div>
             <div className={styles.chartWrap}>
-              <BarChart data={lotsPoints} loading={chartsLoading} />
+              {chartsLoading ? (
+                <div className={styles.barChartSkeleton} />
+              ) : (
+                <BarChart data={lotsPoints} />
+              )}
             </div>
           </div>
 
@@ -601,39 +488,31 @@ export default function Dashboard() {
                 className={styles.seeAllBtn}
                 onClick={() => router.push('/transactions')}
               >
-                See All ›
+                See All &rsaquo;
               </button>
             </div>
             <div className={styles.txList}>
               {recentTransactionsLoading ? (
-                Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className={styles.txItem}>
+                Array.from({ length: 4 }).map((_, idx) => (
+                  <div key={idx} className={styles.txItem}>
                     <div className={styles.txLeft}>
                       <span
-                        className={styles.skeleton}
-                        style={{ width: 80, height: 13, display: 'block' }}
+                        className={`${styles.skeleton} ${styles.skeletonTxType}`}
                       />
                       <span
-                        className={styles.skeleton}
-                        style={{
-                          width: 120,
-                          height: 11,
-                          display: 'block',
-                          marginTop: 4,
-                        }}
+                        className={`${styles.skeleton} ${styles.skeletonTxDate}`}
                       />
                     </div>
                     <span
-                      className={styles.skeleton}
-                      style={{ width: 60, height: 14, display: 'block' }}
+                      className={`${styles.skeleton} ${styles.skeletonTxAmount}`}
                     />
                   </div>
                 ))
               ) : recentTransactions.length === 0 ? (
                 <p className={styles.txEmpty}>No transactions yet.</p>
               ) : (
-                recentTransactions.map((tx, i) => (
-                  <div key={tx?.id} className={styles.txItem}>
+                recentTransactions.map((tx, idx) => (
+                  <div key={tx?.id || idx} className={styles.txItem}>
                     <div className={styles.txLeft}>
                       <span className={styles.txType}>
                         {tx?.type
@@ -655,17 +534,23 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Modals */}
+      {/* Modals — refresh transactions on close */}
       {showDeposit && (
         <DepositModal
           activeAccount={activeAccount}
-          onClose={() => setShowDeposit(false)}
+          onClose={() => {
+            setShowDeposit(false);
+            refreshTransactions();
+          }}
         />
       )}
       {showWithdraw && (
         <WithdrawModal
           activeAccount={activeAccount}
-          onClose={() => setShowWithdraw(false)}
+          onClose={() => {
+            setShowWithdraw(false);
+            refreshTransactions();
+          }}
         />
       )}
     </div>
