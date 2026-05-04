@@ -55,9 +55,6 @@ export default function WithdrawModal({ onClose, activeAccount }) {
     }
   };
 
-  // Format display value with dollar sign
-  const displayValue = amount ? `$${amount}` : '';
-
   return (
     <div
       className={styles.depositModalWrapper}
@@ -71,13 +68,13 @@ export default function WithdrawModal({ onClose, activeAccount }) {
           <p>Submit a withdrawal request</p>
         </div>
         <div className={styles.modalbody}>
-          <div className={styles.counter}>
+          <div className={styles.amountRow}>
+            <span className={styles.currencySymbol}>$</span>
             <input
               type="text"
-              placeholder="$0"
-              value={displayValue}
+              placeholder="0"
+              value={amount}
               onChange={(e) => {
-                // Remove $ and any non-numeric characters except decimal
                 const value = e.target.value.replace(/[^0-9.]/g, '');
                 setAmount(value);
               }}

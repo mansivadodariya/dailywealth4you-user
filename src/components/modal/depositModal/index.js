@@ -15,7 +15,6 @@ export default function DepositModal({ onClose, activeAccount }) {
   const { transactionLoading } = useSelector((state) => state.account);
 
   const [amount, setAmount] = useState('');
-  const displayValue = amount ? `$${amount}` : '';
 
   // Resolve account info — prefer prop, fall back to first trading account
   const { tradingAccounts } = useSelector((state) => state.account);
@@ -66,17 +65,18 @@ export default function DepositModal({ onClose, activeAccount }) {
           </p>
         </div>
         <div className={styles.modalbody}>
-          <input
-            type="text"
-            placeholder="$0"
-            value={displayValue}
-            onChange={(e) => {
-              // Remove $ and any non-numeric characters except decimal
-              const value = e.target.value.replace(/[^0-9.]/g, '');
-              setAmount(value);
-            }}
-            min="0"
-          />
+          <div className={styles.amountRow}>
+            <span className={styles.currencySymbol}>$</span>
+            <input
+              type="text"
+              placeholder="0"
+              value={amount}
+              onChange={(e) => {
+                const value = e.target.value.replace(/[^0-9.]/g, '');
+                setAmount(value);
+              }}
+            />
+          </div>
           <p>Enter Deposit Amount</p>
           <div className={styles.buttonTop}>
             <AuthButton

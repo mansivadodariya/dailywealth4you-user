@@ -189,6 +189,7 @@ export default function Mt5Account({ onClose, preSelectedBroker = null }) {
       {openExistingAccount && (
         <UseExisting
           brokerId={existingBrokerId}
+          selectedBroker={selectedBroker}
           onClose={handleUseExistingClose}
         />
       )}

@@ -14,9 +14,9 @@ import {
   fetchTradingAccounts,
   setSelectedAccountId as setSelectedAccountIdAction,
 } from '@/store/slice/accountSlice';
-import { logout } from '@/store/slice/loginSlice';
+import { logout, fetchNotifications } from '@/store/slice/loginSlice';
 import { getUserFromCookie, clearAuthCookies } from '@/service/cookies';
-// import { disconnectSocket } from '@/service/socket';
+
 import AuthButton from '../authButton';
 
 const BellIcon = '/assets/icons/bell.svg';
@@ -88,6 +88,7 @@ export default function Header() {
     'User';
   const email = currentUser?.email || '';
   const isKycVerified = kycStatus === 'approved';
+  
 
   // ── Account breadcrumb ────────────────────────────────────────────────────
   useEffect(() => {
@@ -105,6 +106,11 @@ export default function Header() {
   useEffect(() => {
     const u = getUserFromCookie();
     if (u?.id) dispatch(fetchTradingAccounts(u.id));
+  }, [dispatch]);
+
+  // ── Fetch initial notifications on mount ──────────────────────────────────
+  useEffect(() => {
+    dispatch(fetchNotifications());
   }, [dispatch]);
 
   // ── Outside click handler ─────────────────────────────────────────────────
@@ -167,7 +173,8 @@ export default function Header() {
   };
 
   const handleLogout = () => {
-    // disconnectSocket();
+  
+
     dispatch(logout());
     clearAuthCookies();
     router.push('/');

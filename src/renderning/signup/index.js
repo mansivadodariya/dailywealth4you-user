@@ -10,7 +10,7 @@ import { signupUser } from '@/store/reducers';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import toast from 'react-hot-toast';
 
 const EyeIcon = '/assets/icons/eye.svg';
@@ -70,13 +70,21 @@ const SignupSchema = Yup.object().shape({
 export default function Signup() {
   const dispatch = useDispatch();
   const router = useRouter();
+  const params = useParams();
   const { isLoading, error } = useSelector((state) => state.signup);
+
+  // Extract referral code from URL: /signup/[referralCode]
+  const referralCode = params?.referralCode?.[0] || '';
 
   const [agreed, setAgreed] = useState(false);
   const [localError, setLocalError] = useState('');
 
   const formik = useFormik({
-    initialValues: initialFormValues,
+    initialValues: {
+      ...initialFormValues,
+      referredBy: referralCode,
+    },
+    enableReinitialize: true, // Re-init if referralCode changes
     validationSchema: SignupSchema,
     onSubmit: async (values, { resetForm }) => {
       setLocalError('');

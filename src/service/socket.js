@@ -1,46 +1,42 @@
-// import config from '@/config';
-// import { io } from 'socket.io-client';
+import { io } from 'socket.io-client';
+import { getTokenFromCookie } from '@/service/cookies';
 
-// let socket = null;
+const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL;
+let socket = null;
 
-// export function getSocket() {
-//   return socket;
-// }
+const createSocket = () => {
+  if (typeof window === 'undefined') return null;
 
-// export function connectSocket(token) {
-//   if (socket) return socket; // ← instance check, not connected check
+  const token =  getTokenFromCookie();
+  if (!token || !SOCKET_URL) return null;
 
-//   const baseUrl = config?.APP_SOCKET_URL;
+  if (socket && socket.connected) {
+    return socket;
+  }
 
-//   socket = io(baseUrl, {
-//     auth: { token },
-//     transports: ['websocket', 'polling'], // ← fallback added
-//     reconnectionAttempts: 5,
-//     reconnectionDelay: 2000,
-//   });
+  socket = io(SOCKET_URL, {
+    transports: ['websocket'],
+    extraHeaders: {
+      authorization: token,
+      'ngrok-skip-browser-warning': '1234',
+    },
+  });
 
-//   socket.on('connect', () => {
-//     console.log('[Socket] Connected:', socket.id);
-//   });
+  return socket;
+};
 
-//   socket.on('disconnect', (reason) => {
-//     console.log('[Socket] Disconnected:', reason);
-//     // Auto reconnect nahi kar raha toh manually handle karo
-//     if (reason === 'io server disconnect') {
-//       socket.connect(); // server ne disconnect kiya toh reconnect karo
-//     }
-//   });
+export const connectSocket = () => {
+  if (socket && socket.connected) {
+    return socket;
+  }
+  return createSocket();
+};
 
-//   socket.on('connect_error', (err) => {
-//     console.warn('[Socket] Connection error:', err.message);
-//   });
+export const getSocket = () => socket;
 
-//   return socket;
-// }
-
-// export function disconnectSocket() {
-//   if (socket) {
-//     socket.disconnect();
-//     socket = null;
-//   }
-// }
+export const disconnectSocket = () => {
+  if (socket) {
+    socket.disconnect();
+    socket = null;
+  }
+};

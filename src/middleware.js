@@ -5,12 +5,14 @@ export function middleware(request) {
   // "/" is usually your login page based on your code structure
   const publicAuthRoutes = [
     '/',
-    '/signup',
     '/verify-email',
     '/verification-code',
     '/new-password',
     '/password-successfully',
   ];
+
+  // Routes that start with these prefixes are also public
+  const publicAuthPrefixes = ['/signup'];
 
   const protectedRoutes = [
     '/dashboard',
@@ -35,7 +37,9 @@ export function middleware(request) {
   );
 
   // Exact match for public auth routes (login, signup, etc.)
-  const isPublicAuthRoute = publicAuthRoutes.includes(pathname);
+  const isPublicAuthRoute =
+    publicAuthRoutes.includes(pathname) ||
+    publicAuthPrefixes.some((prefix) => pathname.startsWith(prefix));
 
   // 1. If user doesn't have a token, but tries to access private routes
   if (!token && isProtectedRoute) {

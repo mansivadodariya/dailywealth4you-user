@@ -27,7 +27,6 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-  CartesianGrid,
   Cell,
 } from 'recharts';
 
@@ -250,17 +249,16 @@ export default function Dashboard() {
 
   // Refresh recent transactions
   const refreshTransactions = () => {
-    if (userId) dispatch(fetchRecentTransactions({ userId, limit: 6 }));
+    if (userId) dispatch(fetchRecentTransactions({ accountId: mt5LoginId, userId, limit: 6 }));
   };
 
-  // Initial load — transactions + commission (no accountId needed)
+  // Initial load — transactions only (commission needs mt5LoginId, handled below)
   useEffect(() => {
     refreshTransactions();
-    dispatch(fetchDashboardCommission());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, userId]);
 
-  // Re-fetch charts + investment stats when account or period changes
+  // Re-fetch charts + investment + commission when account or period changes
   useEffect(() => {
     if (userId && mt5LoginId) {
       const { startDate, endDate } = getDateRangeForPeriod(chartPeriod);
@@ -275,9 +273,18 @@ export default function Dashboard() {
       dispatch(
         fetchDashboardInvestment({ accountId: mt5LoginId, startDate, endDate })
       );
+      dispatch(fetchDashboardCommission(mt5LoginId));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, userId, mt5LoginId, chartPeriod]);
+
+  // Re-fetch recent transactions when account changes
+  useEffect(() => {
+    if (userId && mt5LoginId) {
+      refreshTransactions();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mt5LoginId]);
 
   const portfolioPoints = (portfolioGrowth || []).map((p) => ({
     label: p.date ? moment(p.date).format('D-M') : p.label || '',
@@ -299,7 +306,7 @@ export default function Dashboard() {
           loading={investmentLoading}
         />
         <StatCard
-          label="Current Value"
+          label="Current Value" 
           value={currentValue}
           loading={investmentLoading}
         />
@@ -379,7 +386,7 @@ export default function Dashboard() {
                       cx="50%"
                       cy="50%"
                       innerRadius={65}
-                      outerRadius={100}
+                      outerRadius={90}
                       startAngle={270}
                       endAngle={-90}
                       cornerRadius={12}

@@ -107,10 +107,11 @@ export default function Accounts() {
         <div className={styles.historyWrapper}>
           {accountHistoryLoading ? (
             <Loader
+              fullScreen={true}
               variant="dots"
               size="large"
               color="success"
-              text="Loading..."
+              
             />
           ) : (
             <div className={styles.historyTableContainer}>

@@ -183,3 +183,150 @@
     }
   }
 }
+
+// ─── Field group (label + input + error) ─────────────────────────────────────
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fieldLabel {
+  color: #fafafa;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: var(--font-manrope);
+}
+
+.error {
+  color: #ff4d4d;
+  font-size: 12px;
+  font-family: var(--font-manrope);
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+// ─── Broker dropdown ─────────────────────────────────────────────────────────
+
+.dropdownWrapper {
+  position: relative;
+}
+
+.dropdownTrigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 8px;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.07);
+  }
+
+  &.inputError {
+    border-color: #ff4d4d;
+  }
+}
+
+.selectedBroker {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  span {
+    color: #fafafa;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: var(--font-manrope);
+  }
+}
+
+.placeholder {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 14px;
+  font-family: var(--font-manrope);
+}
+
+.brokerLogo {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.chevron {
+  width: 12px;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+.dropdownMenu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: #0d1919;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  z-index: 200;
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 6px;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 4px;
+  }
+}
+
+.dropdownItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  span {
+    color: #fafafa;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: var(--font-manrope);
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  &.dropdownItemActive {
+    background: rgba(2, 223, 130, 0.1);
+
+    span {
+      color: #02df82;
+    }
+  }
+}
+
+// ─── Checkbox group wrapper (keeps error below the checkbox row) ──────────────
+
+.checkboxGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
