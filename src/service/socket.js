@@ -7,7 +7,7 @@ let socket = null;
 const createSocket = () => {
   if (typeof window === 'undefined') return null;
 
-  const token =  getTokenFromCookie();
+  const token = getTokenFromCookie();
   if (!token || !SOCKET_URL) return null;
 
   if (socket && socket.connected) {

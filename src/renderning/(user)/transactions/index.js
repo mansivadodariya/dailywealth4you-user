@@ -1,12 +1,4 @@
-
-
 import React from 'react';
-export default function Transactions () {
- 
- 
-
-  return (
- <>
- </>
-  );
+export default function Transactions() {
+  return <></>;
 }

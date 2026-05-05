@@ -111,7 +111,6 @@ export default function Accounts() {
               variant="dots"
               size="large"
               color="success"
-              
             />
           ) : (
             <div className={styles.historyTableContainer}>

@@ -19,7 +19,6 @@ import { getUserFromCookie, clearAuthCookies } from '@/service/cookies';
 
 import AuthButton from '../authButton';
 
-
 const BellIcon = '/assets/icons/bell.svg';
 const UserIcon = '/assets/icons/userIcon.svg';
 const moneyIcon = '/assets/icons/money.svg';
@@ -91,9 +90,7 @@ export default function Header() {
   const isKycVerified = kycStatus === 'approved';
 
   // Resolve profile image — check all common field names the API might return
-  const profileUrl =
-  currentUser?.payload?.profileUrl
-    null;
+  const profileUrl = currentUser?.payload?.profileUrl || null;
 
   // ── Account breadcrumb ────────────────────────────────────────────────────
   useEffect(() => {
@@ -178,8 +175,6 @@ export default function Header() {
   };
 
   const handleLogout = () => {
-  
-
     dispatch(logout());
     clearAuthCookies();
     router.push('/');

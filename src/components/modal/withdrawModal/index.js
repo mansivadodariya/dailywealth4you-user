@@ -68,7 +68,8 @@ export default function WithdrawModal({ onClose, activeAccount }) {
   const handleAmountChange = (e) => {
     const raw = e.target.value.replace(/^\$/, '').replace(/[^0-9.]/g, '');
     const parts = raw.split('.');
-    const sanitized = parts.length > 2 ? parts[0] + '.' + parts.slice(1).join('') : raw;
+    const sanitized =
+      parts.length > 2 ? parts[0] + '.' + parts.slice(1).join('') : raw;
     formik.setFieldValue('amount', sanitized);
   };
 
@@ -90,7 +91,6 @@ export default function WithdrawModal({ onClose, activeAccount }) {
         </div>
 
         <form className={styles.modalbody} onSubmit={formik.handleSubmit}>
-
           {/* ── Amount ─────────────────────────────────────────────────── */}
           <div className={styles.amountSection}>
             <div className={styles.amountRow}>
@@ -106,10 +106,11 @@ export default function WithdrawModal({ onClose, activeAccount }) {
                 autoComplete="off"
               />
             </div>
-            {amountError
-              ? <p className={styles.errorText}>{formik.errors.amount}</p>
-              : <p className={styles.hintText}>Enter Withdrawal Amount</p>
-            }
+            {amountError ? (
+              <p className={styles.errorText}>{formik.errors.amount}</p>
+            ) : (
+              <p className={styles.hintText}>Enter Withdrawal Amount</p>
+            )}
           </div>
 
           {/* ── Wallet Address ──────────────────────────────────────────── */}
@@ -139,10 +140,14 @@ export default function WithdrawModal({ onClose, activeAccount }) {
                 className={`${styles.networkSelector} ${networkError ? styles.networkSelectorError : ''}`}
                 onClick={() => setNetworkOpen((p) => !p)}
               >
-                <span className={`${styles.networkValue} ${!formik.values.network ? styles.networkPlaceholder : ''}`}>
+                <span
+                  className={`${styles.networkValue} ${!formik.values.network ? styles.networkPlaceholder : ''}`}
+                >
                   {formik.values.network || 'Select Network'}
                 </span>
-                <span className={`${styles.networkChevron} ${networkOpen ? styles.open : ''}`}>
+                <span
+                  className={`${styles.networkChevron} ${networkOpen ? styles.open : ''}`}
+                >
                   ▾
                 </span>
               </div>
@@ -171,7 +176,9 @@ export default function WithdrawModal({ onClose, activeAccount }) {
 
           <div className={styles.buttonTop}>
             <AuthButton
-              text={transactionLoading ? 'Processing...' : 'Submit Withdraw Request'}
+              text={
+                transactionLoading ? 'Processing...' : 'Submit Withdraw Request'
+              }
               icon={RightIcon}
               type="submit"
               disabled={transactionLoading}

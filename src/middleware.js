@@ -25,7 +25,6 @@ export function middleware(request) {
     '/transactions',
     '/introducing-broker',
     '/recommended-brokers',
-    '/recommended-Brokers',
   ];
 
   const token = request.cookies.get('auth_user')?.value;

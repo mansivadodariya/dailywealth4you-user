@@ -6,6 +6,7 @@ import Input from '@/components/input';
 import { useSelector } from 'react-redux';
 import config from '@/config';
 import toast from 'react-hot-toast';
+import { clearAuthCookies } from '@/service/cookies';
 
 const CopyIcon = '/assets/icons/copy.svg';
 
@@ -22,7 +23,9 @@ export default function ProfitSharingCard() {
       ? `${profitSharingSummary.totalCommission}`
       : '—';
 
-  const referralUrl = `${config?.API_URL_VERCEL_URL || ''}/signup/${user?.referralCode || ''}`;
+  const referralBaseUrl = config?.APP_FRONTEND_VERCEL_URL;
+  const referralUrl = `${referralBaseUrl}/signup/${user?.referralCode || ''}`;
+  // console.log(referralUrl)
 
   const handleCopyReferral = () => {
     if (!referralUrl) return;

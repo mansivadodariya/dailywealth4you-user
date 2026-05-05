@@ -24,17 +24,13 @@ const createSchema = Yup.object({
   brokerId: Yup.string().required('Please select a broker'),
   server: Yup.string().required('Server is required'),
   loginId: Yup.string().required('MT5 Login ID is required'),
-  password: Yup.string()
-    .required('Password is required'),
-    // .min(4, 'Password must be at least 4 characters'),
+  password: Yup.string().required('Password is required'),
+  // .min(4, 'Password must be at least 4 characters'),
   sizeOfAccount: Yup.number()
     .typeError('Size of account must be a number')
     // .positive('Must be a positive number')
     .required('Size of account is required'),
-  agreed: Yup.boolean().oneOf(
-    [true],
-    'You must accept the Terms & Conditions'
-  ),
+  agreed: Yup.boolean().oneOf([true], 'You must accept the Terms & Conditions'),
 });
 
 const editSchema = Yup.object({
@@ -75,7 +71,8 @@ export default function UseExisting({
         setIsDropdownOpen(false);
       }
     };
-    if (isDropdownOpen) document.addEventListener('mousedown', handleClickOutside);
+    if (isDropdownOpen)
+      document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isDropdownOpen]);
 
@@ -92,7 +89,11 @@ export default function UseExisting({
     initialValues: {
       brokerId: initialBrokerId,
       server: account?.platform || account?.server || '',
-      loginId: account?.brokerUserId || account?.mt5LoginId || account?.accountId || '',
+      loginId:
+        account?.brokerUserId ||
+        account?.mt5LoginId ||
+        account?.accountId ||
+        '',
       password: '',
       sizeOfAccount: account?.sizeOfAccount || '',
       agreed: false,
@@ -115,11 +116,12 @@ export default function UseExisting({
           await dispatch(updateTradingAccount(payload)).unwrap();
           if (onClose) onClose();
         } catch (error) {
-          toast.error(error?.message || error || 'Failed to update MT5 account.');
+          toast.error(
+            error?.message || error || 'Failed to update MT5 account.'
+          );
         }
       } else {
         const payload = {
-
           userId: user?.id || '',
           brokerId: values.brokerId,
           brokerName: getSelectedBrokerName(values.brokerId),
@@ -134,7 +136,9 @@ export default function UseExisting({
           resetForm();
           if (onClose) onClose();
         } catch (error) {
-          toast.error(error?.message || error || 'Failed to create MT5 account.');
+          toast.error(
+            error?.message || error || 'Failed to create MT5 account.'
+          );
         }
       }
     },
@@ -170,7 +174,6 @@ export default function UseExisting({
 
           <form className={styles.modalBody} onSubmit={formik.handleSubmit}>
             <div className={styles.singleCol}>
-
               {/* ── Broker Dropdown ─────────────────────────────────────── */}
               <div className={styles.fieldGroup}>
                 <label className={styles.fieldLabel}>Broker Name</label>
@@ -197,7 +200,9 @@ export default function UseExisting({
                         <span>{activeBroker.name}</span>
                       </div>
                     ) : (
-                      <span className={styles.placeholder}>Select a broker</span>
+                      <span className={styles.placeholder}>
+                        Select a broker
+                      </span>
                     )}
                     <img
                       src={DownIcon}
@@ -288,7 +293,11 @@ export default function UseExisting({
                   leftSpacingRemove
                   type="password"
                   name="password"
-                  placeholder={isEdit ? 'Leave blank to keep current' : 'Enter MT5 password'}
+                  placeholder={
+                    isEdit
+                      ? 'Leave blank to keep current'
+                      : 'Enter MT5 password'
+                  }
                   value={formik.values.password}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
@@ -309,9 +318,12 @@ export default function UseExisting({
                   onBlur={formik.handleBlur}
                   placeholder="e.g. 10000"
                 />
-                {formik.touched.sizeOfAccount && formik.errors.sizeOfAccount && (
-                  <span className={styles.error}>{formik.errors.sizeOfAccount}</span>
-                )}
+                {formik.touched.sizeOfAccount &&
+                  formik.errors.sizeOfAccount && (
+                    <span className={styles.error}>
+                      {formik.errors.sizeOfAccount}
+                    </span>
+                  )}
               </div>
             </div>
 

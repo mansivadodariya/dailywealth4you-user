@@ -4,7 +4,7 @@ import Transactions from '@/renderning/(user)/transactions';
 export default function page() {
   return (
     <div>
-      <Transactions/>
+      <Transactions />
     </div>
   );
 }

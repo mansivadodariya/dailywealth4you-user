@@ -41,12 +41,15 @@ export default function Login() {
     initialValues,
     validationSchema,
     onSubmit: async (values, { resetForm }) => {
-      const result = await dispatch(loginUser(values)).unwrap().catch(() => null);
+      const result = await dispatch(loginUser(values))
+        .unwrap()
+        .catch(() => null);
 
       if (result) {
         // Normalise the nested response to extract userId
         const responseData = result?.data || result;
-        const payloadData = responseData?.payload || responseData?.data || responseData;
+        const payloadData =
+          responseData?.payload || responseData?.data || responseData;
         const user =
           payloadData?.user ||
           payloadData ||

@@ -414,7 +414,7 @@
   min-height: 160px; // Consistent height
   justify-content: space-between;
 
-   &::after {
+  &::after {
     content: '';
     position: absolute;
     left: 0;

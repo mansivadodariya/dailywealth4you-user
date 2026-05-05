@@ -86,10 +86,12 @@ export const fetchDashboardCommission = createAsyncThunk(
   'dashboard/fetchDashboardCommission',
   async (mt5LoginId, thunkApi) => {
     try {
-         const params = new URLSearchParams();
+      const params = new URLSearchParams();
       if (mt5LoginId) params.append('accountId', mt5LoginId);
-    
-      const response = await api.get( `${GET_DASHBOARD_COMMISSION}?${params.toString()}`);
+
+      const response = await api.get(
+        `${GET_DASHBOARD_COMMISSION}?${params.toString()}`
+      );
       // Response: { payload: { totalProfitSharing, totalIbIncome, totalCommission } }
       const payload = response?.payload || response?.data || response;
       return {

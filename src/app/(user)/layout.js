@@ -6,7 +6,11 @@ import { useDispatch } from 'react-redux';
 import Header from '@/components/header';
 import KycGuard from '@/components/kycGuard';
 import Sidebar from '@/components/sidebar';
-import { getTokenFromCookie, getUserFromCookie, clearAuthCookies } from '@/service/cookies';
+import {
+  getTokenFromCookie,
+  getUserFromCookie,
+  clearAuthCookies,
+} from '@/service/cookies';
 import { connectSocket, disconnectSocket, getSocket } from '@/service/socket';
 import { fetchNotifications } from '@/store/slice/loginSlice';
 import toast from 'react-hot-toast';

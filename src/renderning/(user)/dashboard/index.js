@@ -249,7 +249,10 @@ export default function Dashboard() {
 
   // Refresh recent transactions
   const refreshTransactions = () => {
-    if (userId) dispatch(fetchRecentTransactions({ accountId: mt5LoginId, userId, limit: 6 }));
+    if (userId)
+      dispatch(
+        fetchRecentTransactions({ accountId: mt5LoginId, userId, limit: 6 })
+      );
   };
 
   // Initial load — transactions only (commission needs mt5LoginId, handled below)
@@ -306,7 +309,7 @@ export default function Dashboard() {
           loading={investmentLoading}
         />
         <StatCard
-          label="Current Value" 
+          label="Current Value"
           value={currentValue}
           loading={investmentLoading}
         />

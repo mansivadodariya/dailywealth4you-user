@@ -59,7 +59,8 @@ export default function DepositModal({ onClose, activeAccount }) {
     // Strip the leading $ then allow only digits and one decimal point
     const raw = e.target.value.replace(/^\$/, '').replace(/[^0-9.]/g, '');
     const parts = raw.split('.');
-    const sanitized = parts.length > 2 ? parts[0] + '.' + parts.slice(1).join('') : raw;
+    const sanitized =
+      parts.length > 2 ? parts[0] + '.' + parts.slice(1).join('') : raw;
     formik.setFieldValue('amount', sanitized);
   };
 
@@ -98,10 +99,11 @@ export default function DepositModal({ onClose, activeAccount }) {
                 autoComplete="off"
               />
             </div>
-            {hasError
-              ? <p className={styles.errorText}>{formik.errors.amount}</p>
-              : <p className={styles.hintText}>Enter Deposit Amount</p>
-            }
+            {hasError ? (
+              <p className={styles.errorText}>{formik.errors.amount}</p>
+            ) : (
+              <p className={styles.hintText}>Enter Deposit Amount</p>
+            )}
           </div>
 
           <div className={styles.buttonTop}>
