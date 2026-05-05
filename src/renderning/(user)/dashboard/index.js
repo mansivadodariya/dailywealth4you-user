@@ -16,6 +16,7 @@ import WithdrawModal from '@/components/modal/withdrawModal';
 import moment from 'moment';
 import styles from './dashboard.module.scss';
 import AuthButton from '@/components/authButton';
+import toast from 'react-hot-toast';
 import {
   Pie,
   PieChart,
@@ -247,12 +248,21 @@ export default function Dashboard() {
     null;
   const mt5LoginId = activeAccount?.mt5LoginId || null;
 
-  // Refresh recent transactions
+  // Refresh all dashboard data — called after deposit/withdrawal
+  const refreshAllDashboardData = () => {
+    refreshTransactions();
+    if (userId && mt5LoginId) {
+      const { startDate, endDate } = getDateRangeForPeriod(chartPeriod);
+      dispatch(fetchDashboardCharts({ userId, accountId: mt5LoginId, startDate, endDate }));
+      dispatch(fetchDashboardInvestment({ accountId: mt5LoginId, startDate, endDate }));
+      dispatch(fetchDashboardCommission(mt5LoginId));
+    }
+  };
+
+  // Refresh recent transactions only (used on account change)
   const refreshTransactions = () => {
     if (userId)
-      dispatch(
-        fetchRecentTransactions({ accountId: mt5LoginId, userId, limit: 6 })
-      );
+      dispatch(fetchRecentTransactions({ accountId: mt5LoginId, userId, limit: 6 }));
   };
 
   // Initial load — transactions only (commission needs mt5LoginId, handled below)
@@ -314,14 +324,14 @@ export default function Dashboard() {
           loading={investmentLoading}
         />
         <StatCard
-          label="Gross P&L"
+          label="Total P&L"
           value={grossPL}
           loading={investmentLoading}
           showPeriod
           onPeriodChange={setChartPeriod}
         />
         <StatCard
-          label="Net P&L"
+          label="Generated P&L"
           value={totalCommission}
           loading={investmentLoading}
           showPeriod
@@ -465,13 +475,25 @@ export default function Dashboard() {
               <AuthButton
                 text="Deposit"
                 icon={PlusIcon}
-                onClick={() => setShowDeposit(true)}
+                onClick={() => {
+                  if (!activeAccount?.id) {
+                    toast.error("You don't have any account. Please create an account first.");
+                    return;
+                  }
+                  setShowDeposit(true);
+                }}
               />
               <AuthButton
                 outline
                 icon={UpDirection}
                 text="Withdraw"
-                onClick={() => setShowWithdraw(true)}
+                onClick={() => {
+                  if (!activeAccount?.id) {
+                    toast.error("You don't have any account. Please create an account first.");
+                    return;
+                  }
+                  setShowWithdraw(true);
+                }}
               />
             </div>
           </div>
@@ -496,7 +518,7 @@ export default function Dashboard() {
               <span className={styles.cardTitle}>Recent Transactions</span>
               <button
                 className={styles.seeAllBtn}
-                onClick={() => router.push('/transactions')}
+                onClick={() => router.push('/transactions/deposits')}
               >
                 See All &rsaquo;
               </button>
@@ -544,23 +566,19 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Modals — refresh transactions on close */}
+      {/* Modals — refresh all dashboard data on success */}
       {showDeposit && (
         <DepositModal
           activeAccount={activeAccount}
-          onClose={() => {
-            setShowDeposit(false);
-            refreshTransactions();
-          }}
+          onSuccess={refreshAllDashboardData}
+          onClose={() => setShowDeposit(false)}
         />
       )}
       {showWithdraw && (
         <WithdrawModal
           activeAccount={activeAccount}
-          onClose={() => {
-            setShowWithdraw(false);
-            refreshTransactions();
-          }}
+          onSuccess={refreshAllDashboardData}
+          onClose={() => setShowWithdraw(false)}
         />
       )}
     </div>

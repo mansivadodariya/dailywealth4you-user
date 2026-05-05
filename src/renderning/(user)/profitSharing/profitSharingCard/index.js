@@ -23,8 +23,11 @@ export default function ProfitSharingCard() {
       ? `${profitSharingSummary.totalCommission}`
       : '—';
 
-  const referralBaseUrl = config?.APP_FRONTEND_VERCEL_URL;
-  const referralUrl = `${referralBaseUrl}/signup/${user?.referralCode || ''}`;
+const referralBaseUrl =
+  config?.API_URL_VERCEL_URL ||
+  (typeof window !== "undefined" ? window.location.origin : "");
+//  console.log(referralBaseUrl)
+const referralUrl = `${referralBaseUrl}/signup/${user?.referralCode || ""}`;
   // console.log(referralUrl)
 
   const handleCopyReferral = () => {

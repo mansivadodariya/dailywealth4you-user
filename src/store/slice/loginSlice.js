@@ -13,6 +13,7 @@ import {
   UPDATE_USER,
   GET_ALL_NOTIFICATION,
   UPDATE_NOTIFICATION,
+  GET_ALL_USERS,
 } from '@/service/url';
 import toast from 'react-hot-toast';
 
@@ -93,6 +94,22 @@ export const updateNotification = createAsyncThunk(
       const response = await api.put(
         `${UPDATE_NOTIFICATION}?id=null&isReadAll=true`,
         { isRead: true }
+      );
+      return response;
+    } catch (error) {
+      return thunkApi.rejectWithValue(error);
+    }
+  }
+);
+
+// Fetch full user profile by ID — GET /user/getAllUsers?id=&page=1&limit=50
+// Used after login and after profile update to get the latest profileUrl
+export const fetchUserById = createAsyncThunk(
+  'login/fetchUserById',
+  async (userId, thunkApi) => {
+    try {
+      const response = await api.get(
+        `${GET_ALL_USERS}?id=${userId}&page=1&limit=50`
       );
       return response;
     } catch (error) {
@@ -294,6 +311,17 @@ const loginSlice = createSlice({
       })
       .addCase(fetchNotifications.rejected, (state) => {
         state.notificationsLoading = false;
+      })
+      // fetchUserById — merges full user data (including profileUrl) into state
+      .addCase(fetchUserById.fulfilled, (state, action) => {
+        const payload = action?.payload?.payload || action?.payload;
+        // API returns a list — pick the first item (queried by specific id)
+        const data = payload?.data;
+        const userRecord = Array.isArray(data) ? data[0] : data;
+        if (userRecord && typeof userRecord === 'object') {
+          state.user = { ...state.user, ...userRecord };
+          setAuthCookies({ token: state.token, user: state.user });
+        }
       });
   },
 });

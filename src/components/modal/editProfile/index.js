@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateUserProfile } from '@/store/slice/loginSlice';
 import { uploadImage } from '@/store/slice/accountSlice';
+import { fetchUserById } from '@/store/slice/loginSlice';
 import { getUserFromCookie } from '@/service/cookies';
 import toast from 'react-hot-toast';
 import styles from './editProfile.module.scss';
@@ -119,6 +120,8 @@ export default function EditProfile({ onClose }) {
 
     try {
       await dispatch(updateUserProfile(payload)).unwrap();
+      // Re-fetch full user to get updated profileUrl in Redux + cookies
+      dispatch(fetchUserById(userId));
       toast.success('Profile updated successfully.');
       if (onClose) onClose();
     } catch (err) {

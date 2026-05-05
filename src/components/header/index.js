@@ -38,7 +38,6 @@ const routeTitles = {
   '/tutorials': 'Tutorials',
   '/economic-calendar': 'Economic Calendar',
   '/recommended-brokers': 'Recommended Brokers',
-  '/recommended-Brokers': 'Recommended Brokers',
   '/introducing-broker': 'Introducing Broker',
 };
 
@@ -77,12 +76,15 @@ export default function Header() {
     kycStatus,
     kycStatusLoading,
   } = useSelector((state) => state.account);
-  const { user, unreadCount } = useSelector((state) => state.login);
+  const {  unreadCount } = useSelector((state) => state.login);
   const isDashboard = pathname === '/dashboard' || pathname === '/';
   const isAccountsPage = pathname === '/accounts';
 
   const cookieUser = getUserFromCookie();
-  const currentUser = user || cookieUser;
+ 
+    // console.log("cookieUser",cookieUser)
+  const currentUser = cookieUser;
+
   const fullName =
     `${currentUser?.firstName || ''} ${currentUser?.lastName || ''}`.trim() ||
     'User';
@@ -90,7 +92,8 @@ export default function Header() {
   const isKycVerified = kycStatus === 'approved';
 
   // Resolve profile image — check all common field names the API might return
-  const profileUrl = currentUser?.payload?.profileUrl || null;
+  const profileUrl = currentUser?.profileUrl || null;
+  
 
   // ── Account breadcrumb ────────────────────────────────────────────────────
   useEffect(() => {

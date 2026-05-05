@@ -10,6 +10,7 @@ import loginReducer, {
   addNotification,
   markAllRead,
   updateNotification,
+  fetchUserById,
 } from '@/store/slice/loginSlice';
 import signupReducer, { signupUser } from '@/store/slice/signupSlice';
 import otpReducer, {
@@ -64,6 +65,7 @@ export {
   logout,
   updateUserProfile,
   fetchNotifications,
+  fetchUserById,
   addNotification,
   markAllRead,
   updateNotification,

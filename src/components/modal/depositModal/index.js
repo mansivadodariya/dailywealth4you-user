@@ -20,7 +20,7 @@ const depositSchema = Yup.object({
     .min(1, 'Minimum deposit amount is $1'),
 });
 
-export default function DepositModal({ onClose, activeAccount }) {
+export default function DepositModal({ onClose, activeAccount, onSuccess }) {
   const dispatch = useDispatch();
   const { transactionLoading } = useSelector((state) => state.account);
   const { tradingAccounts } = useSelector((state) => state.account);
@@ -48,6 +48,8 @@ export default function DepositModal({ onClose, activeAccount }) {
       };
       try {
         await dispatch(createTransaction(payload)).unwrap();
+        // Refresh all dashboard data after successful deposit
+        if (onSuccess) onSuccess();
         if (onClose) onClose();
       } catch {
         // toast already shown by thunk

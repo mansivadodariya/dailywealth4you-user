@@ -26,7 +26,7 @@ const withdrawSchema = Yup.object({
   network: Yup.string().required('Please select a network'),
 });
 
-export default function WithdrawModal({ onClose, activeAccount }) {
+export default function WithdrawModal({ onClose, activeAccount, onSuccess }) {
   const dispatch = useDispatch();
   const { transactionLoading } = useSelector((state) => state.account);
   const { tradingAccounts } = useSelector((state) => state.account);
@@ -58,6 +58,8 @@ export default function WithdrawModal({ onClose, activeAccount }) {
       };
       try {
         await dispatch(createTransaction(payload)).unwrap();
+        // Refresh all dashboard data after successful withdrawal
+        if (onSuccess) onSuccess();
         if (onClose) onClose();
       } catch {
         // toast already shown by thunk
@@ -159,7 +161,7 @@ export default function WithdrawModal({ onClose, activeAccount }) {
                       className={`${styles.networkOption} ${formik.values.network === opt ? styles.selected : ''}`}
                       onClick={() => {
                         formik.setFieldValue('network', opt);
-                        formik.setFieldTouched('network', true);
+                        // Don't touch here — only show error on submit attempt
                         setNetworkOpen(false);
                       }}
                     >

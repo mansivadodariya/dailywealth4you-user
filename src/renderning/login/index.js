@@ -11,6 +11,7 @@ import * as Yup from 'yup';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginUser } from '@/store/reducers';
 import { fetchAllDocument } from '@/store/slice/accountSlice';
+import { fetchUserById } from '@/store/slice/loginSlice';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 
@@ -59,7 +60,10 @@ export default function Login() {
         const userId = user?.id || user?._id;
 
         if (userId) {
+          // Fetch KYC status
           dispatch(fetchAllDocument(userId));
+          // Fetch full user profile to get profileUrl and latest data
+          dispatch(fetchUserById(userId));
         }
 
         toast.success('Login Successfully');

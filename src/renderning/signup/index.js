@@ -42,7 +42,7 @@ const SignupSchema = Yup.object().shape({
   email: Yup.string()
     .email('Invalid email address')
     .required('Please enter your email address!'),
-  referredBy: Yup.string().required('Please enter your Referral code '),
+  // referredBy: Yup.string().required('Please enter your Referral code '),
   // birthday: Yup.string().required('Birthday is required'),
   // phone: Yup.string()
   //   .matches(/^[0-9]+$/, 'Must be only digits')
@@ -219,11 +219,11 @@ export default function Signup() {
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                 />
-                {formik.touched.referredBy && formik.errors.referredBy && (
+                {/* {formik.touched.referredBy && formik.errors.referredBy && (
                   <span className={styles.error}>
                     {formik.errors.referredBy}
                   </span>
-                )}
+                )} */}
               </div>
               <div className={styles.checkboxdesign}>
                 <label>
