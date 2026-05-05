@@ -10,6 +10,7 @@ import ChangePassword from '../modal/changePassword';
 import NotificationDropdown from '../notificationDropdown';
 import DepositModal from '../modal/depositModal';
 import WithdrawModal from '../modal/withdrawModal';
+import { CgProfile } from "react-icons/cg";
 import {
   fetchTradingAccounts,
   setSelectedAccountId as setSelectedAccountIdAction,
@@ -327,16 +328,43 @@ export default function Header() {
                 setIsNotifOpen(false);
               }}
             >
-             
-              <img
-  src={profileUrl || UserIcon}
-  alt={fullName}
-  className={styles.profileImage}
-  onError={(e) => {
-    e.target.onerror = null;
-    e.target.src = UserIcon;
-  }}
-/>
+              {profileUrl ? (
+                <img
+                  src={profileUrl}
+                  alt={fullName}
+                  className={styles.profileImage}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.style.display = 'none';
+                    e.target.nextSibling.style.display = 'flex';
+                  }}
+                />
+              ) : null}
+              <div
+                className={styles.profileInitials}
+                style={{ display: profileUrl ? 'none' : 'flex' }}
+              >
+                {/* Inline person silhouette — no external icon file */}
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  {/* Head */}
+                  <circle cx="12" cy="8" r="4" fill="rgba(255,255,255,0.55)" />
+                  {/* Body / shoulders */}
+                  <rect
+                    x="5"
+                    y="15"
+                    width="14"
+                    height="5"
+                    rx="3"
+                    fill="rgba(255,255,255,0.55)"
+                  />
+                </svg>
+              </div>
             </div>
 
             {isProfileMenuOpen && (
