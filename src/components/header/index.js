@@ -92,7 +92,10 @@ export default function Header() {
   const isKycVerified = kycStatus === 'approved';
 
   // Resolve profile image — check all common field names the API might return
-  const profileUrl = currentUser?.profileUrl || null;
+  const profileUrl =
+  currentUser?.profileUrl && currentUser.profileUrl.trim() !== ''
+    ? currentUser.profileUrl
+    : null;
   
 
   // ── Account breadcrumb ────────────────────────────────────────────────────
@@ -324,25 +327,16 @@ export default function Header() {
                 setIsNotifOpen(false);
               }}
             >
-              {profileUrl ? (
-                <img
-                  src={profileUrl}
-                  alt={fullName}
-                  className={styles.profileImage}
-                  onError={(e) => {
-                    // If the URL is broken, swap to the default icon
-                    e.target.onerror = null;
-                    e.target.src = UserIcon;
-                    e.target.className = styles.profileIconDefault;
-                  }}
-                />
-              ) : (
-                <img
-                  src={UserIcon}
-                  alt="Profile"
-                  className={styles.profileIconDefault}
-                />
-              )}
+             
+              <img
+  src={profileUrl || UserIcon}
+  alt={fullName}
+  className={styles.profileImage}
+  onError={(e) => {
+    e.target.onerror = null;
+    e.target.src = UserIcon;
+  }}
+/>
             </div>
 
             {isProfileMenuOpen && (
