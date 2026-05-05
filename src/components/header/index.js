@@ -37,7 +37,7 @@ const routeTitles = {
   '/faqs': 'FAQs',
   '/tutorials': 'Tutorials',
   '/economic-calendar': 'Economic Calendar',
-  '/recommended-brokers': 'Recommended Brokers',
+  '/recommended-broker': 'Recommended Brokers',
   '/introducing-broker': 'Introducing Broker',
 };
 

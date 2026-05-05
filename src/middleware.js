@@ -24,7 +24,7 @@ export function middleware(request) {
     '/economic-Calendar',
     '/transactions',
     '/introducing-broker',
-    '/recommended-brokers',
+    '/recommended-broker',
   ];
 
   const token = request.cookies.get('auth_user')?.value;

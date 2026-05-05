@@ -41,10 +41,10 @@ const topMenuItems = [
 
 const bottomMenuItems = [
   {
-    id: 'recommended-brokers',
+    id: 'recommended-broker',
     label: 'Recommended Brokers',
     icon: RecommendedBrokers,
-    route: '/recommended-brokers',
+    route: '/recommended-broker',
   },
   {
     id: 'contact-us',
