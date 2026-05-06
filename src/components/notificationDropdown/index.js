@@ -49,7 +49,7 @@ export default function NotificationDropdown({ onClose }) {
         {!notificationsLoading &&
           notifications.map((notif, i) => (
             <div
-              key={notif?.id || notif?._id || i}
+              key={notif?.id}
               className={`${styles.item} ${!notif?.isRead ? styles.unread : ''}`}
             >
               {/* Icon */}
@@ -67,10 +67,7 @@ export default function NotificationDropdown({ onClose }) {
               {/* Content */}
               <div className={styles.content}>
                 <p className={styles.message}>
-                  {notif?.message ||
-                    notif?.title ||
-                    notif?.body ||
-                    'New notification'}
+                {notif?.title}
                 </p>
                 <span className={styles.time}>
                   {notif?.createdAt ? moment(notif.createdAt).fromNow() : ''}

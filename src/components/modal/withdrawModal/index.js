@@ -12,7 +12,7 @@ import AuthButton from '@/components/authButton';
 const RightIcon = '/assets/icons/right.svg';
 const CloseIcon = '/assets/icons/close.svg';
 
-const NETWORK_OPTIONS = ['TRC20', 'ERC20', 'BEP20', 'Bitcoin'];
+const NETWORK_OPTIONS = ['TRC20', 'ERC20', 'BEP20'];
 
 const withdrawSchema = Yup.object({
   amount: Yup.number()

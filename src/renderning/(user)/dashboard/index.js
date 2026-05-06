@@ -130,7 +130,7 @@ function LineChart({ data = [] }) {
   }
 
   return (
-    <ResponsiveContainer width="100%" height={360}>
+    <ResponsiveContainer width="100%" height={340}>
       <RechartsLineChart
         data={data}
         margin={{ top: 20, right: 30, bottom: 20, left: 20 }}

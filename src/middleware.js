@@ -15,6 +15,7 @@ export function middleware(request) {
   const publicAuthPrefixes = ['/signup'];
 
   const protectedRoutes = [
+    '/performance-dashboard',
     '/dashboard',
     '/accounts',
     '/profit-sharing',

@@ -68,7 +68,7 @@ const referralUrl = `${referralBaseUrl}/signup/${user?.referralCode || ""}`;
       </div>
       <div className={styles.items}>
         <p>Commission (10%)</p>
-        <h3>{profitSharingLoading ? '...' : totalCommission}</h3>
+        <h3>${profitSharingLoading ? '...' : totalCommission}</h3>
       </div>
     </div>
   );

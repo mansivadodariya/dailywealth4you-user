@@ -29,7 +29,17 @@ const ProfitSharingIcon = '/assets/icons/ProfitSharing.svg';
 const IbIncomeIcon = '/assets/icons/IBIncome.svg';
 const TransactionsIcon = '/assets/icons/Transactions.svg';
 
+const SocialIcon = '/assets/icons/ProfitSharing.svg';
+const PoolAccountIcon = '/assets/icons/ProfitSharing.svg';
+const TradeHistoryIcon = '/assets/icons/Transactions.svg';
+
 const topMenuItems = [
+  {
+   id: 'performance-dashboard',
+   label: 'Performance Dashboard',
+   icon: DashboardIcon,
+   route: '/performance-dashboard',
+},
   {
     id: 'dashboard',
     label: 'Dashboard',
@@ -81,6 +91,9 @@ export default function Sidebar() {
   const [ibExpanded, setIbExpanded] = useState(isIbRoute);
   const [txExpanded, setTxExpanded] = useState(isTransactionsRoute);
 
+  const isSocialRoute = pathname.startsWith('/social');
+  const [socialExpanded, setSocialExpanded] = useState(isSocialRoute);
+
   useEffect(() => {
     const user = getUserFromCookie();
     if (user?.id) {
@@ -96,14 +109,20 @@ export default function Sidebar() {
   useEffect(() => {
     if (isTransactionsRoute) setTxExpanded(true);
   }, [isTransactionsRoute]);
+  useEffect(() => {
+  if (isSocialRoute) setSocialExpanded(true);
+}, [isSocialRoute]);
 
   const navigate = (route) => router.push(route);
 
-  const isActive = (id) => {
-    if (id === 'introducing-broker') return isIbRoute;
-    if (id === 'transactions') return isTransactionsRoute;
-    return pathname.includes(id);
-  };
+const isActive = (id) => {
+  if (id === 'introducing-broker') return isIbRoute;
+  if (id === 'transactions') return isTransactionsRoute;
+  if (id === 'social') return isSocialRoute;
+  const item = [...topMenuItems, ...bottomMenuItems].find((m) => m.id === id);
+  if (item?.route) return pathname === item.route;  
+  return pathname.includes(id);
+};
 
   return (
     <aside className={styles.sidebar}>
@@ -229,7 +248,8 @@ export default function Sidebar() {
               </span>
             </div>
           </div>
-
+                    {/* Social — expandable */}
+    
           {txExpanded && (
             <div className={styles.subMenu}>
               <div
@@ -254,6 +274,57 @@ export default function Sidebar() {
                 <div className={styles.subMenuLeft}>
                   <img src={Deposite} alt="Deposits" />
                   <span>Deposits</span>
+                </div>
+                <div className={styles.rightAlignment}>
+                  <RightIcon />
+                </div>
+              </div>
+            </div>
+          )}
+
+            <div
+            className={`${styles.menu} ${isActive('social') ? styles.active : ''}`}
+            onClick={() => setSocialExpanded((prev) => !prev)}
+          >
+            <div className={styles.leftAlignment}>
+              <img src={SocialIcon} alt="Social" />
+              <span>Social</span>
+            </div>
+            <div className={styles.rightAlignment}>
+              <span
+                className={`${styles.chevron} ${socialExpanded ? styles.chevronUp : ''}`}
+              >
+                <RightIcon />
+              </span>
+            </div>
+          </div>
+
+          {socialExpanded && (
+            <div className={styles.subMenu}>
+              {/* Poll Account */}
+              <div
+                className={`${styles.subMenuItem} ${pathname === '/social/poll-account' ? styles.subMenuItemActive : ''}`}
+                onClick={() => navigate('/social/poll-account')}
+              >
+                <div className={styles.subMenuConnector} />
+                <div className={styles.subMenuLeft}>
+                  <img src={PoolAccountIcon} alt="Poll Account" />
+                  <span>Poll Account</span>
+                </div>
+                <div className={styles.rightAlignment}>
+                  <RightIcon />
+                </div>
+              </div>
+
+              {/* Trade History */}
+              <div
+                className={`${styles.subMenuItem} ${pathname === '/social/trade-history' ? styles.subMenuItemActive : ''}`}
+                onClick={() => navigate('/social/trade-history')}
+              >
+                <div className={styles.subMenuConnector} />
+                <div className={styles.subMenuLeft}>
+                  <img src={TradeHistoryIcon} alt="Trade History" />
+                  <span>Trade History</span>
                 </div>
                 <div className={styles.rightAlignment}>
                   <RightIcon />

@@ -67,7 +67,7 @@ export default function Login() {
         }
 
         toast.success('Login Successfully');
-        router.push('/dashboard');
+        router.push('/performance-dashboard');
         resetForm();
       }
     },

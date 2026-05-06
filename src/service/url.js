@@ -33,3 +33,4 @@ export const GET_DASHBOARD_INVESTMENT =
 export const GET_DASHBOARD_COMMISSION =
   '/tradesHistory/getUserDashboardCommissionProfit';
 export const GET_ALL_USERS = '/user/getAllUsers';
+export const GET_ALL_PERFORMANCE_USER = '/performance/getTopTenUserPerformance';

@@ -10,42 +10,48 @@ import {
   getTokenFromCookie,
   getUserFromCookie,
   clearAuthCookies,
+  getCookie,
 } from '@/service/cookies';
 import { connectSocket, disconnectSocket, getSocket } from '@/service/socket';
 import { fetchNotifications } from '@/store/slice/loginSlice';
 import toast from 'react-hot-toast';
+import Loader from '@/components/Loader';
 
 export default function layout({ children }) {
+      const [toogle, setToogle] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const pathname = usePathname();
   const router = useRouter();
   const dispatch = useDispatch();
 
+  // Check authentication on mount and route changes
   useEffect(() => {
-    const token = getTokenFromCookie();
-    const user = getUserFromCookie();
+    const checkAuth = () => {
+      const userToken = getCookie('auth_token');
+      const user = getCookie('auth_user');
 
-    if (!token || !user) {
-      clearAuthCookies();
-      toast.error('Please login to access this page');
-      router.replace('/');
-      return;
-    }
+      if (!userToken || !user) {
+        toast.error('Please login to access this page');
+        window.location.href = '/';
+        return;
+      }
+      setIsAuthenticated(true);
+      setIsLoading(false);
+    };
 
-    setIsAuthenticated(true);
-    setIsLoading(false);
+    checkAuth();
+    // clearSearch();
   }, [pathname, router]);
 
+  // Handle browser back/forward navigation
   useEffect(() => {
     const handlePopState = () => {
-      const token = getTokenFromCookie();
-      const user = getUserFromCookie();
+      const userToken = getCookie('userToken');
+      const user = getCookie('user');
 
-      if (!token || !user) {
-        disconnectSocket();
-        clearAuthCookies();
-        router.replace('/');
+      if (!userToken || !user) {
+        window.location.href = '/';
       }
     };
 
@@ -53,6 +59,7 @@ export default function layout({ children }) {
     return () => window.removeEventListener('popstate', handlePopState);
   }, [router]);
 
+  // Fetch notifications on auth
   useEffect(() => {
     if (!isAuthenticated) return;
     dispatch(fetchNotifications());
@@ -61,38 +68,52 @@ export default function layout({ children }) {
   useEffect(() => {
     if (!isAuthenticated) return;
 
-    const socket = connectSocket();
-    if (!socket) return;
+    connectSocket();
+    const socket = getSocket();
 
-    const refreshNotifications = () => {
+    const handleCheckNotification = (data) => {
+      // Re-fetch notifications to keep Redux store in sync
       dispatch(fetchNotifications());
     };
 
-    const handleConnect = () => {
-      socket.emit('check-notification', {});
-    };
+    if (socket) {
+      const handleConnect = () => {
+        socket.emit("check-notification", {});
+      };
 
-    socket.on('connect', handleConnect);
-    socket.on('check-notification', refreshNotifications);
-    socket.on('notification-count', refreshNotifications);
-    socket.on('get-count', refreshNotifications);
+      socket.on("connect", handleConnect);
+      socket.on("check-notification", handleCheckNotification);
 
-    if (socket.connected) {
-      handleConnect();
+      // Also listen to the other events for compatibility
+      socket.on('notification-count', handleCheckNotification);
+      socket.on('get-count', handleCheckNotification);
+
+      if (socket.connected) {
+        handleConnect();
+      }
+
+      return () => {
+        socket.off("connect", handleConnect);
+        socket.off("check-notification", handleCheckNotification);
+        socket.off('notification-count', handleCheckNotification);
+        socket.off('get-count', handleCheckNotification);
+      };
     }
-
-    return () => {
-      socket.off('connect', handleConnect);
-      socket.off('check-notification', refreshNotifications);
-      socket.off('notification-count', refreshNotifications);
-      socket.off('get-count', refreshNotifications);
-    };
   }, [isAuthenticated, dispatch]);
 
-  if (isLoading) {
+  // Show loading or redirect if not authenticated
+  if (isLoading || !isAuthenticated) {
     return (
-      <div className="user-layout-loading">
-        <p>Loading...</p>
+      <div style={{
+        position: 'fixed',
+        inset: 0,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: '#030f0f',
+        zIndex: 9999
+      }}>
+        <Loader/>
       </div>
     );
   }

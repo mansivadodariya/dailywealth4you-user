@@ -228,7 +228,6 @@ export default function Header() {
                 <div className={styles.accountBtnLoader}>
                   <span className={styles.accountBtnSpinner} />
                   <span className={styles.accountBtnLoaderText}>
-                    Loading...
                   </span>
                 </div>
               ) : tradingAccounts?.length > 0 ? (

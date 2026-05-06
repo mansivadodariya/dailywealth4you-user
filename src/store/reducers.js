@@ -46,6 +46,10 @@ import dashboardReducer, {
   fetchDashboardCommission,
   clearDashboardState,
 } from '@/store/slice/dashboardSlice';
+import performanceReducer, {
+  fetchPerformanceUsers,
+  clearPerformanceState,
+} from '@/store/slice/performanceSlice';
 
 const reducer = combineReducers({
   signup: signupReducer,
@@ -54,6 +58,7 @@ const reducer = combineReducers({
   account: accountReducer,
   ibUser: ibUserReducer,
   dashboard: dashboardReducer,
+  performance: performanceReducer,
 });
 
 export {
@@ -93,5 +98,7 @@ export {
   fetchDashboardCommission,
   clearDashboardState,
   setSelectedAccountId,
+  fetchPerformanceUsers,
+  clearPerformanceState,
 };
 export default reducer;
