@@ -73,7 +73,7 @@ function UploadBox({ id, preview, isUploading, error, onChange }) {
   );
 }
 
-export default function KycModal() {
+export default function KycModal({onClose}) {
   const dispatch = useDispatch();
   const { loading } = useSelector((state) => state.account);
   const user = getUserFromCookie();
@@ -108,7 +108,7 @@ export default function KycModal() {
     const file = e.target.files[0];
     if (!file) return;
 
-    // 3 MB size validation
+    // 3 MB size validationf
     const MAX_SIZE_MB = 3;
     if (file.size > MAX_SIZE_MB * 1024 * 1024) {
       setErrors((prev) => ({
@@ -257,7 +257,7 @@ export default function KycModal() {
                 onClick={handleSubmit}
                 disabled={anyUploading || loading}
               />
-              <AuthButton outline text="Cancel" icon={CloseIcon} />
+              <AuthButton outline text="Cancel" icon={CloseIcon}  onClick={onClose} />
             </div>
           </div>
         </div>

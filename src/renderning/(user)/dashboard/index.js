@@ -166,7 +166,7 @@ function LineChart({ data = [] }) {
 // ─── Bar Chart using Recharts ─────────────────────────────────────────────────
 function BarChart({ data = [] }) {
   if (data.length === 0) {
-    return <div className={styles.chartEmpty}>No data available</div>;
+    return <div className={styles.chartEmpty} style={{ height: '210px' }}>No data available</div>;
   }
 
   return (
@@ -499,11 +499,11 @@ export default function Dashboard() {
           </div>
 
           {/* Lots Traded */}
-          <div className={styles.card}>
+          <div className={`${styles.card} ${styles.lotsCard}`}>
             <div className={styles.cardHeader}>
               <span className={styles.cardTitle}>Lots Traded</span>
             </div>
-            <div className={styles.chartWrap}>
+            <div className={styles.lotsChartWrap}>
               {chartsLoading ? (
                 <div className={styles.barChartSkeleton} />
               ) : (

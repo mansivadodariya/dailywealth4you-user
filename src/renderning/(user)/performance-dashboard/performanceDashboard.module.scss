@@ -214,3 +214,73 @@
   padding: 12px 10px;
 }
 
+
+.kycBanner {
+  margin-bottom: 24px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 193, 7, 0.1) 0%,
+    rgba(255, 152, 0, 0.05) 100%
+  );
+  border-radius: 12px;
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  overflow: hidden;
+}
+
+.kycBannerContent {
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.kycBannerText {
+  flex: 1;
+
+  h3 {
+    color: #ffc107;
+    font-size: 18px;
+    font-weight: 700;
+    font-family: var(--font-red-hat-display);
+    margin: 0 0 8px;
+  }
+
+  p {
+    color: #fafafa;
+    font-size: 14px;
+    font-weight: 400;
+    font-family: var(--font-manrope);
+    margin: 0;
+    line-height: 1.5;
+  }
+}
+
+.completeKycBtn {
+  position: relative;
+  padding: 12px 28px;
+  background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+  border: none;
+  border-radius: 8px;
+  color: #000;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: var(--font-manrope);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(255, 193, 7, 0.3);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}

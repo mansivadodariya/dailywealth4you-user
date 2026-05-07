@@ -49,8 +49,8 @@ export function middleware(request) {
 
   // 2. If user DOES have a token, but tries to access login/signup
   if (token && isPublicAuthRoute) {
-    // Redirect them directly to their dashboard
-    return NextResponse.redirect(new URL('/dashboard', request.url));
+    // Redirect them directly to performance dashboard
+    return NextResponse.redirect(new URL('/performance-dashboard', request.url));
   }
 
   return NextResponse.next();

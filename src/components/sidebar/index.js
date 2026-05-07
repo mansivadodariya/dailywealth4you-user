@@ -83,7 +83,9 @@ export default function Sidebar() {
   const dispatch = useDispatch();
 
   const { ibRequestStatus } = useSelector((state) => state.ibUser);
+  const { kycStatus } = useSelector((state) => state.account);
   const isIbApproved = ibRequestStatus === 'approved';
+  const isKycApproved = kycStatus === 'approved';
 
   // Introducing Broker sub-menu open state
   const isIbRoute = pathname.startsWith('/introducing-broker');
@@ -113,7 +115,12 @@ export default function Sidebar() {
   if (isSocialRoute) setSocialExpanded(true);
 }, [isSocialRoute]);
 
-  const navigate = (route) => router.push(route);
+  const navigate = (route) => {
+    // Only allow navigation if KYC is approved or route is performance-dashboard
+    if (isKycApproved || route === '/performance-dashboard') {
+      router.push(route);
+    }
+  };
 
 const isActive = (id) => {
   if (id === 'introducing-broker') return isIbRoute;
@@ -134,52 +141,56 @@ const isActive = (id) => {
 
       <div className={styles.scroll}>
         <div className={styles.sidebarBody}>
-          {/* Top items: Dashboard, Accounts */}
-          {topMenuItems.map((item) => (
+          {/* Top items: Dashboard, Accounts - Filter based on KYC */}
+          {topMenuItems
+            .filter((item) => isKycApproved || item.id === 'performance-dashboard')
+            .map((item) => (
+              <div
+                key={item.id}
+                className={`${styles.menu} ${isActive(item.id) ? styles.active : ''}`}
+                onClick={() => navigate(item.route)}
+              >
+                <div className={styles.leftAlignment}>
+                  <img src={item.icon} alt={item.label} />
+                  <span>{item.label}</span>
+                </div>
+                <div className={styles.rightAlignment}>
+                  <RightIcon />
+                </div>
+              </div>
+            ))}
+
+          {/* Introducing Broker — only show if KYC approved */}
+          {isKycApproved && (
             <div
-              key={item.id}
-              className={`${styles.menu} ${isActive(item.id) ? styles.active : ''}`}
-              onClick={() => navigate(item.route)}
+              className={`${styles.menu} ${isActive('introducing-broker') ? styles.active : ''}`}
+              onClick={() => {
+                if (isIbApproved) {
+                  // Toggle sub-menu when approved
+                  setIbExpanded((prev) => !prev);
+                } else {
+                  // Navigate to IB page when not approved
+                  navigate('/introducing-broker');
+                }
+              }}
             >
               <div className={styles.leftAlignment}>
-                <img src={item.icon} alt={item.label} />
-                <span>{item.label}</span>
+                <img src={IntoducingIcon} alt="Introducing Broker" />
+                <span>Introducing Broker</span>
               </div>
               <div className={styles.rightAlignment}>
-                <RightIcon />
+                {isIbApproved ? (
+                  <span
+                    className={`${styles.chevron} ${ibExpanded ? styles.chevronUp : ''}`}
+                  >
+                    <RightIcon />
+                  </span>
+                ) : (
+                  <RightIcon />
+                )}
               </div>
             </div>
-          ))}
-
-          {/* Introducing Broker — expandable */}
-          <div
-            className={`${styles.menu} ${isActive('introducing-broker') ? styles.active : ''}`}
-            onClick={() => {
-              if (isIbApproved) {
-                // Toggle sub-menu when approved
-                setIbExpanded((prev) => !prev);
-              } else {
-                // Navigate to IB page when not approved
-                navigate('/introducing-broker');
-              }
-            }}
-          >
-            <div className={styles.leftAlignment}>
-              <img src={IntoducingIcon} alt="Introducing Broker" />
-              <span>Introducing Broker</span>
-            </div>
-            <div className={styles.rightAlignment}>
-              {isIbApproved ? (
-                <span
-                  className={`${styles.chevron} ${ibExpanded ? styles.chevronUp : ''}`}
-                >
-                  <RightIcon />
-                </span>
-              ) : (
-                <RightIcon />
-              )}
-            </div>
-          </div>
+          )}
 
           {/* Sub-items — only shown when IB is approved and expanded */}
           {isIbApproved && ibExpanded && (
@@ -231,26 +242,28 @@ const isActive = (id) => {
             </div>
           )}
 
-          {/* Transactions — expandable */}
-          <div
-            className={`${styles.menu} ${isActive('transactions') ? styles.active : ''}`}
-            onClick={() => setTxExpanded((prev) => !prev)}
-          >
-            <div className={styles.leftAlignment}>
-              <img src={TransactionsIcon} alt="Transactions" />
-              <span>Transactions</span>
+          {/* Transactions — expandable, only show if KYC approved */}
+          {isKycApproved && (
+            <div
+              className={`${styles.menu} ${isActive('transactions') ? styles.active : ''}`}
+              onClick={() => setTxExpanded((prev) => !prev)}
+            >
+              <div className={styles.leftAlignment}>
+                <img src={TransactionsIcon} alt="Transactions" />
+                <span>Transactions</span>
+              </div>
+              <div className={styles.rightAlignment}>
+                <span
+                  className={`${styles.chevron} ${txExpanded ? styles.chevronUp : ''}`}
+                >
+                  <RightIcon />
+                </span>
+              </div>
             </div>
-            <div className={styles.rightAlignment}>
-              <span
-                className={`${styles.chevron} ${txExpanded ? styles.chevronUp : ''}`}
-              >
-                <RightIcon />
-              </span>
-            </div>
-          </div>
-                    {/* Social — expandable */}
-    
-          {txExpanded && (
+          )}
+
+          {/* Transactions sub-menu */}
+          {isKycApproved && txExpanded && (
             <div className={styles.subMenu}>
               <div
                 className={`${styles.subMenuItem} ${pathname === '/transactions/withdrawals' ? styles.subMenuItemActive : ''}`}
@@ -282,24 +295,28 @@ const isActive = (id) => {
             </div>
           )}
 
+          {/* Social — expandable, only show if KYC approved */}
+          {isKycApproved && (
             <div
-            className={`${styles.menu} ${isActive('social') ? styles.active : ''}`}
-            onClick={() => setSocialExpanded((prev) => !prev)}
-          >
-            <div className={styles.leftAlignment}>
-              <img src={SocialIcon} alt="Social" />
-              <span>Social</span>
+              className={`${styles.menu} ${isActive('social') ? styles.active : ''}`}
+              onClick={() => setSocialExpanded((prev) => !prev)}
+            >
+              <div className={styles.leftAlignment}>
+                <img src={SocialIcon} alt="Social" />
+                <span>Social</span>
+              </div>
+              <div className={styles.rightAlignment}>
+                <span
+                  className={`${styles.chevron} ${socialExpanded ? styles.chevronUp : ''}`}
+                >
+                  <RightIcon />
+                </span>
+              </div>
             </div>
-            <div className={styles.rightAlignment}>
-              <span
-                className={`${styles.chevron} ${socialExpanded ? styles.chevronUp : ''}`}
-              >
-                <RightIcon />
-              </span>
-            </div>
-          </div>
+          )}
 
-          {socialExpanded && (
+          {/* Social sub-menu */}
+          {isKycApproved && socialExpanded && (
             <div className={styles.subMenu}>
               {/* Poll Account */}
               <div
@@ -333,42 +350,46 @@ const isActive = (id) => {
             </div>
           )}
 
-          {/* Bottom items */}
-          {bottomMenuItems.map((item) => (
-            <div
-              key={item.id}
-              className={`${styles.menu} ${isActive(item.id) ? styles.active : ''}`}
-              onClick={() => navigate(item.route)}
-            >
-              <div className={styles.leftAlignment}>
-                <img src={item.icon} alt={item.label} />
-                <span>{item.label}</span>
+          {/* Bottom items - only show if KYC approved */}
+          {isKycApproved &&
+            bottomMenuItems.map((item) => (
+              <div
+                key={item.id}
+                className={`${styles.menu} ${isActive(item.id) ? styles.active : ''}`}
+                onClick={() => navigate(item.route)}
+              >
+                <div className={styles.leftAlignment}>
+                  <img src={item.icon} alt={item.label} />
+                  <span>{item.label}</span>
+                </div>
+                <div className={styles.rightAlignment}>
+                  <RightIcon />
+                </div>
               </div>
-              <div className={styles.rightAlignment}>
-                <RightIcon />
-              </div>
-            </div>
-          ))}
+            ))}
 
           <div className={styles.line} />
         </div>
 
-        <div className={styles.sidebarFooter}>
-          <p>Recommended Brokers</p>
-          <div className={styles.allgrid}>
-            <div className={styles.grid}>
-              <img src={OctafxIcon} alt="OctafxIcon" />
-              <img src={ExnessIcon} alt="ExnessIcon" />
-            </div>
-            <div className={styles.grid}>
-              <img src={OlymptradeIcon} alt="OlymptradeIcon" />
-            </div>
-            <div className={styles.grid}>
-              <img src={XmIcon} alt="XmIcon" />
-              <img src={IgIcon} alt="IgIcon" />
+        {/* Recommended Brokers footer - only show if KYC approved */}
+        {isKycApproved && (
+          <div className={styles.sidebarFooter}>
+            <p>Recommended Brokers</p>
+            <div className={styles.allgrid}>
+              <div className={styles.grid}>
+                <img src={OctafxIcon} alt="OctafxIcon" />
+                <img src={ExnessIcon} alt="ExnessIcon" />
+              </div>
+              <div className={styles.grid}>
+                <img src={OlymptradeIcon} alt="OlymptradeIcon" />
+              </div>
+              <div className={styles.grid}>
+                <img src={XmIcon} alt="XmIcon" />
+                <img src={IgIcon} alt="IgIcon" />
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </aside>
   );

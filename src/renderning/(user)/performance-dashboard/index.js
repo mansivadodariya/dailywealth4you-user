@@ -6,6 +6,9 @@ import { fetchPerformanceUsers } from '@/store/slice/performanceSlice';
 import DataTableHeader from '@/components/common/DataTableHeader';
 import FilterModal from '@/components/modal/filterModal';
 import PerformanceModal from '@/components/modal/performanceModal';
+import KycModal from '@/components/modal/KycModal';
+import KycSubmitted from '@/components/modal/KycSubmitted';
+import KycRejected from '@/components/modal/KycRejected';
 import { exportToCsv } from '@/utils/exportToCsv';
 import styles from './performanceDashboard.module.scss';
 import Loader from '@/components/Loader';
@@ -76,10 +79,15 @@ export default function PerformanceDashboard() {
     performanceTotalPages,
   } = useSelector((state) => state.performance);
 
+  const { kycStatus, kycStatusLoading, kycRejectionReason } = useSelector(
+    (state) => state.account
+  );
+
   const [currentPage, setCurrentPage] = useState(1);
   const [search, setSearch] = useState('');
   const [activeFilters, setActiveFilters] = useState({});
   const [selectedUser, setSelectedUser] = useState(null);
+  const [showKycModal, setShowKycModal] = useState(false);
 
   const debounceRef = useRef(null);
 
@@ -157,8 +165,51 @@ export default function PerformanceDashboard() {
     );
   }
 
+  // Show KYC modals based on status
+  if (kycStatusLoading) {
+    return (
+      <Loader fullScreen={true} variant="dots" size="large" color="success" />
+    );
+  }
+
+  if (kycStatus === null && showKycModal) {
+    return <KycModal onClose={() => setShowKycModal(false)} />;
+  }
+
+  if (kycStatus === 'pending') {
+    return <KycSubmitted />;
+  }
+
+  if (kycStatus === 'rejected' && showKycModal) {
+    return <KycModal />;
+  }
+
+  // Show Complete KYC button if KYC is not approved
+  const showCompleteKycButton = kycStatus !== 'approved';
+
   return (
     <>
+      {showCompleteKycButton && (
+        <div className={styles.kycBanner}>
+          <div className={styles.kycBannerContent}>
+            <div className={styles.kycBannerText}>
+              <h3>Complete Your KYC Verification</h3>
+              <p>
+                {kycStatus === 'rejected'
+                  ? `Your KYC was rejected: ${kycRejectionReason || 'Please resubmit your documents'}. Click below to submit again.`
+                  : 'Please complete your KYC verification to access all features of the platform.'}
+              </p>
+            </div>
+            <button
+              className={styles.completeKycBtn}
+              onClick={() => setShowKycModal(true)}
+            >
+              {kycStatus === 'rejected' ? 'Resubmit KYC' : 'Complete KYC'}
+            </button>
+          </div>
+        </div>
+      )}
+
       <DataTableHeader
         onSearch={handleSearch}
         onExport={handleExport}
@@ -279,6 +330,7 @@ export default function PerformanceDashboard() {
                       <button
                         className={styles.viewBtn} 
                          onClick={() => setSelectedUser(user)}
+                        
                       >
                           View
                       </button>
@@ -303,6 +355,13 @@ export default function PerformanceDashboard() {
         <PerformanceModal
           data={selectedUser}
           onClose={() => setSelectedUser(null)}
+        />
+      )}
+
+      {kycStatus === 'rejected' && !showKycModal && (
+        <KycRejected
+          rejectionMessage={kycRejectionReason}
+          onSubmitAgain={() => setShowKycModal(true)}
         />
       )}
     </>

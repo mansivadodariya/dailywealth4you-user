@@ -226,7 +226,7 @@ export default function IbIncome() {
 
       {/* Table */}
       {ibIncomeLoading ? (
-        <Loader variant="dots" size="large" color="success" text="Loading..." />
+        <Loader variant="dots" size="large" color="success"  />
       ) : ibIncomeError ? (
         <p
           style={{
