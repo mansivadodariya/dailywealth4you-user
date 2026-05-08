@@ -221,7 +221,7 @@ export default function PerformanceDashboard() {
         }
       />
 
-       <h1 className={styles.heading}>Top 10 User Performance</h1>
+      <h1 className={styles.heading}>Top 10 User Performance</h1>
 
       <div className={styles.tableContainer}>
         <table className={styles.table}>
@@ -249,23 +249,21 @@ export default function PerformanceDashboard() {
               </tr>
             ) : (
               performanceUsers.map((user, i) => {
-                const rank = user?.rank
+                const rank = user?.rank;
                 const name = user?.user?.firstName || '—';
                 const investment = user?.investment ?? '—';
                 const totalProfit = user?.totalProfit ?? '—';
                 const profitPercentage = user?.profitPercentage ?? '—';
-                const accountDetails = user?.mt5LoginId
-                const balance = user?.currentBalance
-                const lastName = user?.user?.lastName
-                const email = user?.user?.email
-                const brokername = user?.broker?.name
-                const logo = user?.broker?.logo
+                const accountDetails = user?.mt5LoginId;
+                const balance = user?.currentBalance;
+                const lastName = user?.user?.lastName;
+                const email = user?.user?.email;
+                const brokername = user?.broker?.name;
+                const logo = user?.broker?.logo;
 
                 return (
                   <tr key={user?.id || user?._id || i}>
-                       <td>
-                    {rank}
-                    </td>
+                    <td>{rank}</td>
                     <td>
                       <div className={styles.userInfo}>
                         <span className={styles.userName}>
@@ -292,17 +290,18 @@ export default function PerformanceDashboard() {
                       </div>
                     </td>
                     <td>
-                      ${balance !== '—'
-                        ? Number(balance).toLocaleString()
-                        : '—'}
+                      $
+                      {balance !== '—' ? Number(balance).toLocaleString() : '—'}
                     </td>
                     <td>
-                      ${investment !== '—'
+                      $
+                      {investment !== '—'
                         ? Number(investment).toLocaleString()
                         : '—'}
                     </td>
                     <td>
-                      ${totalProfit !== '—'
+                      $
+                      {totalProfit !== '—'
                         ? Number(totalProfit).toLocaleString()
                         : '—'}
                     </td>
@@ -328,11 +327,10 @@ export default function PerformanceDashboard() {
                         />
                       </button> */}
                       <button
-                        className={styles.viewBtn} 
-                         onClick={() => setSelectedUser(user)}
-                        
+                        className={styles.viewBtn}
+                        onClick={() => setSelectedUser(user)}
                       >
-                          View
+                        View
                       </button>
                     </td>
                   </tr>

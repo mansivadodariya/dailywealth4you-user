@@ -31,7 +31,7 @@ export default function IntroducingBroker() {
   // Still loading IB status
   if (ibRequestLoading) {
     return (
-      <Loader variant="bar" size="large" color="success" text="Loading..." />
+      <Loader fullScreen={true} variant="dots" size="large" color="success" />
     );
   }
 

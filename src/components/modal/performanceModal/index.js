@@ -7,8 +7,19 @@ import Image from 'next/image';
 export default function PerformanceModal({ data, onClose }) {
   if (!data) return null;
 
-  const { user, broker, mt5LoginId, investment, currentBalance, totalProfit, profitPercentage, server, password } = data;
-  const userName = `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim() || '—';
+  const {
+    user,
+    broker,
+    mt5LoginId,
+    investment,
+    currentBalance,
+    totalProfit,
+    profitPercentage,
+    server,
+    password,
+  } = data;
+  const userName =
+    `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim() || '—';
 
   return (
     <div className={styles.overlay}>
@@ -18,8 +29,12 @@ export default function PerformanceModal({ data, onClose }) {
             <h2>{userName}</h2>
             <p>{user?.email || '—'}</p>
           </div>
-          <button className={styles.closeBtn} onClick={onClose} aria-label="Close">
-             ✕
+          <button
+            className={styles.closeBtn}
+            onClick={onClose}
+            aria-label="Close"
+          >
+            ✕
             {/* <Image src="/assets/icons/WhiteClose.svg" alt="close" width={24} height={24} /> */}
           </button>
         </div>
@@ -50,16 +65,23 @@ export default function PerformanceModal({ data, onClose }) {
             <div className={styles.grid}>
               <div className={styles.item}>
                 <label>Investment</label>
-                <span className={styles.amount}>${Number(investment || 0).toLocaleString()}</span>
+                <span className={styles.amount}>
+                  ${Number(investment || 0).toLocaleString()}
+                </span>
               </div>
               <div className={styles.item}>
                 <label>Current Balance</label>
-                <span className={styles.amount}>${Number(currentBalance || 0).toLocaleString()}</span>
+                <span className={styles.amount}>
+                  ${Number(currentBalance || 0).toLocaleString()}
+                </span>
               </div>
               <div className={styles.item}>
                 <label>Total Profit</label>
-                <span className={`${styles.amount} ${totalProfit >= 0 ? styles.positive : styles.negative}`}>
-                  {totalProfit >= 0 ? '+' : ''}${Number(totalProfit || 0).toLocaleString()}
+                <span
+                  className={`${styles.amount} ${totalProfit >= 0 ? styles.positive : styles.negative}`}
+                >
+                  {totalProfit >= 0 ? '+' : ''}$
+                  {Number(totalProfit || 0).toLocaleString()}
                 </span>
               </div>
               <div className={styles.item}>
@@ -76,7 +98,11 @@ export default function PerformanceModal({ data, onClose }) {
             <div className={styles.brokerGrid}>
               {broker?.logo && (
                 <div className={styles.brokerLogoWrap}>
-                  <img src={broker.logo} alt={broker.name} className={styles.brokerLogo} />
+                  <img
+                    src={broker.logo}
+                    alt={broker.name}
+                    className={styles.brokerLogo}
+                  />
                 </div>
               )}
               <div className={styles.item}>

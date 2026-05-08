@@ -34,3 +34,8 @@ export const GET_DASHBOARD_COMMISSION =
   '/tradesHistory/getUserDashboardCommissionProfit';
 export const GET_ALL_USERS = '/user/getAllUsers';
 export const GET_ALL_PERFORMANCE_USER = '/performance/getTopTenUserPerformance';
+export const GET_ALL_SOCIAL_POOL = '/socialPool/getAllSocialPool';
+export const POOL_PURCHASE_BY_USER = '/poolPurchase/poolPurchaseByUser';
+export const GET_ALL_POOL_PURCHASE = '/poolPurchase/getAllPoolPurchase';
+export const UPDATE_POOL_PURCHASE = '/poolPurchase/updatePoolPurchase';
+export const DELETE_POOL_PURCHASE = '/poolPurchase/deletePoolPurchase';

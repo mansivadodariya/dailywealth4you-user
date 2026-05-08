@@ -13,6 +13,20 @@
       }
     }
   }
+  &.dangerButton {
+    button {
+      background: rgba(255, 77, 77, 0.12);
+      border: 1px solid #ff4d4d;
+       color: #fff;
+      background-color: transparent;
+
+      &:hover {
+        background: #ff4d4d;
+        color: #fff;
+      }
+    }
+  }
+
 
   button {
     color: #030f0f;

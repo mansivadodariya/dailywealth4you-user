@@ -35,11 +35,11 @@ const TradeHistoryIcon = '/assets/icons/Transactions.svg';
 
 const topMenuItems = [
   {
-   id: 'performance-dashboard',
-   label: 'Performance Dashboard',
-   icon: DashboardIcon,
-   route: '/performance-dashboard',
-},
+    id: 'performance-dashboard',
+    label: 'Performance Dashboard',
+    icon: DashboardIcon,
+    route: '/performance-dashboard',
+  },
   {
     id: 'dashboard',
     label: 'Dashboard',
@@ -112,8 +112,8 @@ export default function Sidebar() {
     if (isTransactionsRoute) setTxExpanded(true);
   }, [isTransactionsRoute]);
   useEffect(() => {
-  if (isSocialRoute) setSocialExpanded(true);
-}, [isSocialRoute]);
+    if (isSocialRoute) setSocialExpanded(true);
+  }, [isSocialRoute]);
 
   const navigate = (route) => {
     // Only allow navigation if KYC is approved or route is performance-dashboard
@@ -122,14 +122,14 @@ export default function Sidebar() {
     }
   };
 
-const isActive = (id) => {
-  if (id === 'introducing-broker') return isIbRoute;
-  if (id === 'transactions') return isTransactionsRoute;
-  if (id === 'social') return isSocialRoute;
-  const item = [...topMenuItems, ...bottomMenuItems].find((m) => m.id === id);
-  if (item?.route) return pathname === item.route;  
-  return pathname.includes(id);
-};
+  const isActive = (id) => {
+    if (id === 'introducing-broker') return isIbRoute;
+    if (id === 'transactions') return isTransactionsRoute;
+    if (id === 'social') return isSocialRoute;
+    const item = [...topMenuItems, ...bottomMenuItems].find((m) => m.id === id);
+    if (item?.route) return pathname === item.route;
+    return pathname.includes(id);
+  };
 
   return (
     <aside className={styles.sidebar}>
@@ -143,7 +143,9 @@ const isActive = (id) => {
         <div className={styles.sidebarBody}>
           {/* Top items: Dashboard, Accounts - Filter based on KYC */}
           {topMenuItems
-            .filter((item) => isKycApproved || item.id === 'performance-dashboard')
+            .filter(
+              (item) => isKycApproved || item.id === 'performance-dashboard'
+            )
             .map((item) => (
               <div
                 key={item.id}
@@ -200,7 +202,7 @@ const isActive = (id) => {
                 className={`${styles.subMenuItem} ${pathname === '/introducing-broker/my-clients' ? styles.subMenuItemActive : ''}`}
                 onClick={() => navigate('/introducing-broker/my-clients')}
               >
-                <div className={styles.subMenuConnector} />
+                {/* <div className={styles.subMenuConnector} /> */}
                 <div className={styles.subMenuLeft}>
                   <img src={MyClientsIcon} alt="My Clients" />
                   <span>My Clients</span>
@@ -320,13 +322,28 @@ const isActive = (id) => {
             <div className={styles.subMenu}>
               {/* Poll Account */}
               <div
-                className={`${styles.subMenuItem} ${pathname === '/social/poll-account' ? styles.subMenuItemActive : ''}`}
-                onClick={() => navigate('/social/poll-account')}
+                className={`${styles.subMenuItem} ${pathname === '/social/pool-account' ? styles.subMenuItemActive : ''}`}
+                onClick={() => navigate('/social/pool-account')}
               >
                 <div className={styles.subMenuConnector} />
                 <div className={styles.subMenuLeft}>
                   <img src={PoolAccountIcon} alt="Poll Account" />
-                  <span>Poll Account</span>
+                  <span>Pool Accounts</span>
+                </div>
+                <div className={styles.rightAlignment}>
+                  <RightIcon />
+                </div>
+              </div>
+
+              {/* My Pools */}
+              <div
+                className={`${styles.subMenuItem} ${pathname === '/social/my-pools' ? styles.subMenuItemActive : ''}`}
+                onClick={() => navigate('/social/my-pools')}
+              >
+                <div className={styles.subMenuConnector} />
+                <div className={styles.subMenuLeft}>
+                  <img src={ProfitSharingIcon} alt="My Pools" />
+                  <span>My Pools</span>
                 </div>
                 <div className={styles.rightAlignment}>
                   <RightIcon />
@@ -368,11 +385,11 @@ const isActive = (id) => {
               </div>
             ))}
 
-          <div className={styles.line} />
+          {/* <div className={styles.line} /> */}
         </div>
 
         {/* Recommended Brokers footer - only show if KYC approved */}
-        {isKycApproved && (
+        {/* {isKycApproved && (
           <div className={styles.sidebarFooter}>
             <p>Recommended Brokers</p>
             <div className={styles.allgrid}>
@@ -389,7 +406,7 @@ const isActive = (id) => {
               </div>
             </div>
           </div>
-        )}
+        )} */}
       </div>
     </aside>
   );

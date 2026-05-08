@@ -42,14 +42,13 @@
 //   }
 // };
 
-import socketIOClient from "socket.io-client";
+import socketIOClient from 'socket.io-client';
 import config from '@/config';
-import { getTokenFromCookie } from "./cookies";
+import { getTokenFromCookie } from './cookies';
 
 const localdata = getTokenFromCookie();
- console.log(localdata)
 
-const SOCKET_URL = config?.APP_SOCKET_URL
+const SOCKET_URL = config?.APP_SOCKET_URL;
 
 let socket = null;
 
@@ -57,7 +56,7 @@ if (localdata) {
   socket = socketIOClient(SOCKET_URL, {
     extraHeaders: {
       authorization: localdata,
-      "ngrok-skip-browser-warning": "1234",
+      'ngrok-skip-browser-warning': '1234',
     },
   });
 }
@@ -66,8 +65,8 @@ export const connectSocket = () => {
   if (localdata) {
     socket = socketIOClient(SOCKET_URL, {
       extraHeaders: {
-        ["authorization"]: localdata,
-        "ngrok-skip-browser-warning": "1234",
+        ['authorization']: localdata,
+        'ngrok-skip-browser-warning': '1234',
       },
     });
   }

@@ -1,0 +1,277 @@
+@use '../../../../scss/main.scss' as *;
+@use '../../../../scss/breakpoints/breakpoints.scss' as *;
+
+.myPools {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 10;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.title {
+  color: #fafafa;
+  font-size: 28px;
+  font-weight: 700;
+  font-family: var(--font-red-hat-display);
+  margin: 0;
+}
+
+.subtitle {
+  color: #8e8e8e;
+  font-size: 14px;
+  font-weight: 400;
+  font-family: var(--font-manrope);
+  margin: 0;
+}
+
+.poolsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+
+  @include respond-to('md') {
+    grid-template-columns: 1fr;
+  }
+}
+
+.poolCard {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.06) 0%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+  border-radius: 12px;
+  padding: 24px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+
+  // &:hover {
+  //   transform: translateY(-4px);
+  //   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  // }
+
+  // Gradient border
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      97.52deg,
+      rgba(255, 255, 255, 0.18) 0.15%,
+      rgba(255, 255, 255, 0.04) 11.93%
+    );
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  // Blue left accent for owned pools
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 20px;
+    width: 4px;
+    height: 32px;
+    background: #dbe64c;
+    border-radius: 0 4px 4px 0;
+    box-shadow: 0 0 10px rgba(219, 230, 76, 0.5);
+  }
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.poolTitle {
+  color: #fafafa;
+  font-size: 20px;
+  font-weight: 700;
+  font-family: var(--font-red-hat-display);
+  margin: 0;
+  flex: 1;
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: 4px 12px;
+  background: rgba(2, 223, 130, 0.1);
+  border: 1px solid rgba(2, 223, 130, 0.3);
+  border-radius: 20px;
+  color: #02df82;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--font-manrope);
+  text-transform: capitalize;
+  letter-spacing: 0.5px;
+}
+
+.shortDescription {
+  color: #8e8e8e;
+  font-size: 14px;
+  font-weight: 400;
+  font-family: var(--font-manrope);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.poolStats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.statLabel {
+  color: #8e8e8e;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--font-manrope);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.statValue {
+  color: #fafafa;
+  font-size: 24px;
+  font-weight: 700;
+  font-family: var(--font-red-hat-display);
+  line-height: 1;
+}
+
+.detailsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.detailItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detailLabel {
+  color: #8e8e8e;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--font-manrope);
+}
+
+.detailValue {
+  color: #fafafa;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: var(--font-manrope);
+}
+
+.description {
+  color: #fafafa;
+  font-size: 13px;
+  font-weight: 400;
+  font-family: var(--font-manrope);
+  margin: 0;
+  line-height: 1.6;
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.addBalanceBtn,
+.deleteBtn {
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: var(--font-manrope);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.addBalanceBtn {
+  background: linear-gradient(135deg, #02df82 0%, #01b869 100%);
+  color: #030f0f;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(2, 223, 130, 0.3);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+}
+
+.deleteBtn {
+  background: transparent;
+  border: 1px solid rgba(255, 77, 77, 0.4);
+  color: #ff4d4d;
+
+  &:hover:not(:disabled) {
+    background: rgba(255, 77, 77, 0.1);
+    border-color: #ff4d4d;
+  }
+
+  &:active:not(:disabled) {
+    background: rgba(255, 77, 77, 0.15);
+  }
+}
+
+.emptyState {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  p {
+    margin: 0;
+    color: #8e8e8e;
+    font-size: 14px;
+    font-family: var(--font-manrope);
+    font-weight: 500;
+  }
+
+  .emptyHint {
+    color: #02df82;
+    font-size: 13px;
+  }
+}

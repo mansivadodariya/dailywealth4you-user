@@ -48,6 +48,11 @@ import dashboardReducer, {
 } from '@/store/slice/dashboardSlice';
 import performanceReducer, {
   fetchPerformanceUsers,
+  fetchSocialPools,
+  joinSocialPool,
+  fetchPoolPurchases,
+  updatePoolPurchase,
+  deletePoolPurchase,
   clearPerformanceState,
 } from '@/store/slice/performanceSlice';
 
@@ -99,6 +104,11 @@ export {
   clearDashboardState,
   setSelectedAccountId,
   fetchPerformanceUsers,
+  fetchSocialPools,
+  joinSocialPool,
+  fetchPoolPurchases,
+  updatePoolPurchase,
+  deletePoolPurchase,
   clearPerformanceState,
 };
 export default reducer;

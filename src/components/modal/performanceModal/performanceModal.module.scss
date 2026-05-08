@@ -59,7 +59,9 @@
     color: rgba(255, 255, 255, 0.6);
     padding: 0;
     transition: color 0.2s;
-    &:hover { color: #fafafa; }
+    &:hover {
+      color: #fafafa;
+    }
   }
 }
 
@@ -101,7 +103,7 @@
   gap: 4px;
 
   label {
-    color: #8E8E8E;
+    color: #8e8e8e;
     font-weight: 600;
     font-size: 14px;
   }

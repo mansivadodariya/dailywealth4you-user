@@ -166,7 +166,11 @@ function LineChart({ data = [] }) {
 // ─── Bar Chart using Recharts ─────────────────────────────────────────────────
 function BarChart({ data = [] }) {
   if (data.length === 0) {
-    return <div className={styles.chartEmpty} style={{ height: '210px' }}>No data available</div>;
+    return (
+      <div className={styles.chartEmpty} style={{ height: '210px' }}>
+        No data available
+      </div>
+    );
   }
 
   return (
@@ -213,6 +217,7 @@ export default function Dashboard() {
     investmentAmount,
     currentValue,
     grossPL,
+     myProfit,
     investmentLoading,
     totalProfitSharing,
     totalIbIncome,
@@ -221,6 +226,7 @@ export default function Dashboard() {
     recentTransactionsLoading,
     totalCommission,
   } = useSelector((state) => state.dashboard);
+
 
   const { tradingAccounts, selectedAccountId: selectedAccId } = useSelector(
     (state) => state.account
@@ -253,8 +259,17 @@ export default function Dashboard() {
     refreshTransactions();
     if (userId && mt5LoginId) {
       const { startDate, endDate } = getDateRangeForPeriod(chartPeriod);
-      dispatch(fetchDashboardCharts({ userId, accountId: mt5LoginId, startDate, endDate }));
-      dispatch(fetchDashboardInvestment({ accountId: mt5LoginId, startDate, endDate }));
+      dispatch(
+        fetchDashboardCharts({
+          userId,
+          accountId: mt5LoginId,
+          startDate,
+          endDate,
+        })
+      );
+      dispatch(
+        fetchDashboardInvestment({ accountId: mt5LoginId, startDate, endDate })
+      );
       dispatch(fetchDashboardCommission(mt5LoginId));
     }
   };
@@ -262,7 +277,9 @@ export default function Dashboard() {
   // Refresh recent transactions only (used on account change)
   const refreshTransactions = () => {
     if (userId)
-      dispatch(fetchRecentTransactions({ accountId: mt5LoginId, userId, limit: 6 }));
+      dispatch(
+        fetchRecentTransactions({ accountId: mt5LoginId, userId, limit: 6 })
+      );
   };
 
   // Initial load — transactions only (commission needs mt5LoginId, handled below)
@@ -427,32 +444,52 @@ export default function Dashboard() {
                 </div>
               </div>
             </div>
-            {isIbUser && (
-              <div className={styles.revenueCol}>
-                <div className={`${styles.card} ${styles.revenueCard}`}>
-                  <div className={styles.revenueLabel}>IB Income</div>
-                  <div className={styles.revenueValue}>
-                    {commissionLoading ? (
-                      <span className={styles.skeletonStatValue} />
-                    ) : (
-                      `$${fmt(totalIbIncome ?? 0)}`
-                    )}
-                  </div>
-                </div>
-                <div className={`${styles.card} ${styles.revenueCard}`}>
-                  <div className={styles.revenueLabel}>
-                    Profit Sharing Revenue
-                  </div>
-                  <div className={styles.revenueValue}>
-                    {commissionLoading ? (
-                      <span className={styles.skeletonStatValue} />
-                    ) : (
-                      `$${fmt(totalProfitSharing ?? 0)}`
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
+            
+       <div className={styles.revenueCol}>
+  {/* Always visible */}
+  <div className={`${styles.card} ${styles.revenueCard}`}>
+    <div className={styles.revenueLabel}>My Profit</div>
+
+    <div className={styles.revenueValue}>
+      {investmentLoading ? (
+        <span className={styles.skeletonStatValue} />
+      ) : (
+        `$${fmt(myProfit ?? 0)}`
+      )}
+    </div>
+  </div>
+
+  {/* Only for IB Users */}
+  {isIbUser && (
+    <>
+      <div className={`${styles.card} ${styles.revenueCard}`}>
+        <div className={styles.revenueLabel}>IB Income</div>
+
+        <div className={styles.revenueValue}>
+          {commissionLoading ? (
+            <span className={styles.skeletonStatValue} />
+          ) : (
+            `$${fmt(totalIbIncome ?? 0)}`
+          )}
+        </div>
+      </div>
+
+      <div className={`${styles.card} ${styles.revenueCard}`}>
+        <div className={styles.revenueLabel}>
+          Profit Sharing Revenue
+        </div>
+
+        <div className={styles.revenueValue}>
+          {commissionLoading ? (
+            <span className={styles.skeletonStatValue} />
+          ) : (
+            `$${fmt(totalProfitSharing ?? 0)}`
+          )}
+        </div>
+      </div>
+    </>
+  )}
+</div>
           </div>
         </div>
 
@@ -477,7 +514,9 @@ export default function Dashboard() {
                 icon={PlusIcon}
                 onClick={() => {
                   if (!activeAccount?.id) {
-                    toast.error("You don't have any account. Please create an account first.");
+                    toast.error(
+                      "You don't have any account. Please create an account first."
+                    );
                     return;
                   }
                   setShowDeposit(true);
@@ -489,7 +528,9 @@ export default function Dashboard() {
                 text="Withdraw"
                 onClick={() => {
                   if (!activeAccount?.id) {
-                    toast.error("You don't have any account. Please create an account first.");
+                    toast.error(
+                      "You don't have any account. Please create an account first."
+                    );
                     return;
                   }
                   setShowWithdraw(true);

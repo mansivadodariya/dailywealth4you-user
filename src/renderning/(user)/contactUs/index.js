@@ -52,6 +52,7 @@ export default function ContactUs() {
   };
 
   const wordCount = countWords(formData.description);
+  const isDisabled = wordCount === 0 || loading;
 
   const handleSubmit = () => {
     // const payload = formData; // Commented out formData
@@ -144,10 +145,12 @@ export default function ContactUs() {
           </span>
         </div>
 
-        <div className={styles.submitBtn} onClick={handleSubmit}>
+        <div className={styles.submitBtn}>
           <AuthButton
             text={loading ? 'Sending...' : 'Send Message'}
             icon={RightIcon}
+            onClick={handleSubmit}
+            disabled={isDisabled}
           />
         </div>
       </div>

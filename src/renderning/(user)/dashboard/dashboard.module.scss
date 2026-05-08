@@ -335,23 +335,22 @@
   gap: 14px;
   align-items: stretch; // Ensure equal heights
 }
-
 .revenueCol {
   display: flex;
   flex-direction: column;
   gap: 14px;
-  min-height: 300px; // Match card height
+  height: 100%;
 }
 
 .revenueCard {
-  flex: 1;
+  
   display: flex;
   flex-direction: column;
   justify-content: center;
   gap: 10px;
-  padding: 20px 20px 20px 24px;
+  padding: 10px 20px 10px 24px;
   position: relative;
-  min-height: 143px; // Half of 300px minus gap (300-14)/2
+    min-height: 90px;// Half of 300px minus gap (300-14)/2
 
   // yellow left accent
   &::after {

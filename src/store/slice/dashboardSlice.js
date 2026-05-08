@@ -68,12 +68,13 @@ export const fetchDashboardInvestment = createAsyncThunk(
         `${GET_DASHBOARD_INVESTMENT}?${params.toString()}`
       );
       // Response: { payload: { investmentAmount, currentValue, grossPL } }
-      const payload = response?.payload || response?.data || response;
-      return {
-        investmentAmount: payload?.investmentAmount ?? null,
-        currentValue: payload?.currentValue ?? null,
-        grossPL: payload?.grossPL ?? null,
-      };
+      // const payload = response?.payload || response?.data || response;
+      // return {
+      //   investmentAmount: payload?.investmentAmount ?? null,
+      //   currentValue: payload?.currentValue ?? null,
+      //   grossPL: payload?.grossPL ?? null,
+      // };
+      return response;
     } catch (error) {
       return thunkApi.rejectWithValue(error);
     }
@@ -148,6 +149,7 @@ const dashboardSlice = createSlice({
     grossPL: null,
     investmentLoading: false,
     investmentError: null,
+    myProfit:null,
     // Commission / IB stats
     totalProfitSharing: null,
     totalIbIncome: null,
@@ -170,6 +172,7 @@ const dashboardSlice = createSlice({
       state.grossPL = null;
       state.investmentLoading = false;
       state.investmentError = null;
+      state.myProfit=null
       state.totalProfitSharing = null;
       state.totalIbIncome = null;
       state.totalCommission = null;
@@ -189,8 +192,8 @@ const dashboardSlice = createSlice({
       })
       .addCase(fetchDashboardCharts.fulfilled, (state, action) => {
         state.chartsLoading = false;
-        state.portfolioGrowth = action.payload.portfolioGrowth;
-        state.lotsTraded = action.payload.lotsTraded;
+        state.portfolioGrowth = action?.payload?.portfolioGrowth;
+        state.lotsTraded = action?.payload?.lotsTraded;
       })
       .addCase(fetchDashboardCharts.rejected, (state, action) => {
         state.chartsLoading = false;
@@ -202,14 +205,17 @@ const dashboardSlice = createSlice({
         state.investmentError = null;
       })
       .addCase(fetchDashboardInvestment.fulfilled, (state, action) => {
+    
         state.investmentLoading = false;
-        state.investmentAmount = action.payload.investmentAmount;
-        state.currentValue = action.payload.currentValue;
-        state.grossPL = action.payload.grossPL;
+        state.investmentAmount = action?.payload?.payload?.investmentAmount;
+        state.currentValue = action?.payload?.payload?.currentValue;
+        state.grossPL = action?.payload?.payload?.grossPL;
+        state.myProfit= action?.payload?.payload?.myProfit
+       
       })
       .addCase(fetchDashboardInvestment.rejected, (state, action) => {
         state.investmentLoading = false;
-        state.investmentError = action.payload;
+        state.investmentError = action?.payload;
       })
       // fetchDashboardCommission
       .addCase(fetchDashboardCommission.pending, (state) => {
@@ -218,13 +224,14 @@ const dashboardSlice = createSlice({
       })
       .addCase(fetchDashboardCommission.fulfilled, (state, action) => {
         state.commissionLoading = false;
-        state.totalProfitSharing = action.payload.totalProfitSharing;
-        state.totalIbIncome = action.payload.totalIbIncome;
-        state.totalCommission = action.payload.totalCommission;
+        state.totalProfitSharing = action?.payload?.totalProfitSharing;
+        state.totalIbIncome = action?.payload?.totalIbIncome;
+        state.totalCommission = action?.payload?.totalCommission;
+         
       })
       .addCase(fetchDashboardCommission.rejected, (state, action) => {
         state.commissionLoading = false;
-        state.commissionError = action.payload;
+        state.commissionError = action?.payload;
       })
       // fetchRecentTransactions
       .addCase(fetchRecentTransactions.pending, (state) => {
@@ -233,7 +240,7 @@ const dashboardSlice = createSlice({
       })
       .addCase(fetchRecentTransactions.fulfilled, (state, action) => {
         state.recentTransactionsLoading = false;
-        state.recentTransactions = action.payload;
+        state.recentTransactions = action?.payload;
       })
       .addCase(fetchRecentTransactions.rejected, (state, action) => {
         state.recentTransactionsLoading = false;

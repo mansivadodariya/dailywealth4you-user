@@ -66,9 +66,7 @@ export default function NotificationDropdown({ onClose }) {
 
               {/* Content */}
               <div className={styles.content}>
-                <p className={styles.message}>
-                {notif?.title}
-                </p>
+                <p className={styles.message}>{notif?.title}</p>
                 <span className={styles.time}>
                   {notif?.createdAt ? moment(notif.createdAt).fromNow() : ''}
                 </span>

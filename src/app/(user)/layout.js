@@ -5,9 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
 import Header from '@/components/header';
 import Sidebar from '@/components/sidebar';
-import {
-  getCookie,
-} from '@/service/cookies';
+import { getCookie } from '@/service/cookies';
 import { connectSocket, getSocket } from '@/service/socket';
 import { fetchNotifications } from '@/store/slice/loginSlice';
 import { fetchAllDocument } from '@/store/slice/accountSlice';
@@ -60,7 +58,7 @@ export default function layout({ children }) {
   // Fetch KYC status on mount
   useEffect(() => {
     if (!isAuthenticated) return;
-    
+
     if (kycStatus === undefined && !kycStatusLoading) {
       const cookieUser = getCookie('auth_user');
       const userId = user?.id || user?._id || cookieUser?.id || cookieUser?._id;
@@ -89,11 +87,11 @@ export default function layout({ children }) {
 
     if (socket) {
       const handleConnect = () => {
-        socket.emit("check-notification", {});
+        socket.emit('check-notification', {});
       };
 
-      socket.on("connect", handleConnect);
-      socket.on("check-notification", handleCheckNotification);
+      socket.on('connect', handleConnect);
+      socket.on('check-notification', handleCheckNotification);
       socket.on('notification-count', handleCheckNotification);
       socket.on('get-count', handleCheckNotification);
 
@@ -102,8 +100,8 @@ export default function layout({ children }) {
       }
 
       return () => {
-        socket.off("connect", handleConnect);
-        socket.off("check-notification", handleCheckNotification);
+        socket.off('connect', handleConnect);
+        socket.off('check-notification', handleCheckNotification);
         socket.off('notification-count', handleCheckNotification);
         socket.off('get-count', handleCheckNotification);
       };
@@ -126,16 +124,18 @@ export default function layout({ children }) {
   // Show loading or redirect if not authenticated
   if (isLoading || !isAuthenticated) {
     return (
-      <div style={{
-        position: 'fixed',
-        inset: 0,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: '#030f0f',
-        zIndex: 9999
-      }}>
-        <Loader/>
+      <div
+        style={{
+          position: 'fixed',
+          inset: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: '#030f0f',
+          zIndex: 9999,
+        }}
+      >
+        <Loader />
       </div>
     );
   }

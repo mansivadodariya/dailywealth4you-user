@@ -10,7 +10,7 @@ import ChangePassword from '../modal/changePassword';
 import NotificationDropdown from '../notificationDropdown';
 import DepositModal from '../modal/depositModal';
 import WithdrawModal from '../modal/withdrawModal';
-import { CgProfile } from "react-icons/cg";
+import { CgProfile } from 'react-icons/cg';
 import {
   fetchTradingAccounts,
   setSelectedAccountId as setSelectedAccountIdAction,
@@ -77,13 +77,15 @@ export default function Header() {
     kycStatus,
     kycStatusLoading,
   } = useSelector((state) => state.account);
-  const {  unreadCount } = useSelector((state) => state.login);
+
+  console.log('tradingAccounts', tradingAccounts);
+  const { unreadCount } = useSelector((state) => state.login);
   const isDashboard = pathname === '/dashboard' || pathname === '/';
   const isAccountsPage = pathname === '/accounts';
 
   const cookieUser = getUserFromCookie();
- 
-    // console.log("cookieUser",cookieUser)
+
+  // console.log("cookieUser",cookieUser)
   const currentUser = cookieUser;
 
   const fullName =
@@ -94,10 +96,9 @@ export default function Header() {
 
   // Resolve profile image — check all common field names the API might return
   const profileUrl =
-  currentUser?.profileUrl && currentUser.profileUrl.trim() !== ''
-    ? currentUser.profileUrl
-    : null;
-  
+    currentUser?.profileUrl && currentUser.profileUrl.trim() !== ''
+      ? currentUser.profileUrl
+      : null;
 
   // ── Account breadcrumb ────────────────────────────────────────────────────
   useEffect(() => {
@@ -227,8 +228,7 @@ export default function Header() {
               {kycStatusLoading || tradingAccountsLoading ? (
                 <div className={styles.accountBtnLoader}>
                   <span className={styles.accountBtnSpinner} />
-                  <span className={styles.accountBtnLoaderText}>
-                  </span>
+                  <span className={styles.accountBtnLoaderText}></span>
                 </div>
               ) : tradingAccounts?.length > 0 ? (
                 <div className={styles.accountSelectorWrapper}>

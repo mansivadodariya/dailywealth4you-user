@@ -1,10 +1,10 @@
-import TradeHistory from '@/renderning/(user)/social/tradeHistory';
+import PollAccount from '@/renderning/(user)/social/pollAccount';
 import React from 'react';
 
 export default function page() {
   return (
     <div>
-      <TradeHistory />
+      <PollAccount />
     </div>
   );
 }

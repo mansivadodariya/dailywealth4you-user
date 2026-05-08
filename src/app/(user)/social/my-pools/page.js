@@ -1,11 +1,10 @@
-
-import PollAccount from '@/renderning/(user)/social/pollAccount';
+import MyPools from '@/renderning/(user)/social/myPools';
 import React from 'react';
 
 export default function page() {
   return (
     <div>
-      <PollAccount/>
+      <MyPools />
     </div>
   );
 }

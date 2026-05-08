@@ -26,6 +26,7 @@ export function middleware(request) {
     '/transactions',
     '/introducing-broker',
     '/recommended-broker',
+    '/social',
   ];
 
   const token = request.cookies.get('auth_user')?.value;
@@ -50,7 +51,9 @@ export function middleware(request) {
   // 2. If user DOES have a token, but tries to access login/signup
   if (token && isPublicAuthRoute) {
     // Redirect them directly to performance dashboard
-    return NextResponse.redirect(new URL('/performance-dashboard', request.url));
+    return NextResponse.redirect(
+      new URL('/performance-dashboard', request.url)
+    );
   }
 
   return NextResponse.next();

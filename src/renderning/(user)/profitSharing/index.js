@@ -181,7 +181,7 @@ export default function ProfitSharing() {
 
       {/* Table */}
       {profitSharingLoading ? (
-        <Loader variant="dots" size="large" color="success" text="Loading..." />
+        <Loader fullScreen={true} variant="dots" size="large" color="success" />
       ) : profitSharingError ? (
         <p
           style={{

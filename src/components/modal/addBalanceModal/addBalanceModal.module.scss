@@ -1,0 +1,322 @@
+@use '../../../scss/main.scss' as *;
+@use '../../../scss/breakpoints/breakpoints.scss' as *;
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(3, 15, 15, 0.55);
+  backdrop-filter: blur(12px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  padding: 20px;
+}
+
+.modal {
+  background: #060f0f;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 88vh;
+  overflow-y: auto;
+  position: relative;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      97.52deg,
+      rgba(255, 255, 255, 0.18) 0.15%,
+      rgba(255, 255, 255, 0.04) 11.93%
+    );
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    pointer-events: none;
+    z-index: 0;
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 24px 20px;
+}
+
+.title {
+  color: #fafafa;
+  font-size: 22px;
+  font-weight: 700;
+  font-family: var(--font-red-hat-display);
+  margin: 0;
+}
+
+.closeBtn {
+  background: transparent;
+  border: none;
+  color: #8e8e8e;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+  transition: color 0.2s ease;
+  flex-shrink: 0;
+
+  &:hover {
+    color: #fafafa;
+  }
+}
+
+.divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 0 24px;
+}
+
+.content {
+  padding: 20px 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.poolInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.poolName {
+  color: #fafafa;
+  font-size: 18px;
+  font-weight: 700;
+  font-family: var(--font-red-hat-display);
+  margin: 0;
+}
+
+.poolDescription {
+  color: #8e8e8e;
+  font-size: 14px;
+  font-weight: 400;
+  font-family: var(--font-manrope);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.statBox {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 8px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.statLabel {
+  color: #8e8e8e;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--font-manrope);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.statValue {
+  color: #fafafa;
+  font-size: 20px;
+  font-weight: 700;
+  font-family: var(--font-red-hat-display);
+  line-height: 1;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  color: #fafafa;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: var(--font-manrope);
+}
+
+.input {
+  width: 100%;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #fafafa;
+  font-size: 14px;
+  font-family: var(--font-manrope);
+  outline: none;
+  transition: all 0.2s ease;
+
+  &::placeholder {
+    color: #8e8e8e;
+  }
+
+  &:focus {
+    border-color: #02df82;
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.accountInfo {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.accountDetail {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.accountLabel {
+  color: #8e8e8e;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: var(--font-manrope);
+}
+
+.accountValue {
+  color: #fafafa;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: var(--font-manrope);
+}
+
+.loadingText {
+  color: #8e8e8e;
+  font-size: 14px;
+  font-family: var(--font-manrope);
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 8px;
+  text-align: center;
+}
+
+.noAccount {
+  color: #ff4d4d;
+  font-size: 13px;
+  font-family: var(--font-manrope);
+  padding: 12px 16px;
+  background: rgba(255, 77, 77, 0.1);
+  border: 1px solid rgba(255, 77, 77, 0.2);
+  border-radius: 8px;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.amountValidation {
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--font-manrope);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.errorText {
+  color: #ff4d4d;
+}
+
+.successText {
+  color: #02df82;
+}
+
+.newTotal {
+  color: #dbe64c;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.cancelBtn,
+.submitBtn {
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: var(--font-manrope);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.cancelBtn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fafafa;
+
+  &:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.06);
+  }
+}
+
+.submitBtn {
+  background: linear-gradient(135deg, #02df82 0%, #01b869 100%);
+  color: #030f0f;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(2, 223, 130, 0.3);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+}

@@ -73,7 +73,7 @@ function UploadBox({ id, preview, isUploading, error, onChange }) {
   );
 }
 
-export default function KycModal({onClose}) {
+export default function KycModal({ onClose }) {
   const dispatch = useDispatch();
   const { loading } = useSelector((state) => state.account);
   const user = getUserFromCookie();
@@ -257,7 +257,12 @@ export default function KycModal({onClose}) {
                 onClick={handleSubmit}
                 disabled={anyUploading || loading}
               />
-              <AuthButton outline text="Cancel" icon={CloseIcon}  onClick={onClose} />
+              <AuthButton
+                outline
+                text="Cancel"
+                icon={CloseIcon}
+                onClick={onClose}
+              />
             </div>
           </div>
         </div>
