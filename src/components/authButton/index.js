@@ -11,14 +11,14 @@ export default function AuthButton({
   onClick,
   outline,
   disabled,
-  danger
+  danger,
 }) {
   return (
     <div
       className={classNames(
         styles.authbutton,
         outline ? styles.outlineButton : '',
-         danger && styles.dangerButton 
+        danger && styles.dangerButton
       )}
     >
       <button

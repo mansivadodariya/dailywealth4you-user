@@ -19,7 +19,7 @@ export default function ClientModal({ client, onClose }) {
     : '—';
 
   const accounts = client?.tradingAccount || [];
-  console.log(accounts);
+
   const totalDeposit = accounts?.[0]?.totalDeposit ?? '—';
 
   const totalProfit = client?.totalProfit ?? '—';
@@ -83,8 +83,8 @@ export default function ClientModal({ client, onClose }) {
               <div className={styles.accountsList}>
                 {accounts.map((account, idx) => {
                   const isExpanded = expandedAccount === idx;
-                  const accountId =
-                    account?.accountId || account?.id || `Account ${idx + 1}`;
+                  const mt5LoginId =
+                    account?.mt5LoginId;
                   const balance =
                     account?.currentDeposit ?? account?.balance ?? '—';
                   const broker =
@@ -107,7 +107,7 @@ export default function ClientModal({ client, onClose }) {
                       >
                         <div>
                           <p className={styles.accountNo}>
-                            Account No: {accountId}
+                            Account No: {mt5LoginId}
                           </p>
                           <h3 className={styles.accountBalance}>
                             $

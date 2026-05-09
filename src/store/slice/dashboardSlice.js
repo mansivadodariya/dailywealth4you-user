@@ -149,7 +149,7 @@ const dashboardSlice = createSlice({
     grossPL: null,
     investmentLoading: false,
     investmentError: null,
-    myProfit:null,
+    myProfit: null,
     // Commission / IB stats
     totalProfitSharing: null,
     totalIbIncome: null,
@@ -172,7 +172,7 @@ const dashboardSlice = createSlice({
       state.grossPL = null;
       state.investmentLoading = false;
       state.investmentError = null;
-      state.myProfit=null
+      state.myProfit = null;
       state.totalProfitSharing = null;
       state.totalIbIncome = null;
       state.totalCommission = null;
@@ -205,13 +205,11 @@ const dashboardSlice = createSlice({
         state.investmentError = null;
       })
       .addCase(fetchDashboardInvestment.fulfilled, (state, action) => {
-    
         state.investmentLoading = false;
         state.investmentAmount = action?.payload?.payload?.investmentAmount;
         state.currentValue = action?.payload?.payload?.currentValue;
         state.grossPL = action?.payload?.payload?.grossPL;
-        state.myProfit= action?.payload?.payload?.myProfit
-       
+        state.myProfit = action?.payload?.payload?.myProfit;
       })
       .addCase(fetchDashboardInvestment.rejected, (state, action) => {
         state.investmentLoading = false;
@@ -227,7 +225,6 @@ const dashboardSlice = createSlice({
         state.totalProfitSharing = action?.payload?.totalProfitSharing;
         state.totalIbIncome = action?.payload?.totalIbIncome;
         state.totalCommission = action?.payload?.totalCommission;
-         
       })
       .addCase(fetchDashboardCommission.rejected, (state, action) => {
         state.commissionLoading = false;

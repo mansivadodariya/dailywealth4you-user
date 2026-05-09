@@ -2,7 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { joinSocialPool, fetchPoolPurchases } from '@/store/slice/performanceSlice';
+import {
+  joinSocialPool,
+  fetchPoolPurchases,
+} from '@/store/slice/performanceSlice';
 import { fetchTradingAccounts } from '@/store/slice/accountSlice';
 import { getUserFromCookie } from '@/service/cookies';
 import styles from './joinPoolModal.module.scss';
@@ -11,7 +14,9 @@ import AuthButton from '@/components/authButton';
 
 export default function JoinPoolModal({ pool, onClose, onSuccess }) {
   const dispatch = useDispatch();
-  const { joinPoolLoading, poolPurchases } = useSelector((state) => state.performance);
+  const { joinPoolLoading, poolPurchases } = useSelector(
+    (state) => state.performance
+  );
   const { tradingAccounts, tradingAccountsLoading } = useSelector(
     (state) => state.account
   );
@@ -34,7 +39,9 @@ export default function JoinPoolModal({ pool, onClose, onSuccess }) {
   // Update selected account when dropdown changes
   useEffect(() => {
     if (selectedAccountId) {
-      const account = tradingAccounts?.find((acc) => acc.id === selectedAccountId);
+      const account = tradingAccounts?.find(
+        (acc) => acc.id === selectedAccountId
+      );
       setSelectedAccount(account || null);
     } else {
       setSelectedAccount(null);
@@ -45,14 +52,17 @@ export default function JoinPoolModal({ pool, onClose, onSuccess }) {
   const isAccountUsedForAnotherPool = (accountId) => {
     if (!poolPurchases || !accountId) return false;
     return poolPurchases.some(
-      (purchase) => purchase.tradingAccountId === accountId && purchase.socialPoolId !== pool.id
+      (purchase) =>
+        purchase.tradingAccountId === accountId &&
+        purchase.socialPoolId !== pool.id
     );
   };
 
   // Get available trading accounts (not used for other pools)
-  const availableAccounts = tradingAccounts?.filter(
-    (account) => !isAccountUsedForAnotherPool(account.id)
-  ) || [];
+  const availableAccounts =
+    tradingAccounts?.filter(
+      (account) => !isAccountUsedForAnotherPool(account.id)
+    ) || [];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -69,21 +79,29 @@ export default function JoinPoolModal({ pool, onClose, onSuccess }) {
 
     // Check if account is already used for another pool
     if (isAccountUsedForAnotherPool(selectedAccountId)) {
-      toast.error('This trading account is already used for another pool. Please select a different account.');
+      toast.error(
+        'This trading account is already used for another pool. Please select a different account.'
+      );
       return;
     }
 
     if (!depositAmount || Number(depositAmount) < Number(pool.minDeposit)) {
-      toast.error(`Minimum deposit is ${Number(pool.minDeposit).toLocaleString()}`);
+      toast.error(
+        `Minimum deposit is ${Number(pool.minDeposit).toLocaleString()}`
+      );
       return;
     }
 
     // Validate balance
-    const accountBalance = Number(selectedAccount?.currentBalance || selectedAccount?.balance || 0);
+    const accountBalance = Number(
+      selectedAccount?.currentBalance || selectedAccount?.balance || 0
+    );
     const requestedAmount = Number(depositAmount);
 
     if (requestedAmount > accountBalance) {
-      toast.error(`Insufficient balance. Available: ${accountBalance.toLocaleString()}`);
+      toast.error(
+        `Insufficient balance. Available: ${accountBalance.toLocaleString()}`
+      );
       return;
     }
 
@@ -167,21 +185,31 @@ export default function JoinPoolModal({ pool, onClose, onSuccess }) {
                     <option value="">Select an account</option>
                     {availableAccounts.map((account) => (
                       <option key={account.id} value={account.id}>
-                        {account.mt5LoginId || account.accountId || 'Account'} - 
-                        Balance: ${Number(account.currentBalance || account.balance || 0).toLocaleString()}
+                        {account.mt5LoginId || account.accountId || 'Account'} -
+                        Balance: $
+                        {Number(
+                          account.currentBalance || account.balance || 0
+                        ).toLocaleString()}
                       </option>
                     ))}
                   </select>
                   {selectedAccount && (
                     <div className={styles.balanceInfo}>
-                      Available Balance: ${Number(selectedAccount.currentBalance || selectedAccount.balance || 0).toLocaleString()}
+                      Available Balance: $
+                      {Number(
+                        selectedAccount.currentBalance ||
+                          selectedAccount.balance ||
+                          0
+                      ).toLocaleString()}
                     </div>
                   )}
-                  {tradingAccounts && tradingAccounts.length > availableAccounts.length && (
-                    <div className={styles.infoText}>
-                      Note: Some accounts are already used for other pools and are not shown.
-                    </div>
-                  )}
+                  {tradingAccounts &&
+                    tradingAccounts.length > availableAccounts.length && (
+                      <div className={styles.infoText}>
+                        Note: Some accounts are already used for other pools and
+                        are not shown.
+                      </div>
+                    )}
                 </>
               ) : (
                 <div className={styles.noAccounts}>
@@ -211,7 +239,12 @@ export default function JoinPoolModal({ pool, onClose, onSuccess }) {
               />
               {depositAmount && selectedAccount && (
                 <div className={styles.amountValidation}>
-                  {Number(depositAmount) > Number(selectedAccount.currentBalance || selectedAccount.balance || 0) ? (
+                  {Number(depositAmount) >
+                  Number(
+                    selectedAccount.currentBalance ||
+                      selectedAccount.balance ||
+                      0
+                  ) ? (
                     <span className={styles.errorText}>
                       ⚠ Insufficient balance
                     </span>
@@ -240,18 +273,21 @@ export default function JoinPoolModal({ pool, onClose, onSuccess }) {
               >
                 {joinPoolLoading ? 'Joining...' : 'Join Pool'}
               </button> */}
-                <AuthButton
-              text= {joinPoolLoading ? 'Joining...' : 'Join Pool'}
-              onClick={handleSubmit}
-                disabled={joinPoolLoading || !availableAccounts || availableAccounts.length === 0}
+              <AuthButton
+                text={joinPoolLoading ? 'Joining...' : 'Join Pool'}
+                onClick={handleSubmit}
+                disabled={
+                  joinPoolLoading ||
+                  !availableAccounts ||
+                  availableAccounts.length === 0
+                }
               />
               <AuthButton
-              outline={true}
-              text="Cancel"
-              onClick={onClose}
-              disabled={joinPoolLoading}
+                outline={true}
+                text="Cancel"
+                onClick={onClose}
+                disabled={joinPoolLoading}
               />
-            
             </div>
           </form>
         </div>

@@ -202,7 +202,7 @@ export default function ProfitSharing() {
                   <th>Date</th>
                   <th>Name</th>
                   <th>Email</th>
-                  <th>Profit</th>
+                  <th>Profit </th>
                   <th>Broker</th>
                   <th>Total Commission</th>
                   <th className={styles.textCenter}>Action</th>
@@ -244,9 +244,41 @@ export default function ProfitSharing() {
                             '—'}
                         </td>
                         <td>{row.user?.email || '—'}</td>
-                        <td>${row.totalProfit ?? '—'}</td>
-                        <td>{row.broker?.name || '—'}</td>
-                        <td>${row.totalCommission ?? '—'}</td>
+          <td>
+  <span
+    className={styles.pnlBadge}
+    style={{
+      borderColor:
+        (row?.totalProfit ?? 0) >= 0 ? '#02df82' : '#ff4d4d',
+      background:
+        (row?.totalProfit ?? 0) >= 0
+          ? 'rgba(2,223,130,0.1)'
+          : 'rgba(255,77,77,0.1)',
+    }}
+  >
+    {(row?.totalProfit ?? 0) >= 0 ? '+' : ''}
+    ${row?.totalProfit ?? '—'}
+  </span>
+</td>
+                  <td>{row.broker?.name || '—'}</td>
+                <td>
+  <span
+    className={styles.pnlBadge}
+    style={{
+      borderColor:
+        (row?.totalCommission ?? 0) >= 0
+          ? '#02df82'
+          : '#ff4d4d',
+      background:
+        (row?.totalCommission ?? 0) >= 0
+          ? 'rgba(2,223,130,0.1)'
+          : 'rgba(255,77,77,0.1)',
+    }}
+  >
+    {(row?.totalCommission ?? 0) >= 0 ? '+' : ''}
+    ${row?.totalCommission ?? '—'}
+  </span>
+</td>
                         <td className={styles.textCenter}>
                           <button
                             className={`${styles.viewBtn} ${expandedKey === row.key ? styles.active : ''}`}

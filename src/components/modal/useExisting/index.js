@@ -58,7 +58,8 @@ export default function UseExisting({
   const dropdownRef = useRef(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showMt5Modal, setShowMt5Modal] = useState(false);
-
+ console.log("selectedBroker",selectedBroker)
+  
   // Fetch brokers list on mount
   useEffect(() => {
     dispatch(fetchBrokers({ page: 1, limit: 50 }));
@@ -88,13 +89,9 @@ export default function UseExisting({
     enableReinitialize: true,
     initialValues: {
       brokerId: initialBrokerId,
-      server: account?.platform || account?.server || '',
-      loginId:
-        account?.brokerUserId ||
-        account?.mt5LoginId ||
-        account?.accountId ||
-        '',
-      password: '',
+      server: account?.server || '',
+      loginId: account?.mt5LoginId || '',
+      password: account?.password || '',
       sizeOfAccount: account?.sizeOfAccount || '',
       agreed: false,
     },
@@ -184,7 +181,11 @@ export default function UseExisting({
                         ? styles.inputError
                         : ''
                     }`}
-                    onClick={() => setIsDropdownOpen((p) => !p)}
+                    onClick={() => {
+                      if (!isEdit) {
+                        setIsDropdownOpen((p) => !p);
+                      }
+                    }}
                   >
                     {activeBroker ? (
                       <div className={styles.selectedBroker}>

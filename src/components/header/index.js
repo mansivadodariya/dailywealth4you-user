@@ -78,14 +78,14 @@ export default function Header() {
     kycStatusLoading,
   } = useSelector((state) => state.account);
 
-  console.log('tradingAccounts', tradingAccounts);
+
   const { unreadCount } = useSelector((state) => state.login);
   const isDashboard = pathname === '/dashboard' || pathname === '/';
   const isAccountsPage = pathname === '/accounts';
 
   const cookieUser = getUserFromCookie();
 
-  // console.log("cookieUser",cookieUser)
+
   const currentUser = cookieUser;
 
   const fullName =

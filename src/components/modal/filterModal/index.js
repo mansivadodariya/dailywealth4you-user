@@ -81,6 +81,9 @@ export default function FilterModal({ onClose, onApply, fieldGroups }) {
     if (onClose) onClose();
   };
 
+  const isFilterEmpty = Object.values(values).every(
+    (val) => val === '' || val === null || val === undefined
+  );
   return (
     <div className={styles.overlay}>
       <div className={styles.modal}>
@@ -113,6 +116,7 @@ export default function FilterModal({ onClose, onApply, fieldGroups }) {
               text="Apply Filters"
               icon={RightIcon}
               onClick={handleApply}
+              disabled={isFilterEmpty}
             />
             <AuthButton
               text="Cancel"

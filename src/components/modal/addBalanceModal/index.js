@@ -219,22 +219,20 @@ export default function AddBalanceModal({ poolPurchase, onClose, onSuccess }) {
             </div>
 
             <div className={styles.actions}>
-               <AuthButton
-                text= {updatePoolLoading ? 'Adding...' : 'Add Balance'}
+              <AuthButton
+                text={updatePoolLoading ? 'Adding...' : 'Add Balance'}
                 onClick={handleSubmit}
                 disabled={updatePoolLoading || !selectedAccount}
-                  icon={PlusIcon}
+                icon={PlusIcon}
               />
-               
+
               <AuthButton
-              outline={true}
-                text= " Cancel"
+                outline={true}
+                text=" Cancel"
                 onClick={onClose}
                 disabled={updatePoolLoading}
-                   icon={CloseIcon}
+                icon={CloseIcon}
               />
-            
-             
             </div>
           </form>
         </div>

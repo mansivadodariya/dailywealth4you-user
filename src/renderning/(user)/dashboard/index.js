@@ -217,7 +217,7 @@ export default function Dashboard() {
     investmentAmount,
     currentValue,
     grossPL,
-     myProfit,
+    myProfit,
     investmentLoading,
     totalProfitSharing,
     totalIbIncome,
@@ -226,7 +226,6 @@ export default function Dashboard() {
     recentTransactionsLoading,
     totalCommission,
   } = useSelector((state) => state.dashboard);
-
 
   const { tradingAccounts, selectedAccountId: selectedAccId } = useSelector(
     (state) => state.account
@@ -285,6 +284,7 @@ export default function Dashboard() {
   // Initial load — transactions only (commission needs mt5LoginId, handled below)
   useEffect(() => {
     refreshTransactions();
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, userId]);
 
@@ -305,10 +305,8 @@ export default function Dashboard() {
       );
       dispatch(fetchDashboardCommission(mt5LoginId));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, userId, mt5LoginId, chartPeriod]);
 
-  // Re-fetch recent transactions when account changes
   useEffect(() => {
     if (userId && mt5LoginId) {
       refreshTransactions();
@@ -444,52 +442,52 @@ export default function Dashboard() {
                 </div>
               </div>
             </div>
-            
-       <div className={styles.revenueCol}>
-  {/* Always visible */}
-  <div className={`${styles.card} ${styles.revenueCard}`}>
-    <div className={styles.revenueLabel}>My Profit</div>
 
-    <div className={styles.revenueValue}>
-      {investmentLoading ? (
-        <span className={styles.skeletonStatValue} />
-      ) : (
-        `$${fmt(myProfit ?? 0)}`
-      )}
-    </div>
-  </div>
+            <div className={styles.revenueCol}>
+              {/* Always visible */}
+              <div className={`${styles.card} ${styles.revenueCard}`}>
+                <div className={styles.revenueLabel}>My Profit</div>
 
-  {/* Only for IB Users */}
-  {isIbUser && (
-    <>
-      <div className={`${styles.card} ${styles.revenueCard}`}>
-        <div className={styles.revenueLabel}>IB Income</div>
+                <div className={styles.revenueValue}>
+                  {investmentLoading ? (
+                    <span className={styles.skeletonStatValue} />
+                  ) : (
+                    `$${fmt(myProfit ?? 0)}`
+                  )}
+                </div>
+              </div>
 
-        <div className={styles.revenueValue}>
-          {commissionLoading ? (
-            <span className={styles.skeletonStatValue} />
-          ) : (
-            `$${fmt(totalIbIncome ?? 0)}`
-          )}
-        </div>
-      </div>
+              {/* Only for IB Users */}
+              {isIbUser && (
+                <>
+                  <div className={`${styles.card} ${styles.revenueCard}`}>
+                    <div className={styles.revenueLabel}>IB Income</div>
 
-      <div className={`${styles.card} ${styles.revenueCard}`}>
-        <div className={styles.revenueLabel}>
-          Profit Sharing Revenue
-        </div>
+                    <div className={styles.revenueValue}>
+                      {commissionLoading ? (
+                        <span className={styles.skeletonStatValue} />
+                      ) : (
+                        `$${fmt(totalIbIncome ?? 0)}`
+                      )}
+                    </div>
+                  </div>
 
-        <div className={styles.revenueValue}>
-          {commissionLoading ? (
-            <span className={styles.skeletonStatValue} />
-          ) : (
-            `$${fmt(totalProfitSharing ?? 0)}`
-          )}
-        </div>
-      </div>
-    </>
-  )}
-</div>
+                  <div className={`${styles.card} ${styles.revenueCard}`}>
+                    <div className={styles.revenueLabel}>
+                      Profit Sharing Revenue
+                    </div>
+
+                    <div className={styles.revenueValue}>
+                      {commissionLoading ? (
+                        <span className={styles.skeletonStatValue} />
+                      ) : (
+                        `$${fmt(totalProfitSharing ?? 0)}`
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
 

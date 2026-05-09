@@ -12,6 +12,7 @@ import Loader from '@/components/Loader';
 import moment from 'moment';
 import toast from 'react-hot-toast';
 import AuthButton from '@/components/authButton';
+import { getUserFromCookie } from '@/service/cookies';
 
 export default function MyPools() {
   const dispatch = useDispatch();
@@ -25,8 +26,9 @@ export default function MyPools() {
   const [selectedPoolPurchase, setSelectedPoolPurchase] = useState(null);
   const [deletingPoolId, setDeletingPoolId] = useState(null);
 
+  const user = getUserFromCookie();
   useEffect(() => {
-    dispatch(fetchPoolPurchases());
+    dispatch(fetchPoolPurchases(user?.id));
   }, [dispatch]);
 
   const handleAddBalance = (poolPurchase) => {
@@ -44,7 +46,7 @@ export default function MyPools() {
     try {
       await dispatch(deletePoolPurchase(poolPurchase.id)).unwrap();
       // Refresh the list after deletion
-      dispatch(fetchPoolPurchases());
+      dispatch(fetchPoolPurchases(user?.id));
     } catch (error) {
       // Error already handled by toast in the thunk
     } finally {
@@ -54,7 +56,7 @@ export default function MyPools() {
 
   const handleModalSuccess = () => {
     // Refresh the pool purchases after adding balance
-    dispatch(fetchPoolPurchases());
+    dispatch(fetchPoolPurchases(user?.id));
   };
 
   if (poolPurchasesLoading) {
@@ -145,20 +147,17 @@ export default function MyPools() {
 
                 <div className={styles.actions}>
                   <AuthButton
-                  text="Add Balance"
-                   
+                    text="Add Balance"
                     onClick={() => handleAddBalance(purchase)}
                     disabled={isDeleting}
                   />
-                   
-                                    <AuthButton
-                                      danger={true}
-                                    text={isDeleting ? 'Deleting...' : 'Delete Pool'}
-                
+
+                  <AuthButton
+                    danger={true}
+                    text={isDeleting ? 'Deleting...' : 'Delete Pool'}
                     onClick={() => handleDeletePool(purchase)}
                     disabled={isDeleting}
                   />
-                   
                 </div>
               </div>
             );

@@ -66,16 +66,11 @@ export const joinSocialPool = createAsyncThunk(
 
 export const fetchPoolPurchases = createAsyncThunk(
   'performance/fetchPoolPurchases',
-  async (filters = {}, thunkApi) => {
+  async (id, thunkApi) => {
     try {
-      const params = new URLSearchParams();
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value !== '' && value !== null && value !== undefined) {
-          params.append(key, value);
-        }
-      });
-      const query = params.toString() ? `?${params.toString()}` : '';
-      const response = await api.get(`${GET_ALL_POOL_PURCHASE}${query}`);
+      // const params = new URLSearchParams();
+
+      const response = await api.get(`${GET_ALL_POOL_PURCHASE}?userId=${id}`);
       return response;
     } catch (error) {
       toast.error(error);
@@ -88,10 +83,9 @@ export const updatePoolPurchase = createAsyncThunk(
   'performance/updatePoolPurchase',
   async ({ id, depositAmount }, thunkApi) => {
     try {
-      const response = await api.put(
-        `${UPDATE_POOL_PURCHASE}?id=${id}`,
-        { depositAmount }
-      );
+      const response = await api.put(`${UPDATE_POOL_PURCHASE}?id=${id}`, {
+        depositAmount,
+      });
       toast.success('Balance added successfully!');
       return response;
     } catch (error) {
