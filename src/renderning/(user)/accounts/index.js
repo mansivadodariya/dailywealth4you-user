@@ -15,6 +15,7 @@ import {
 } from '@/store/slice/accountSlice';
 import AuthButton from '@/components/authButton';
 import Loader from '@/components/Loader';
+import Pagination from '@/components/pagination';
 
 export default function Accounts() {
   const dispatch = useDispatch();
@@ -32,13 +33,18 @@ export default function Accounts() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [accountToDelete, setAccountToDelete] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 9;
 
   const user = getUserFromCookie();
   const userId = user?.id;
 
+  // Fetch all accounts once (no pagination on API)
   useEffect(() => {
-    dispatch(fetchTradingAccounts(userId));
-  }, [dispatch]);
+    if (userId) {
+      dispatch(fetchTradingAccounts({ userId }));
+    }
+  }, [dispatch, userId]);
 
   // Notify header of selected account for breadcrumb
   useEffect(() => {
@@ -68,11 +74,22 @@ export default function Accounts() {
     setShowDeleteModal(true);
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (accountToDelete) {
-      dispatch(deleteTradingAccount(accountToDelete.id));
+      await dispatch(deleteTradingAccount(accountToDelete.id));
       setShowDeleteModal(false);
       setAccountToDelete(null);
+      // Refresh accounts
+      dispatch(fetchTradingAccounts({ userId }));
+    }
+  };
+
+  const handlePageChange = (newPage) => {
+    const totalPages = Math.ceil((tradingAccounts?.length || 0) / itemsPerPage);
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+      // Scroll to top of accounts grid
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
@@ -92,7 +109,12 @@ export default function Accounts() {
     );
   }
 
-  const accountsData = tradingAccounts?.length > 0 ? tradingAccounts : [];
+  // Client-side pagination
+  const allAccounts = tradingAccounts || [];
+  const totalPages = Math.ceil(allAccounts.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const accountsData = allAccounts.slice(startIndex, endIndex);
 
   // ── History View ──────────────────────────────────────────────────────────
   if (activeAccount) {
@@ -286,6 +308,15 @@ export default function Accounts() {
             <p>No trading accounts found</p>
           </div>
         )}
+
+        {/* Pagination - only show if there are multiple pages */}
+        {totalPages > 1 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
+        )}
       </div>
 
       {showEditModal && selectedAccount && (
@@ -295,7 +326,7 @@ export default function Accounts() {
           onClose={() => {
             setShowEditModal(false);
             setSelectedAccount(null);
-            dispatch(fetchTradingAccounts(userId));
+            dispatch(fetchTradingAccounts({ userId }));
           }}
         />
       )}

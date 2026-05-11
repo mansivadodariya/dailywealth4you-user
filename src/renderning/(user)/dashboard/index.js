@@ -10,6 +10,7 @@ import {
   fetchDashboardCommission,
   getDateRangeForPeriod,
 } from '@/store/slice/dashboardSlice';
+import { fetchUserById } from '@/store/slice/loginSlice';
 import { getUserFromCookie } from '@/service/cookies';
 import DepositModal from '@/components/modal/depositModal';
 import WithdrawModal from '@/components/modal/withdrawModal';
@@ -30,6 +31,7 @@ import {
   Tooltip,
   Cell,
 } from 'recharts';
+
 
 const PlusIcon = '/assets/icons/plus.svg';
 const UpDirection = '/assets/icons/Updirection.svg';
@@ -230,6 +232,7 @@ export default function Dashboard() {
   const { tradingAccounts, selectedAccountId: selectedAccId } = useSelector(
     (state) => state.account
   );
+  const { user } = useSelector((state) => state.login);
   const isIbUser = useSelector((state) => !!state.login.user?.isIbUser);
 
   const [showDeposit, setShowDeposit] = useState(false);
@@ -238,6 +241,9 @@ export default function Dashboard() {
   const [donutLabel, setDonutLabel] = useState({ name: 'Investor', value: 50 });
 
   const userId = getUserFromCookie()?.id;
+  
+  // Get wallet balance from user state
+  const walletBalance = user?.walletBalance ?? 0;
 
   const donutData = [
     { name: 'Investor', value: 50 },
@@ -252,6 +258,13 @@ export default function Dashboard() {
     tradingAccounts?.[0] ||
     null;
   const mt5LoginId = activeAccount?.mt5LoginId || null;
+
+  // Fetch user data on mount to get latest wallet balance
+  useEffect(() => {
+    if (userId) {
+      dispatch(fetchUserById(userId));
+    }
+  }, [dispatch, userId]);
 
   // Refresh all dashboard data — called after deposit/withdrawal
   const refreshAllDashboardData = () => {
@@ -270,6 +283,7 @@ export default function Dashboard() {
         fetchDashboardInvestment({ accountId: mt5LoginId, startDate, endDate })
       );
       dispatch(fetchDashboardCommission(mt5LoginId));
+     
     }
   };
 
@@ -290,20 +304,27 @@ export default function Dashboard() {
 
   // Re-fetch charts + investment + commission when account or period changes
   useEffect(() => {
-    if (userId && mt5LoginId) {
+    if (userId) {
       const { startDate, endDate } = getDateRangeForPeriod(chartPeriod);
       dispatch(
-        fetchDashboardCharts({
-          userId,
+        fetchDashboardInvestment({
           accountId: mt5LoginId,
           startDate,
           endDate,
         })
       );
-      dispatch(
-        fetchDashboardInvestment({ accountId: mt5LoginId, startDate, endDate })
-      );
       dispatch(fetchDashboardCommission(mt5LoginId));
+
+      if (mt5LoginId) {
+        dispatch(
+          fetchDashboardCharts({
+            userId,
+            accountId: mt5LoginId,
+            startDate,
+            endDate,
+          })
+        );
+      }
     }
   }, [dispatch, userId, mt5LoginId, chartPeriod]);
 
@@ -446,7 +467,14 @@ export default function Dashboard() {
             <div className={styles.revenueCol}>
               {/* Always visible */}
               <div className={`${styles.card} ${styles.revenueCard}`}>
-                <div className={styles.revenueLabel}>My Profit</div>
+                <div className={styles.revenueLabel}>
+                  My Profit
+                  {mt5LoginId && (
+                    <span className={styles.accountIdBadge}>
+                       {mt5LoginId}
+                    </span>
+                  )}
+                </div>
 
                 <div className={styles.revenueValue}>
                   {investmentLoading ? (
@@ -503,7 +531,7 @@ export default function Dashboard() {
                   style={{ width: 140, height: 36, display: 'inline-block' }}
                 />
               ) : (
-                `$${fmt(currentValue ?? 0)}`
+                `$${fmt(walletBalance ?? 0)}`
               )}
             </span>
             <div className={styles.walletActions}>

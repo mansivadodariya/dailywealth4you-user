@@ -128,14 +128,39 @@
         top: 100%;
         left: 0;
         min-width: 100%;
+        max-height: 190px;
         margin-top: 8px;
         background: #0f1c1c;
         border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 8px;
         display: flex;
         flex-direction: column;
-        overflow: hidden;
+        overflow-y: auto;
+        overflow-x: hidden;
         z-index: 100;
+
+        /* Custom scrollbar */
+        &::-webkit-scrollbar {
+          width: 6px;
+        }
+
+        &::-webkit-scrollbar-track {
+          background: rgba(255, 255, 255, 0.05);
+          border-radius: 3px;
+        }
+
+        &::-webkit-scrollbar-thumb {
+          background: rgba(2, 223, 130, 0.5);
+          border-radius: 3px;
+
+          &:hover {
+            background: rgba(2, 223, 130, 0.7);
+          }
+        }
+
+        /* Firefox scrollbar */
+        scrollbar-width: thin;
+        scrollbar-color: rgba(2, 223, 130, 0.5) rgba(255, 255, 255, 0.05);
       }
 
       .dropdownMenuItem {

@@ -115,7 +115,8 @@ export default function Header() {
   // ── Trading accounts ──────────────────────────────────────────────────────
   useEffect(() => {
     const u = getUserFromCookie();
-    if (u?.id) dispatch(fetchTradingAccounts(u.id));
+    // Fetch all accounts for header dropdown (no pagination)
+    if (u?.id) dispatch(fetchTradingAccounts({ userId: u.id }));
   }, [dispatch]);
 
   // ── Fetch initial notifications on mount ──────────────────────────────────
@@ -174,7 +175,8 @@ export default function Header() {
   const handleMt5ModalClose = () => {
     setIsMt5ModalOpen(false);
     const u = getUserFromCookie();
-    if (u?.id) dispatch(fetchTradingAccounts(u.id));
+    // Fetch all accounts for header dropdown (no pagination)
+    if (u?.id) dispatch(fetchTradingAccounts({ userId: u.id }));
   };
 
   const handleBellClick = () => {

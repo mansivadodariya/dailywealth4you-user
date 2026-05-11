@@ -41,13 +41,26 @@ export const fetchTradingAccounts = createAsyncThunk(
   'account/fetchTradingAccounts',
   async (payload, thunkApi) => {
     try {
+      const params = new URLSearchParams();
+      if (payload?.userId) {
+        params.append('userId', payload.userId);
+      }
+      if (payload?.page) {
+        params.append('page', payload.page);
+      }
+      if (payload?.limit) {
+        params.append('limit', payload.limit);
+      }
+      
       const response = await api.get(
-        `${GET_ALL_TRADING_ACCOUNTS}?userId=${payload}`
+        `${GET_ALL_TRADING_ACCOUNTS}?${params.toString()}`
       );
+
       return response;
     } catch (error) {
-      toast.error(error);
-      return thunkApi.rejectWithValue(error);
+      return thunkApi.rejectWithValue(
+        error?.response?.data || error.message
+      );
     }
   }
 );
@@ -266,6 +279,9 @@ const accountSlice = createSlice({
   initialState: {
     brokers: [],
     tradingAccounts: [],
+    tradingAccountsTotalPages: 1,
+    tradingAccountsCurrentPage: 1,
+    tradingAccountsCount: 0,
     faqs: [],
     tutorials: [],
     tutorialsLoading: false,
@@ -302,6 +318,9 @@ const accountSlice = createSlice({
     clearAccountState: (state) => {
       state.brokers = [];
       state.tradingAccounts = [];
+      state.tradingAccountsTotalPages = 1;
+      state.tradingAccountsCurrentPage = 1;
+      state.tradingAccountsCount = 0;
       state.loading = false;
       state.tradingAccountsLoading = false;
       state.error = null;
@@ -335,7 +354,22 @@ const accountSlice = createSlice({
       })
       .addCase(fetchTradingAccounts.fulfilled, (state, action) => {
         state.tradingAccountsLoading = false;
-        state.tradingAccounts = action?.payload?.payload?.data || [];
+        const payload = action?.payload?.payload || action?.payload;
+        const data = payload?.data || [];
+        
+        state.tradingAccounts = data;
+        
+        // If API provides pagination metadata, use it
+        if (payload?.totalPages || payload?.pagination?.totalPages) {
+          state.tradingAccountsTotalPages = payload?.totalPages || payload?.pagination?.totalPages || 1;
+          state.tradingAccountsCurrentPage = payload?.currentPage || payload?.pagination?.currentPage || 1;
+          state.tradingAccountsCount = payload?.count || payload?.total || 0;
+        } else {
+          // If no pagination metadata, assume all data is on one page
+          state.tradingAccountsTotalPages = 1;
+          state.tradingAccountsCurrentPage = 1;
+          state.tradingAccountsCount = data.length;
+        }
       })
       .addCase(fetchTradingAccounts.rejected, (state, action) => {
         state.tradingAccountsLoading = false;
