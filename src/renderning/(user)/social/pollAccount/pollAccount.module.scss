@@ -173,7 +173,57 @@
   font-family: var(--font-manrope);
   margin: 0;
   line-height: 1.6;
-  flex: 1;
+  width: calc(100% - 50px);
+  overflow: hidden;
+  min-width: 0;
+  word-break: break-word;
+
+  :global(.ql-container) {
+    border: 0;
+    font-family: var(--font-manrope);
+    font-size: inherit;
+  }
+
+  :global(.ql-editor) {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 0;
+    padding: 0;
+    color: inherit;
+    line-height: inherit;
+  }
+
+  :global(.ql-editor p),
+  :global(.ql-editor ol),
+  :global(.ql-editor ul) {
+    margin: 0;
+  }
+}
+.descriptionSection {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.viewBtn {
+  border: none;
+  background: transparent;
+  color: #02df82;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  white-space: nowrap;
+  flex-shrink: 0;
+  line-height: 1.6;
+  margin-bottom: 1px;
+
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 .joinBtn {

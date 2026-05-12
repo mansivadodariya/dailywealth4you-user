@@ -4,6 +4,7 @@ import {
   GET_ALL_SOCIAL_POOL,
   POOL_PURCHASE_BY_USER,
   GET_ALL_POOL_PURCHASE,
+  GET_ALL_POOL_TRADES_HISTORY,
   UPDATE_POOL_PURCHASE,
   DELETE_POOL_PURCHASE,
 } from '@/service/url';
@@ -79,6 +80,26 @@ export const fetchPoolPurchases = createAsyncThunk(
   }
 );
 
+export const fetchPoolTradesHistory = createAsyncThunk(
+  'performance/fetchPoolTradesHistory',
+  async (filters = {}, thunkApi) => {
+    try {
+      const params = new URLSearchParams();
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== '' && value !== null && value !== undefined) {
+          params.append(key, value);
+        }
+      });
+      const query = params.toString() ? `?${params.toString()}` : '';
+      const response = await api.get(`${GET_ALL_POOL_TRADES_HISTORY}${query}`);
+      return response;
+    } catch (error) {
+      toast.error(error);
+      return thunkApi.rejectWithValue(error);
+    }
+  }
+);
+
 export const updatePoolPurchase = createAsyncThunk(
   'performance/updatePoolPurchase',
   async ({ id, depositAmount }, thunkApi) => {
@@ -97,10 +118,21 @@ export const updatePoolPurchase = createAsyncThunk(
 
 export const deletePoolPurchase = createAsyncThunk(
   'performance/deletePoolPurchase',
-  async (id, thunkApi) => {
+  async (payload, thunkApi) => {
     try {
-      const response = await api.delete(`${DELETE_POOL_PURCHASE}?id=${id}`);
-      toast.success('Pool deleted successfully!');
+      const id = typeof payload === 'object' ? payload.id : payload;
+      const requestBody =
+        typeof payload === 'object'
+          ? {
+              address: payload.address,
+              network: payload.network,
+            }
+          : undefined;
+
+      const response = await api.delete(`${DELETE_POOL_PURCHASE}?id=${id}`, {
+        data: requestBody,
+      });
+      toast.success('Pool close request submitted successfully!');
       return { id, response };
     } catch (error) {
       toast.error(error);
@@ -126,6 +158,10 @@ const performanceSlice = createSlice({
     poolPurchasesLoading: false,
     poolPurchasesError: null,
     poolPurchasesCount: 0,
+    poolTradesHistory: [],
+    poolTradesHistoryLoading: false,
+    poolTradesHistoryError: null,
+    poolTradesHistoryCount: 0,
     updatePoolLoading: false,
     updatePoolError: null,
     deletePoolLoading: false,
@@ -147,6 +183,10 @@ const performanceSlice = createSlice({
       state.poolPurchasesLoading = false;
       state.poolPurchasesError = null;
       state.poolPurchasesCount = 0;
+      state.poolTradesHistory = [];
+      state.poolTradesHistoryLoading = false;
+      state.poolTradesHistoryError = null;
+      state.poolTradesHistoryCount = 0;
       state.updatePoolLoading = false;
       state.updatePoolError = null;
       state.deletePoolLoading = false;
@@ -205,6 +245,20 @@ const performanceSlice = createSlice({
       .addCase(fetchPoolPurchases.rejected, (state, action) => {
         state.poolPurchasesLoading = false;
         state.poolPurchasesError = action.payload;
+      })
+      .addCase(fetchPoolTradesHistory.pending, (state) => {
+        state.poolTradesHistoryLoading = true;
+        state.poolTradesHistoryError = null;
+      })
+      .addCase(fetchPoolTradesHistory.fulfilled, (state, action) => {
+        state.poolTradesHistoryLoading = false;
+        const payload = action?.payload?.payload || action?.payload;
+        state.poolTradesHistory = payload?.data || [];
+        state.poolTradesHistoryCount = payload?.count || 0;
+      })
+      .addCase(fetchPoolTradesHistory.rejected, (state, action) => {
+        state.poolTradesHistoryLoading = false;
+        state.poolTradesHistoryError = action.payload;
       })
       .addCase(updatePoolPurchase.pending, (state) => {
         state.updatePoolLoading = true;

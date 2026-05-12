@@ -9,13 +9,17 @@ import moment from 'moment';
 import { getUserFromCookie } from '@/service/cookies';
 import UseExisting from '@/components/modal/useExisting';
 import {
-  deleteTradingAccount,
+  createAccountCloseRequest,
+  fetchAccountCloseRequests,
   fetchTradingAccounts,
   fetchAccountHistory,
 } from '@/store/slice/accountSlice';
 import AuthButton from '@/components/authButton';
 import Loader from '@/components/Loader';
 import Pagination from '@/components/pagination';
+import toast from 'react-hot-toast';
+
+const NETWORK_OPTIONS = ['TRC20', 'ERC20', 'BEP20'];
 
 export default function Accounts() {
   const dispatch = useDispatch();
@@ -25,6 +29,8 @@ export default function Accounts() {
     tradingAccountsError,
     accountHistory,
     accountHistoryLoading,
+    accountCloseRequests,
+    createAccountCloseLoading,
   } = useSelector((state) => state.account);
 
   // null = card view, object = history view for that account
@@ -33,16 +39,23 @@ export default function Accounts() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [accountToDelete, setAccountToDelete] = useState(null);
+  const [deleteSubmitting, setDeleteSubmitting] = useState(false);
+  const [walletAddress, setWalletAddress] = useState('');
+  const [network, setNetwork] = useState('');
+  const [networkOpen, setNetworkOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 9;
 
+  console.log('accountCloseRequests', accountToDelete);
+
   const user = getUserFromCookie();
-  const userId = user?.id;
+  const userId = user?.id || user?._id;
 
   // Fetch all accounts once (no pagination on API)
   useEffect(() => {
     if (userId) {
       dispatch(fetchTradingAccounts({ userId }));
+      dispatch(fetchAccountCloseRequests());
     }
   }, [dispatch, userId]);
 
@@ -71,16 +84,74 @@ export default function Accounts() {
   const handleDeleteClick = (e, account) => {
     e.stopPropagation();
     setAccountToDelete(account);
+    setWalletAddress('');
+    setNetwork('');
+    setNetworkOpen(false);
     setShowDeleteModal(true);
   };
 
-  const handleConfirmDelete = async () => {
-    if (accountToDelete) {
-      await dispatch(deleteTradingAccount(accountToDelete.id));
+  const handleCloseDeleteModal = () => {
+    if (deleteSubmitting || createAccountCloseLoading) return;
+    setShowDeleteModal(false);
+    setAccountToDelete(null);
+    setWalletAddress('');
+    setNetwork('');
+    setNetworkOpen(false);
+  };
+
+  const handleConfirmDelete = async (e) => {
+    e.preventDefault();
+
+    if (!accountToDelete) return;
+
+    if (walletAddress.trim().length < 10) {
+      toast.error('Please enter a valid crypto wallet address.');
+      return;
+    }
+
+    if (!network) {
+      toast.error('Please select a network.');
+      return;
+    }
+
+    setDeleteSubmitting(true);
+    try {
+      const broker =
+        typeof accountToDelete?.broker === 'object'
+          ? accountToDelete?.broker?.name
+          : accountToDelete?.broker || accountToDelete?.brokerName || '';
+      const amount = String(
+        accountToDelete?.currentBalance ||
+          accountToDelete?.sizeOfAccount ||
+          accountToDelete?.currentBalance ||
+          0
+      );
+
+      await dispatch(
+        createAccountCloseRequest({
+          userId,
+          tradingAccountId: accountToDelete.id,
+          socialPoolId: '',
+          broker,
+          mt5Account: String(accountToDelete?.mt5LoginId || ''),
+          amount,
+          address: walletAddress.trim(),
+          proofUrl: '',
+          network,
+          status: 'pending',
+          type: 'trading_account',
+        })
+      ).unwrap();
       setShowDeleteModal(false);
       setAccountToDelete(null);
-      // Refresh accounts
-      dispatch(fetchTradingAccounts({ userId }));
+      setWalletAddress('');
+      setNetwork('');
+      setNetworkOpen(false);
+      dispatch(fetchAccountCloseRequests());
+    } catch (error) {
+      // Error toast is handled by the thunk.
+    } finally {
+      setDeleteSubmitting(false);
     }
   };
 
@@ -115,6 +186,40 @@ export default function Accounts() {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const accountsData = allAccounts.slice(startIndex, endIndex);
+  const closeRequestsByAccountId = new Map(
+    (accountCloseRequests || [])
+      .filter((request) => request?.type === 'trading_account')
+      .map((request) => [
+        String(request?.tradingAccountId || request?.tradingAccount?.id || ''),
+        request,
+      ])
+  );
+
+  const getAccountCloseRequest = (accountId) => {
+    return closeRequestsByAccountId.get(String(accountId));
+  };
+
+  const getAccountCloseBadge = (request) => {
+    const status = String(request?.status || '').toLowerCase();
+
+    if (status === 'approved' || status === 'approve') {
+      return {
+        text: 'Disconnected',
+        className: styles.disconnectedBadge,
+      };
+    }
+
+    if (status === 'pending') {
+      return {
+        text: 'Close Pending',
+        className: styles.pendingCloseBadge,
+      };
+    }
+
+    return null;
+  };
+
+  
 
   // ── History View ──────────────────────────────────────────────────────────
   if (activeAccount) {
@@ -217,90 +322,117 @@ export default function Accounts() {
     <>
       <div className={styles.accountsWrapper}>
         <div className={styles.accountsGrid}>
-          {accountsData.map((item) => (
-            <div
-              key={item?.id}
-              className={styles.accountCard}
-              onClick={() => handleCardClick(item)}
-            >
-              <div className={styles.headerAlignment}>
-                <div className={styles.cardHeader}>
-                  <p>Account No: {item?.mt5LoginId}</p>
-                  <div className={styles.buttonContainer}>
-                    <div
-                      className={styles.editBtn}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedAccount(item);
-                        setShowEditModal(true);
-                      }}
-                    >
-                      <EditIcon />
-                    </div>
-                    <div
-                      className={styles.deleteBtn}
-                      onClick={(e) => handleDeleteClick(e, item)}
-                    >
-                      <DeleteIcon />
+          {accountsData.map((item) => {
+            const closeRequest = getAccountCloseRequest(item?.id);
+            const closeBadge = getAccountCloseBadge(closeRequest);
+const isActionDisabled =
+  closeRequest &&
+  ['pending', 'approved', 'approve'].includes(
+    String(closeRequest?.status || '').toLowerCase()
+  );
+            return (
+              <div
+                key={item?.id}
+                className={styles.accountCard}
+                onClick={() => handleCardClick(item)}
+              >
+                <div className={styles.headerAlignment}>
+                  <div className={styles.cardHeader}>
+                 <div className={styles.accountTitle}>
+  <p>Account No: {item?.mt5LoginId}</p>
+
+  {closeBadge && (
+    <span className={closeBadge.className}>
+      {closeBadge.text}
+    </span>
+  )}
+</div>
+                    <div className={styles.buttonContainer}>
+<div
+  className={`${styles.editBtn} ${
+    isActionDisabled ? styles.disabledAction : ''
+  }`}
+  onClick={(e) => {
+    e.stopPropagation();
+
+    if (isActionDisabled) return;
+
+    setSelectedAccount(item);
+    setShowEditModal(true);
+  }}
+>
+  <EditIcon />
+</div>
+             <div
+  className={`${styles.deleteBtn} ${
+    isActionDisabled ? styles.disabledAction : ''
+  }`}
+  onClick={(e) => {
+    if (isActionDisabled) return;
+    handleDeleteClick(e, item);
+  }}
+>
+  <DeleteIcon />
+</div>
                     </div>
                   </div>
+                  <h3>
+                    ${(item?.sizeOfAccount || 0).toLocaleString()}
+                    <span className={styles.profitText}>
+                      (+ ${(item?.currentDeposit || 0).toLocaleString()})
+                    </span>
+                  </h3>
                 </div>
-                <h3>
-                  ${(item?.sizeOfAccount || 0).toLocaleString()}
-                  <span className={styles.profitText}>
-                    (+ ${(item?.currentDeposit || 0).toLocaleString()})
-                  </span>
-                </h3>
-              </div>
 
-              <div className={styles.cardDetails}>
-                <div className={styles.detailRow}>
-                  <span className={styles.label}>Broker:</span>
-                  <div className={styles.dots} />
-                  <span className={styles.value}>
-                    {typeof item?.broker === 'object'
-                      ? item?.broker?.name
-                      : item?.broker || '-'}
-                  </span>
+                <div className={styles.cardDetails}>
+                  <div className={styles.detailRow}>
+                    <span className={styles.label}>Broker:</span>
+                    <div className={styles.dots} />
+                    <span className={styles.value}>
+                      {typeof item?.broker === 'object'
+                        ? item?.broker?.name
+                        : item?.broker || '-'}
+                    </span>
+                  </div>
+                  <div className={styles.detailRow}>
+                    <span className={styles.label}>Date Added:</span>
+                    <div className={styles.dots} />
+                    <span className={styles.value}>
+                      {item?.createdAt
+                        ? moment(item.createdAt).format('DD-MM-YYYY | hh:mm A')
+                        : '-'}
+                    </span>
+                  </div>
+                  <div className={styles.detailRow}>
+                    <span className={styles.label}>P&L:</span>
+                    <div className={styles.dots} />
+                    <span
+                      className={styles.value}
+                      style={{
+                        color: (item?.pnl || 0) >= 0 ? '#02DF82' : '#FF4D4D',
+                      }}
+                    >
+                      {item?.pnl || '0%'}
+                    </span>
+                  </div>
                 </div>
-                <div className={styles.detailRow}>
-                  <span className={styles.label}>Date Added:</span>
-                  <div className={styles.dots} />
-                  <span className={styles.value}>
-                    {item?.createdAt
-                      ? moment(item.createdAt).format('DD-MM-YYYY | hh:mm A')
-                      : '-'}
-                  </span>
-                </div>
-                <div className={styles.detailRow}>
-                  <span className={styles.label}>P&L:</span>
-                  <div className={styles.dots} />
-                  <span
-                    className={styles.value}
-                    style={{
-                      color: (item?.pnl || 0) >= 0 ? '#02DF82' : '#FF4D4D',
-                    }}
-                  >
-                    {item?.pnl || '0%'}
-                  </span>
-                </div>
-              </div>
 
-              {/* Arrow hint */}
-              <div className={styles.cardArrow}>
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path
-                    d="M3 8H13M13 8L9 4M13 8L9 12"
-                    stroke="#02df82"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                <span>View History</span>
+                {/* Arrow hint */}
+                <div className={styles.cardArrow}>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path
+                      d="M3 8H13M13 8L9 4M13 8L9 12"
+                      stroke="#02df82"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  <span>View History</span>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {accountsData.length === 0 && (
@@ -332,30 +464,110 @@ export default function Accounts() {
       )}
 
       {showDeleteModal && accountToDelete && (
-        <div className={styles.mt5AccountWrapper}>
+        <div
+          className={styles.mt5AccountWrapper}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) handleCloseDeleteModal();
+          }}
+        >
           <div className={styles.modal}>
             <div className={styles.modalHeader}>
-              <h2>Delete Account</h2>
-              <p>Are you sure you want to delete this account?</p>
+              <h2>Close Account</h2>
+              <p>
+                Are you sure you want to close this account? Once you submit the
+                close request, it will be reviewed by the admin. After admin
+                approval, your invested amount and profit will be credited back
+                to your wallet.
+              </p>
             </div>
-            <div className={styles.modalBody}>
+
+            <form className={styles.modalBody} onSubmit={handleConfirmDelete}>
+              <div className={styles.fieldGroup}>
+                <label className={styles.fieldLabel}>
+                  Crypto Wallet Address
+                </label>
+                <input
+                  className={styles.walletInput}
+                  type="text"
+                  placeholder="Enter wallet address"
+                  value={walletAddress}
+                  onChange={(e) => setWalletAddress(e.target.value)}
+                  autoComplete="off"
+                  spellCheck={false}
+                />
+              </div>
+
+              <div className={styles.fieldGroup}>
+                <label className={styles.fieldLabel}>Network</label>
+                <div className={styles.networkWrapper}>
+                  <button
+                    type="button"
+                    className={styles.networkSelector}
+                    onClick={() => setNetworkOpen((prev) => !prev)}
+                  >
+                    <span
+                      className={
+                        network
+                          ? styles.networkValue
+                          : `${styles.networkValue} ${styles.networkPlaceholder}`
+                      }
+                    >
+                      {network || 'Select Network'}
+                    </span>
+                    <span
+                      className={
+                        networkOpen
+                          ? `${styles.networkChevron} ${styles.open}`
+                          : styles.networkChevron
+                      }
+                    >
+                      v
+                    </span>
+                  </button>
+
+                  {networkOpen && (
+                    <div className={styles.networkDropdown}>
+                      {NETWORK_OPTIONS.map((option) => (
+                        <button
+                          key={option}
+                          type="button"
+                          className={
+                            network === option
+                              ? `${styles.networkOption} ${styles.selected}`
+                              : styles.networkOption
+                          }
+                          onClick={() => {
+                            setNetwork(option);
+                            setNetworkOpen(false);
+                          }}
+                        >
+                          {option}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
               <div className={styles.actions}>
                 <AuthButton
                   outline
                   text="Cancel"
-                  onClick={() => {
-                    setShowDeleteModal(false);
-                    setAccountToDelete(null);
-                  }}
+                  onClick={handleCloseDeleteModal}
+                  disabled={deleteSubmitting || createAccountCloseLoading}
                 />
-                <button
-                  className={styles.confirmDeleteBtn}
-                  onClick={handleConfirmDelete}
-                >
-                  Delete
-                </button>
+                <AuthButton
+                  danger={true}
+                  text={
+                    deleteSubmitting || createAccountCloseLoading
+                      ? 'Submitting...'
+                      : 'Submit Request'
+                  }
+                  type="submit"
+                  disabled={deleteSubmitting || createAccountCloseLoading}
+                />
               </div>
-            </div>
+            </form>
           </div>
         </div>
       )}

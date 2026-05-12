@@ -10,6 +10,10 @@ export const GET_ALL_TRADING_ACCOUNTS = 'tradingAccount/getAllTradingAccount';
 export const CREATE_TRADING_ACCOUNT = 'tradingAccount/create';
 export const UPDATE_TRADING_ACCOUNT = 'tradingAccount/updateTradingAccount';
 export const DELETE_TRADING_ACCOUNT = 'tradingAccount/deleteTradingAccount';
+export const CREATE_ACCOUNT_CLOSE_REQUEST =
+  '/accountClose/createAccountCloseRequest';
+export const GET_ALL_ACCOUNT_CLOSE_REQUESTS =
+  '/accountClose/getAllCloseRequests';
 export const GET_ALL_FAQ = '/faq/getAll';
 export const CREATE_CONTACT_US = '/contactUs/create';
 export const UPLOAD_USER_DOCUMENT = '/userDocument/uploadUserDocument';
@@ -39,3 +43,5 @@ export const POOL_PURCHASE_BY_USER = '/poolPurchase/poolPurchaseByUser';
 export const GET_ALL_POOL_PURCHASE = '/poolPurchase/getAllPoolPurchase';
 export const UPDATE_POOL_PURCHASE = '/poolPurchase/updatePoolPurchase';
 export const DELETE_POOL_PURCHASE = '/poolPurchase/deletePoolPurchase';
+export const GET_ALL_POOL_TRADES_HISTORY =
+  '/poolTradesHistory/getAllPoolTradesHistory';

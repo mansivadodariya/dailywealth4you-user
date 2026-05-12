@@ -1,8 +1,10 @@
 import api from '@/service/api';
 import {
   CREATE_TRADING_ACCOUNT,
+  CREATE_ACCOUNT_CLOSE_REQUEST,
   UPDATE_TRADING_ACCOUNT,
   DELETE_TRADING_ACCOUNT,
+  GET_ALL_ACCOUNT_CLOSE_REQUESTS,
   GET_ALL_BROKERS,
   GET_ALL_TRADING_ACCOUNTS,
   GET_ALL_FAQ,
@@ -51,16 +53,14 @@ export const fetchTradingAccounts = createAsyncThunk(
       if (payload?.limit) {
         params.append('limit', payload.limit);
       }
-      
+
       const response = await api.get(
         `${GET_ALL_TRADING_ACCOUNTS}?${params.toString()}`
       );
 
       return response;
     } catch (error) {
-      return thunkApi.rejectWithValue(
-        error?.response?.data || error.message
-      );
+      return thunkApi.rejectWithValue(error?.response?.data || error.message);
     }
   }
 );
@@ -98,15 +98,53 @@ export const updateTradingAccount = createAsyncThunk(
 
 export const deleteTradingAccount = createAsyncThunk(
   'account/deleteTradingAccount',
-  async (id, thunkApi) => {
+  async (payload, thunkApi) => {
     try {
-      const response = await api.delete(`${DELETE_TRADING_ACCOUNT}?id=${id}`);
-      toast.success('Trading account deleted successfully.');
+      const id = typeof payload === 'object' ? payload.id : payload;
+      const requestBody =
+        typeof payload === 'object'
+          ? {
+              address: payload.address,
+              network: payload.network,
+            }
+          : undefined;
+
+      const response = await api.delete(`${DELETE_TRADING_ACCOUNT}?id=${id}`, {
+        data: requestBody,
+      });
+      toast.success('Account close request submitted successfully.');
       return { id, response };
     } catch (error) {
       toast.error(
         error?.response?.data?.message || 'Failed to delete trading account.'
       );
+      return thunkApi.rejectWithValue(error);
+    }
+  }
+);
+
+export const createAccountCloseRequest = createAsyncThunk(
+  'account/createAccountCloseRequest',
+  async (payload, thunkApi) => {
+    try {
+      const response = await api.post(CREATE_ACCOUNT_CLOSE_REQUEST, payload);
+      toast.success('Account close request submitted successfully.');
+      return response;
+    } catch (error) {
+      toast.error(error);
+      return thunkApi.rejectWithValue(error);
+    }
+  }
+);
+
+export const fetchAccountCloseRequests = createAsyncThunk(
+  'account/fetchAccountCloseRequests',
+  async (_, thunkApi) => {
+    try {
+      const response = await api.get(GET_ALL_ACCOUNT_CLOSE_REQUESTS);
+      return response;
+    } catch (error) {
+      toast.error(error);
       return thunkApi.rejectWithValue(error);
     }
   }
@@ -294,6 +332,11 @@ const accountSlice = createSlice({
     transactionError: null,
     deposits: [],
     withdrawals: [],
+    accountCloseRequests: [],
+    accountCloseRequestsLoading: false,
+    accountCloseRequestsError: null,
+    createAccountCloseLoading: false,
+    createAccountCloseError: null,
     transactionsLoading: false,
     transactionsError: null,
     depositsTotalPages: 1,
@@ -325,6 +368,11 @@ const accountSlice = createSlice({
       state.tradingAccountsLoading = false;
       state.error = null;
       state.tradingAccountsError = null;
+      state.accountCloseRequests = [];
+      state.accountCloseRequestsLoading = false;
+      state.accountCloseRequestsError = null;
+      state.createAccountCloseLoading = false;
+      state.createAccountCloseError = null;
       state.kycStatus = undefined;
       state.kycStatusLoading = false;
       state.kycRejectionReason = null;
@@ -356,13 +404,15 @@ const accountSlice = createSlice({
         state.tradingAccountsLoading = false;
         const payload = action?.payload?.payload || action?.payload;
         const data = payload?.data || [];
-        
+
         state.tradingAccounts = data;
-        
+
         // If API provides pagination metadata, use it
         if (payload?.totalPages || payload?.pagination?.totalPages) {
-          state.tradingAccountsTotalPages = payload?.totalPages || payload?.pagination?.totalPages || 1;
-          state.tradingAccountsCurrentPage = payload?.currentPage || payload?.pagination?.currentPage || 1;
+          state.tradingAccountsTotalPages =
+            payload?.totalPages || payload?.pagination?.totalPages || 1;
+          state.tradingAccountsCurrentPage =
+            payload?.currentPage || payload?.pagination?.currentPage || 1;
           state.tradingAccountsCount = payload?.count || payload?.total || 0;
         } else {
           // If no pagination metadata, assume all data is on one page
@@ -421,6 +471,40 @@ const accountSlice = createSlice({
       .addCase(deleteTradingAccount.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+      .addCase(createAccountCloseRequest.pending, (state) => {
+        state.createAccountCloseLoading = true;
+        state.createAccountCloseError = null;
+      })
+      .addCase(createAccountCloseRequest.fulfilled, (state, action) => {
+        state.createAccountCloseLoading = false;
+        const newRequest =
+          action?.payload?.payload?.data ||
+          action?.payload?.data ||
+          action?.payload?.payload ||
+          action?.payload;
+
+        if (newRequest?.id) {
+          state.accountCloseRequests.unshift(newRequest);
+        }
+      })
+      .addCase(createAccountCloseRequest.rejected, (state, action) => {
+        state.createAccountCloseLoading = false;
+        state.createAccountCloseError = action.payload;
+      })
+      .addCase(fetchAccountCloseRequests.pending, (state) => {
+        state.accountCloseRequestsLoading = true;
+        state.accountCloseRequestsError = null;
+      })
+      .addCase(fetchAccountCloseRequests.fulfilled, (state, action) => {
+        state.accountCloseRequestsLoading = false;
+        const payload = action?.payload?.payload || action?.payload;
+        const data = payload?.data || payload || [];
+        state.accountCloseRequests = Array.isArray(data) ? data : [];
+      })
+      .addCase(fetchAccountCloseRequests.rejected, (state, action) => {
+        state.accountCloseRequestsLoading = false;
+        state.accountCloseRequestsError = action.payload;
       })
       .addCase(fetchFaqs.pending, (state) => {
         state.faqsLoading = true;

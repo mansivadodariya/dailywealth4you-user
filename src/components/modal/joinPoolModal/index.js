@@ -1,126 +1,182 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  joinSocialPool,
-  fetchPoolPurchases,
-} from '@/store/slice/performanceSlice';
-import { fetchTradingAccounts } from '@/store/slice/accountSlice';
+import { joinSocialPool } from '@/store/slice/performanceSlice';
 import { getUserFromCookie } from '@/service/cookies';
 import styles from './joinPoolModal.module.scss';
 import toast from 'react-hot-toast';
 import AuthButton from '@/components/authButton';
+import RichTextDescription from '@/components/richTextDescription';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
 
-export default function JoinPoolModal({ pool, onClose, onSuccess }) {
+export default function JoinPoolModal({
+  pool,
+  isJoined = false,
+  onClose,
+  onSuccess,
+}) {
   const dispatch = useDispatch();
-  const { joinPoolLoading, poolPurchases } = useSelector(
-    (state) => state.performance
-  );
-  const { tradingAccounts, tradingAccountsLoading } = useSelector(
-    (state) => state.account
-  );
+  const { joinPoolLoading } = useSelector((state) => state.performance);
 
-  const [selectedAccountId, setSelectedAccountId] = useState('');
+  // const [selectedAccountId, setSelectedAccountId] = useState('');
   const [depositAmount, setDepositAmount] = useState('');
-  const [selectedAccount, setSelectedAccount] = useState(null);
+  
+  // const [selectedAccount, setSelectedAccount] = useState(null);
 
   const user = getUserFromCookie();
+
   const userId = user?.id || user?._id;
 
   // Fetch trading accounts and pool purchases on mount
-  useEffect(() => {
-    if (userId) {
-      dispatch(fetchTradingAccounts(userId));
-      dispatch(fetchPoolPurchases());
-    }
-  }, [dispatch, userId]);
+  // useEffect(() => {
+  //   if (userId) {
+  //     dispatch(fetchTradingAccounts(userId));
+  //     dispatch(fetchPoolPurchases());
+  //   }
+  // }, [dispatch, userId]);
 
   // Update selected account when dropdown changes
-  useEffect(() => {
-    if (selectedAccountId) {
-      const account = tradingAccounts?.find(
-        (acc) => acc.id === selectedAccountId
-      );
-      setSelectedAccount(account || null);
-    } else {
-      setSelectedAccount(null);
-    }
-  }, [selectedAccountId, tradingAccounts]);
+  // useEffect(() => {
+  //   if (selectedAccountId) {
+  //     const account = tradingAccounts?.find(
+  //       (acc) => acc.id === selectedAccountId
+  //     );
+  //     setSelectedAccount(account || null);
+  //   } else {
+  //     setSelectedAccount(null);
+  //   }
+  // }, [selectedAccountId, tradingAccounts]);
 
-  // Check if a trading account is already used for another pool
-  const isAccountUsedForAnotherPool = (accountId) => {
-    if (!poolPurchases || !accountId) return false;
-    return poolPurchases.some(
-      (purchase) =>
-        purchase.tradingAccountId === accountId &&
-        purchase.socialPoolId !== pool.id
-    );
-  };
+  const walletBalance = Number(user?.walletBalance || 0);
+  const requestedAmount = Number(depositAmount || 0);
+  const minDeposit = Number(pool?.minDeposit || 0);
+  const hasInsufficientBalance =
+    requestedAmount > 0
+      ? requestedAmount > walletBalance
+      : walletBalance < minDeposit;
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
 
-  // Get available trading accounts (not used for other pools)
-  const availableAccounts =
-    tradingAccounts?.filter(
-      (account) => !isAccountUsedForAnotherPool(account.id)
-    ) || [];
+  //   if (!userId) {
+  //     toast.error('User not found. Please login again.');
+  //     return;
+  //   }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  //   if (isJoined) {
+  //     toast.error('You have already joined this pool.');
+  //     return;
+  //   }
 
+  //   // if (!selectedAccountId) {
+  //   //   toast.error('Please select a trading account.');
+  //   //   return;
+  //   // }
+
+  //   // Check if account is already used for another pool
+  //   // if (isAccountUsedForAnotherPool(selectedAccountId)) {
+  //   //   toast.error(
+  //   //     'This trading account is already used for another pool. Please select a different account.'
+  //   //   );
+  //   //   return;
+  //   // }
+
+  //   if (!depositAmount || Number(depositAmount) < Number(pool.minDeposit)) {
+  //     toast.error(
+  //       `Minimum deposit is ${Number(pool.minDeposit).toLocaleString()}`
+  //     );
+  //     return;
+  //   }
+
+  //   // Validate balance
+  //   // const accountBalance = Number(
+  //   //   selectedAccount?.currentBalance || selectedAccount?.balance || 0
+  //   // );
+  //   const requestedAmount = Number(depositAmount);
+
+  //   if (requestedAmount > walletBalance) {
+  //     toast.error(
+  //       `Insufficient wallet balance. Available: $${walletBalance.toLocaleString()}`
+  //     );
+  //     return;
+  //   }
+
+  //   // if (requestedAmount > accountBalance) {
+  //   //   toast.error(
+  //   //     `Insufficient balance. Available: ${accountBalance.toLocaleString()}`
+  //   //   );
+  //   //   return;
+  //   // }
+
+  //   const payload = {
+  //     userId,
+  //     socialPoolId: pool.id,
+  //     depositAmount: requestedAmount,
+
+  //     // tradingAccountId: selectedAccountId,
+  //   };
+
+  //   try {
+  //     await dispatch(joinSocialPool(payload)).unwrap();
+  //     if (onSuccess) onSuccess(pool.id);
+  //     onClose();
+  //   } catch (error) {
+  //     // Error already handled by toast in the thunk
+  //   }
+  // };
+const formik = useFormik({
+  initialValues: {
+    depositAmount: '',
+  },
+
+  validationSchema: Yup.object({
+    depositAmount: Yup.number()
+      .typeError('Please enter deposit amount')
+      .required('Please enter deposit amount')
+      .min(
+        Number(pool?.minDeposit || 0),
+        `Minimum deposit is $${Number(
+          pool?.minDeposit || 0
+        ).toLocaleString()}`
+      )
+      .test(
+        'wallet-balance',
+        'Insufficient wallet balance',
+        function (value) {
+          return Number(value || 0) <= walletBalance;
+        }
+      ),
+  }),
+
+  onSubmit: async (values) => {
     if (!userId) {
       toast.error('User not found. Please login again.');
       return;
     }
 
-    if (!selectedAccountId) {
-      toast.error('Please select a trading account.');
-      return;
-    }
-
-    // Check if account is already used for another pool
-    if (isAccountUsedForAnotherPool(selectedAccountId)) {
-      toast.error(
-        'This trading account is already used for another pool. Please select a different account.'
-      );
-      return;
-    }
-
-    if (!depositAmount || Number(depositAmount) < Number(pool.minDeposit)) {
-      toast.error(
-        `Minimum deposit is ${Number(pool.minDeposit).toLocaleString()}`
-      );
-      return;
-    }
-
-    // Validate balance
-    const accountBalance = Number(
-      selectedAccount?.currentBalance || selectedAccount?.balance || 0
-    );
-    const requestedAmount = Number(depositAmount);
-
-    if (requestedAmount > accountBalance) {
-      toast.error(
-        `Insufficient balance. Available: ${accountBalance.toLocaleString()}`
-      );
+    if (isJoined) {
+      toast.error('You have already joined this pool.');
       return;
     }
 
     const payload = {
       userId,
       socialPoolId: pool.id,
-      depositAmount: requestedAmount,
-      tradingAccountId: selectedAccountId,
+      depositAmount: Number(values.depositAmount),
     };
 
     try {
       await dispatch(joinSocialPool(payload)).unwrap();
+
       if (onSuccess) onSuccess(pool.id);
+
       onClose();
     } catch (error) {
-      // Error already handled by toast in the thunk
+      // handled in thunk
     }
-  };
-
+  },
+});
   if (!pool) return null;
 
   return (
@@ -147,14 +203,19 @@ export default function JoinPoolModal({ pool, onClose, onSuccess }) {
         <div className={styles.content}>
           <div className={styles.poolInfo}>
             <h3 className={styles.poolName}>{pool.title}</h3>
-            <p className={styles.poolDescription}>{pool.shortDescription}</p>
-          </div>
 
+            <p className={styles.poolDescription}>{pool.shortDescription}</p>
+
+            <RichTextDescription
+              value={pool.description}
+              className={styles.fullDescription}
+            />
+          </div>
           <div className={styles.statsGrid}>
             <div className={styles.statBox}>
-              <span className={styles.statLabel}>Profit %</span>
+              <span className={styles.statLabel}>Avarage Profit %</span>
               <span className={styles.statValue}>
-                {Number(pool.profitPercentage).toFixed(2)}%
+                {Number(pool.profitPercentage).toFixed(0)}%
               </span>
             </div>
             <div className={styles.statBox}>
@@ -163,11 +224,23 @@ export default function JoinPoolModal({ pool, onClose, onSuccess }) {
                 ${Number(pool.minDeposit).toLocaleString()}
               </span>
             </div>
+            <div className={styles.statBox}>
+              <span className={styles.statLabel}>Current Wallet Balance</span>
+              <span className={styles.statValue}>
+                ${walletBalance.toLocaleString()}
+              </span>
+              {/* <input
+                type="text"
+                className={styles.input}
+                value={`$${walletBalance.toLocaleString()}`}
+                readOnly
+              /> */}
+            </div>
           </div>
 
-          <form onSubmit={handleSubmit} className={styles.form}>
+          <form onSubmit={formik.handleSubmit} className={styles.form}>
             {/* Trading Account Dropdown */}
-            <div className={styles.inputGroup}>
+            {/* <div className={styles.inputGroup}>
               <label htmlFor="tradingAccount" className={styles.label}>
                 Select Trading Account
               </label>
@@ -218,44 +291,40 @@ export default function JoinPoolModal({ pool, onClose, onSuccess }) {
                     : 'No trading accounts found. Please create an account first.'}
                 </div>
               )}
-            </div>
+            </div> */}
 
             {/* Deposit Amount Input */}
-            <div className={styles.inputGroup}>
-              <label htmlFor="depositAmount" className={styles.label}>
-                Deposit Amount ($)
-              </label>
-              <input
-                id="depositAmount"
-                type="number"
-                className={styles.input}
-                placeholder={`Min: ${Number(pool.minDeposit).toLocaleString()}`}
-                value={depositAmount}
-                onChange={(e) => setDepositAmount(e.target.value)}
-                min={pool.minDeposit}
-                step="0.01"
-                required
-                disabled={!selectedAccountId}
-              />
-              {depositAmount && selectedAccount && (
-                <div className={styles.amountValidation}>
-                  {Number(depositAmount) >
-                  Number(
-                    selectedAccount.currentBalance ||
-                      selectedAccount.balance ||
-                      0
-                  ) ? (
-                    <span className={styles.errorText}>
-                      ⚠ Insufficient balance
-                    </span>
-                  ) : (
-                    <span className={styles.successText}>
-                      ✓ Amount available
-                    </span>
-                  )}
-                </div>
-              )}
-            </div>
+
+<div className={styles.inputGroup}>
+  <label htmlFor="depositAmount" className={styles.label}>
+    Deposit Amount ($)
+  </label>
+
+  <input
+    id="depositAmount"
+    name="depositAmount"
+    type="number"
+    className={`${styles.input} ${
+      formik.touched.depositAmount && formik.errors.depositAmount
+        ? styles.inputError
+        : ''
+    }`}
+    placeholder={`Min: ${Number(pool.minDeposit).toLocaleString()}`}
+    value={formik.values.depositAmount}
+    onChange={formik.handleChange}
+    onBlur={formik.handleBlur}
+    min={pool.minDeposit}
+    step="0.01"
+    disabled={isJoined || joinPoolLoading}
+  />
+
+  {formik.touched.depositAmount &&
+    formik.errors.depositAmount && (
+      <span className={styles.errorText}>
+        {formik.errors.depositAmount}
+      </span>
+    )}
+</div>
 
             <div className={styles.actions}>
               {/* <button
@@ -273,15 +342,17 @@ export default function JoinPoolModal({ pool, onClose, onSuccess }) {
               >
                 {joinPoolLoading ? 'Joining...' : 'Join Pool'}
               </button> */}
-              <AuthButton
-                text={joinPoolLoading ? 'Joining...' : 'Join Pool'}
-                onClick={handleSubmit}
-                disabled={
-                  joinPoolLoading ||
-                  !availableAccounts ||
-                  availableAccounts.length === 0
-                }
-              />
+<AuthButton
+  text={
+    isJoined
+      ? 'Joined'
+      : joinPoolLoading
+        ? 'Joining...'
+        : 'Join Pool'
+  }
+  type="submit"
+  disabled={isJoined || joinPoolLoading}
+/>
               <AuthButton
                 outline={true}
                 text="Cancel"

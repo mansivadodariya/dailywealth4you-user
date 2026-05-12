@@ -12,13 +12,71 @@
   z-index: 9999;
   padding: 20px;
 }
+.fullDescription {
+  min-height: 210px;
+  max-height: 190px;
+  overflow-y: auto;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 8px;
+  padding: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #bdbdbd;
+  font-size: 14px;
+  font-weight: 400;
+  font-family: var(--font-manrope);
+  line-height: 1.7;
+
+  padding-right: 6px;
+
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  :global(.ql-container) {
+    border: 0;
+    font-family: var(--font-manrope);
+    font-size: inherit;
+  }
+
+  :global(.ql-editor) {
+    min-height: 0;
+    padding: 0;
+    color: inherit;
+    line-height: inherit;
+  }
+
+  :global(.ql-editor p),
+  :global(.ql-editor ol),
+  :global(.ql-editor ul) {
+    margin-bottom: 8px;
+  }
+
+  :global(.ql-editor p:last-child),
+  :global(.ql-editor ol:last-child),
+  :global(.ql-editor ul:last-child) {
+    margin-bottom: 0;
+  }
+}
 
 .modal {
   background: #060f0f;
   border-radius: 16px;
   width: 100%;
-  max-width: 480px;
-  max-height: 88vh;
+  max-width: 700px;
+  width: 100%;
+  max-height: 92vh;
   overflow-y: auto;
   position: relative;
   scrollbar-width: none;
@@ -86,10 +144,10 @@
 }
 
 .content {
-  padding: 20px 24px 28px;
+  padding: 24px 28px 32px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 24px;
 }
 
 .poolInfo {
@@ -326,4 +384,15 @@
   &:active:not(:disabled) {
     transform: translateY(0);
   }
+}
+
+.inputError {
+  border: 1px solid #ff4d4f;
+}
+
+.errorText {
+  color: #ff4d4f;
+  font-size: 12px;
+  margin-top: 4px;
+  display: block;
 }

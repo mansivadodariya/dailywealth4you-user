@@ -1,4 +1,5 @@
 import { Manrope, Red_Hat_Display } from 'next/font/google';
+import 'react-quill-new/dist/quill.bubble.css';
 import './globals.css';
 import StoreProvider from '@/store/provider';
 import { Toaster } from 'react-hot-toast';

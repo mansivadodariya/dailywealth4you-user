@@ -10,6 +10,8 @@ import JoinPoolModal from '@/components/modal/joinPoolModal';
 import styles from './pollAccount.module.scss';
 import Loader from '@/components/Loader';
 import AuthButton from '@/components/authButton';
+import { getUserFromCookie } from '@/service/cookies';
+import RichTextDescription from '@/components/richTextDescription';
 
 export default function PollAccount() {
   const dispatch = useDispatch();
@@ -18,32 +20,43 @@ export default function PollAccount() {
 
   const [selectedPool, setSelectedPool] = useState(null);
   const [joinedPoolIds, setJoinedPoolIds] = useState(new Set());
+  const user = getUserFromCookie();
+  const userId = user?.id || user?._id;
 
   useEffect(() => {
     dispatch(fetchSocialPools());
-    dispatch(fetchPoolPurchases());
-  }, [dispatch]);
+    if (userId) {
+      dispatch(fetchPoolPurchases(userId));
+    }
+  }, [dispatch, userId]);
 
   // Update joined pool IDs when pool purchases are loaded
   useEffect(() => {
     if (poolPurchases && poolPurchases.length > 0) {
       const ids = new Set(
-        poolPurchases.map((purchase) => purchase.socialPoolId)
+        poolPurchases
+          .map((purchase) => purchase.socialPoolId || purchase?.socialPool?.id)
+          .filter(Boolean)
+          .map((poolId) => String(poolId))
       );
       setJoinedPoolIds(ids);
+    } else {
+      setJoinedPoolIds(new Set());
     }
   }, [poolPurchases]);
 
   const handleJoinSuccess = (poolId) => {
     // Add the pool ID to joined pools
-    setJoinedPoolIds((prev) => new Set([...prev, poolId]));
+    setJoinedPoolIds((prev) => new Set([...prev, String(poolId)]));
     // Refresh pools and purchases
     dispatch(fetchSocialPools());
-    dispatch(fetchPoolPurchases());
+    if (userId) {
+      dispatch(fetchPoolPurchases(userId));
+    }
   };
 
   const isPoolJoined = (poolId) => {
-    return joinedPoolIds.has(poolId);
+    return joinedPoolIds.has(String(poolId));
   };
 
   if (socialPoolsLoading) {
@@ -84,7 +97,7 @@ export default function PollAccount() {
           </div>
         ) : (
           socialPools.map((pool) => {
-            // const joined = isPoolJoined(pool.id);
+            const joined = isPoolJoined(pool.id);
             return (
               <div key={pool.id} className={styles.poolCard}>
                 <div className={styles.cardHeader}>
@@ -100,7 +113,7 @@ export default function PollAccount() {
 
                 <div className={styles.poolStats}>
                   <div className={styles.statItem}>
-                    <span className={styles.statLabel}>Profit %</span>
+                    <span className={styles.statLabel}>Average Profit %</span>
                     <span className={styles.statValue}>
                       {Number(pool.profitPercentage).toFixed(0)}%
                     </span>
@@ -113,16 +126,27 @@ export default function PollAccount() {
                   </div>
                 </div>
 
-                <p className={styles.description}>{pool.description}</p>
+                <div className={styles.descriptionSection}>
+                  <RichTextDescription
+                    value={pool.description}
+                    className={styles.description}
+                  />
+
+                  <button
+                    className={styles.viewBtn}
+                    onClick={() => setSelectedPool(pool)}
+                  >
+                    View
+                  </button>
+                </div>
 
                 <AuthButton
-                  text="Join Pool"
-                  // className={joined ? styles.joinedBtn : styles.joinBtn}
-                  className={styles.joinBtn}
-                  onClick={() => setSelectedPool(pool)}
-                  // disabled={joined}
+                  text={joined ? 'Joined' : 'Join Pool'}
+                  onClick={() => {
+                    if (!joined) setSelectedPool(pool);
+                  }}
+                  disabled={joined}
                 />
-                {/* {joined ? 'Joined' : 'Join Pool'} */}
               </div>
             );
           })
@@ -132,6 +156,7 @@ export default function PollAccount() {
       {selectedPool && (
         <JoinPoolModal
           pool={selectedPool}
+          isJoined={isPoolJoined(selectedPool.id)}
           onClose={() => setSelectedPool(null)}
           onSuccess={handleJoinSuccess}
         />

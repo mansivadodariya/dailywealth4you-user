@@ -8,6 +8,7 @@ import { getUserFromCookie } from '@/service/cookies';
 import styles from './addBalanceModal.module.scss';
 import toast from 'react-hot-toast';
 import AuthButton from '@/components/authButton';
+import RichTextDescription from '@/components/richTextDescription';
 
 const PlusIcon = '/assets/icons/plus.svg';
 const CloseIcon = '/assets/icons/close.svg';
@@ -15,32 +16,34 @@ const CloseIcon = '/assets/icons/close.svg';
 export default function AddBalanceModal({ poolPurchase, onClose, onSuccess }) {
   const dispatch = useDispatch();
   const { updatePoolLoading } = useSelector((state) => state.performance);
-  const { tradingAccounts, tradingAccountsLoading } = useSelector(
-    (state) => state.account
-  );
+  // const { tradingAccounts, tradingAccountsLoading } = useSelector(
+  //   (state) => state.account
+  // );
 
   const [addAmount, setAddAmount] = useState('');
-  const [selectedAccount, setSelectedAccount] = useState(null);
+  // const [selectedAccount, setSelectedAccount] = useState(null);
 
   const user = getUserFromCookie();
   const userId = user?.id || user?._id;
 
+  const walletBalance = Number(user?.walletBalance || 0);
+
   // Fetch trading accounts on mount
-  useEffect(() => {
-    if (userId) {
-      dispatch(fetchTradingAccounts(userId));
-    }
-  }, [dispatch, userId]);
+  // useEffect(() => {
+  //   if (userId) {
+  //     dispatch(fetchTradingAccounts(userId));
+  //   }
+  // }, [dispatch, userId]);
 
   // Find the trading account used for this pool purchase
-  useEffect(() => {
-    if (poolPurchase?.tradingAccountId && tradingAccounts?.length > 0) {
-      const account = tradingAccounts.find(
-        (acc) => acc.id === poolPurchase.tradingAccountId
-      );
-      setSelectedAccount(account || null);
-    }
-  }, [poolPurchase, tradingAccounts]);
+  // useEffect(() => {
+  //   if (poolPurchase?.tradingAccountId && tradingAccounts?.length > 0) {
+  //     const account = tradingAccounts.find(
+  //       (acc) => acc.id === poolPurchase.tradingAccountId
+  //     );
+  //     setSelectedAccount(account || null);
+  //   }
+  // }, [poolPurchase, tradingAccounts]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -50,20 +53,11 @@ export default function AddBalanceModal({ poolPurchase, onClose, onSuccess }) {
       return;
     }
 
-    if (!selectedAccount) {
-      toast.error('Trading account not found.');
-      return;
-    }
-
-    // Validate balance
-    const accountBalance = Number(
-      selectedAccount?.currentBalance || selectedAccount?.balance || 0
-    );
     const requestedAmount = Number(addAmount);
 
-    if (requestedAmount > accountBalance) {
+    if (requestedAmount > walletBalance) {
       toast.error(
-        `Insufficient balance. Available: ${accountBalance.toLocaleString()}`
+        `Insufficient wallet balance. Available: ${walletBalance.toLocaleString()}`
       );
       return;
     }
@@ -117,6 +111,10 @@ export default function AddBalanceModal({ poolPurchase, onClose, onSuccess }) {
             <p className={styles.poolDescription}>
               Add more balance to your pool investment
             </p>
+            <RichTextDescription
+              value={pool.description}
+              className={styles.fullDescription}
+            />
           </div>
 
           <div className={styles.statsGrid}>
@@ -127,7 +125,7 @@ export default function AddBalanceModal({ poolPurchase, onClose, onSuccess }) {
               </span>
             </div>
             <div className={styles.statBox}>
-              <span className={styles.statLabel}>Current Balance</span>
+              <span className={styles.statLabel}>Current Wallet Balance</span>
               <span className={styles.statValue}>
                 ${Number(poolPurchase.currentBalance || 0).toLocaleString()}
               </span>
@@ -136,7 +134,7 @@ export default function AddBalanceModal({ poolPurchase, onClose, onSuccess }) {
 
           <form onSubmit={handleSubmit} className={styles.form}>
             {/* Trading Account Info */}
-            <div className={styles.inputGroup}>
+            {/* <div className={styles.inputGroup}>
               <label className={styles.label}>Trading Account</label>
               {tradingAccountsLoading ? (
                 <div className={styles.loadingText}>Loading account...</div>
@@ -170,7 +168,7 @@ export default function AddBalanceModal({ poolPurchase, onClose, onSuccess }) {
                   exists.
                 </div>
               )}
-            </div>
+            </div> */}
 
             {/* Add Amount Input */}
             <div className={styles.inputGroup}>
@@ -187,16 +185,10 @@ export default function AddBalanceModal({ poolPurchase, onClose, onSuccess }) {
                 min="0.01"
                 step="0.01"
                 required
-                disabled={!selectedAccount}
               />
-              {addAmount && selectedAccount && (
+              {addAmount && (
                 <div className={styles.amountValidation}>
-                  {Number(addAmount) >
-                  Number(
-                    selectedAccount.currentBalance ||
-                      selectedAccount.balance ||
-                      0
-                  ) ? (
+                  {Number(addAmount) > Number(walletBalance) ? (
                     <span className={styles.errorText}>
                       ⚠ Insufficient balance
                     </span>
@@ -222,7 +214,7 @@ export default function AddBalanceModal({ poolPurchase, onClose, onSuccess }) {
               <AuthButton
                 text={updatePoolLoading ? 'Adding...' : 'Add Balance'}
                 onClick={handleSubmit}
-                disabled={updatePoolLoading || !selectedAccount}
+                // disabled={updatePoolLoading || !selectedAccount}
                 icon={PlusIcon}
               />
 

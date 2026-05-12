@@ -13,9 +13,16 @@ import moment from 'moment';
 import toast from 'react-hot-toast';
 import AuthButton from '@/components/authButton';
 import { getUserFromCookie } from '@/service/cookies';
+import { useRouter } from 'next/navigation';
+import RichTextDescription from '@/components/richTextDescription';
+
+const PlusIcon = '/assets/icons/plus.svg';
+const CloseIcon = '/assets/icons/close.svg';
+const NETWORK_OPTIONS = ['TRC20', 'ERC20', 'BEP20'];
 
 export default function MyPools() {
   const dispatch = useDispatch();
+  const router = useRouter();
   const {
     poolPurchases,
     poolPurchasesLoading,
@@ -25,28 +32,66 @@ export default function MyPools() {
 
   const [selectedPoolPurchase, setSelectedPoolPurchase] = useState(null);
   const [deletingPoolId, setDeletingPoolId] = useState(null);
+  const [poolToClose, setPoolToClose] = useState(null);
+  const [walletAddress, setWalletAddress] = useState('');
+  const [network, setNetwork] = useState('');
+  const [networkOpen, setNetworkOpen] = useState(false);
 
   const user = getUserFromCookie();
+  const userId = user?.id || user?._id;
+
   useEffect(() => {
-    dispatch(fetchPoolPurchases(user?.id));
-  }, [dispatch]);
+    if (userId) {
+      dispatch(fetchPoolPurchases(userId));
+    }
+  }, [dispatch, userId]);
 
   const handleAddBalance = (poolPurchase) => {
     setSelectedPoolPurchase(poolPurchase);
   };
 
-  const handleDeletePool = async (poolPurchase) => {
-    const confirmDelete = window.confirm(
-      `Are you sure you want to delete "${poolPurchase?.socialPool?.title || 'this pool'}"? This action cannot be undone.`
-    );
+  const handleClosePoolClick = (poolPurchase) => {
+    setPoolToClose(poolPurchase);
+    setWalletAddress('');
+    setNetwork('');
+    setNetworkOpen(false);
+  };
 
-    if (!confirmDelete) return;
+  const handleClosePoolModal = () => {
+    if (deletePoolLoading) return;
+    setPoolToClose(null);
+    setWalletAddress('');
+    setNetwork('');
+    setNetworkOpen(false);
+  };
 
-    setDeletingPoolId(poolPurchase.id);
+  const handleDeletePool = async (e) => {
+    e.preventDefault();
+
+    if (!poolToClose) return;
+
+    if (walletAddress.trim().length < 10) {
+      toast.error('Please enter a valid crypto wallet address.');
+      return;
+    }
+
+    if (!network) {
+      toast.error('Please select a network.');
+      return;
+    }
+
+    setDeletingPoolId(poolToClose.id);
     try {
-      await dispatch(deletePoolPurchase(poolPurchase.id)).unwrap();
+      await dispatch(
+        deletePoolPurchase({
+          id: poolToClose.id,
+          address: walletAddress.trim(),
+          network,
+        })
+      ).unwrap();
       // Refresh the list after deletion
-      dispatch(fetchPoolPurchases(user?.id));
+      dispatch(fetchPoolPurchases(userId));
+      handleClosePoolModal();
     } catch (error) {
       // Error already handled by toast in the thunk
     } finally {
@@ -56,7 +101,7 @@ export default function MyPools() {
 
   const handleModalSuccess = () => {
     // Refresh the pool purchases after adding balance
-    dispatch(fetchPoolPurchases(user?.id));
+    dispatch(fetchPoolPurchases(userId));
   };
 
   if (poolPurchasesLoading) {
@@ -64,6 +109,10 @@ export default function MyPools() {
       <Loader fullScreen={true} variant="dots" size="large" color="success" />
     );
   }
+
+  const handleClick = () => {
+    router.push('/social/pool-account');
+  };
 
   if (poolPurchasesError) {
     return (
@@ -93,7 +142,7 @@ export default function MyPools() {
         {!poolPurchases || poolPurchases.length === 0 ? (
           <div className={styles.emptyState}>
             <p>You haven't joined any pools yet.</p>
-            <p className={styles.emptyHint}>
+            <p className={styles.emptyHint} onClick={handleClick}>
               Visit Pool Account to join a pool and start trading!
             </p>
           </div>
@@ -135,18 +184,35 @@ export default function MyPools() {
                     <span className={styles.detailLabel}>Joined Date</span>
                     <span className={styles.detailValue}>
                       {purchase.createdAt
-                        ? moment(purchase.createdAt).format('DD MMM YYYY')
+                        ? moment(purchase.createdAt).format( 'DD-MM-YYYY | hh:mm A')
                         : '—'}
                     </span>
                   </div>
                 </div>
 
                 {pool.description && (
-                  <p className={styles.description}>{pool.description}</p>
+               
+                  <div className={styles.descriptionWrapper}>
+             
+                    <RichTextDescription
+                      value={pool.description}
+                      className={styles.description}
+                    />
+
+                    {pool.description.length > 120 && (
+                      <button
+                        className={styles.viewBtn}
+                        onClick={() => handleAddBalance(purchase)}
+                      >
+                        View
+                      </button>
+                    )}
+                  </div>
                 )}
 
                 <div className={styles.actions}>
                   <AuthButton
+                    icon={PlusIcon}
                     text="Add Balance"
                     onClick={() => handleAddBalance(purchase)}
                     disabled={isDeleting}
@@ -154,8 +220,9 @@ export default function MyPools() {
 
                   <AuthButton
                     danger={true}
-                    text={isDeleting ? 'Deleting...' : 'Delete Pool'}
-                    onClick={() => handleDeletePool(purchase)}
+                    icon={CloseIcon}
+                    text={isDeleting ? 'Closing...' : 'Close Pool'}
+                    onClick={() => handleClosePoolClick(purchase)}
                     disabled={isDeleting}
                   />
                 </div>
@@ -171,6 +238,111 @@ export default function MyPools() {
           onClose={() => setSelectedPoolPurchase(null)}
           onSuccess={handleModalSuccess}
         />
+      )}
+
+      {poolToClose && (
+        <div
+          className={styles.closePoolOverlay}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) handleClosePoolModal();
+          }}
+        >
+          <div className={styles.closePoolModal}>
+            <div className={styles.closePoolHeader}>
+              <h2>Close Pool</h2>
+              <p>
+                Are you sure you want to close this pool? Once you submit the
+                close request, it will be reviewed by the admin. After admin
+                approval, your invested amount and profit will be credited back
+                to your wallet.
+              </p>
+            </div>
+
+            <form className={styles.closePoolForm} onSubmit={handleDeletePool}>
+              <div className={styles.fieldGroup}>
+                <label className={styles.fieldLabel}>
+                  Crypto Wallet Address
+                </label>
+                <input
+                  className={styles.walletInput}
+                  type="text"
+                  placeholder="Enter wallet address"
+                  value={walletAddress}
+                  onChange={(e) => setWalletAddress(e.target.value)}
+                  autoComplete="off"
+                  spellCheck={false}
+                />
+              </div>
+
+              <div className={styles.fieldGroup}>
+                <label className={styles.fieldLabel}>Network</label>
+                <div className={styles.networkWrapper}>
+                  <button
+                    type="button"
+                    className={styles.networkSelector}
+                    onClick={() => setNetworkOpen((prev) => !prev)}
+                  >
+                    <span
+                      className={
+                        network
+                          ? styles.networkValue
+                          : `${styles.networkValue} ${styles.networkPlaceholder}`
+                      }
+                    >
+                      {network || 'Select Network'}
+                    </span>
+                    <span
+                      className={
+                        networkOpen
+                          ? `${styles.networkChevron} ${styles.open}`
+                          : styles.networkChevron
+                      }
+                    >
+                      v
+                    </span>
+                  </button>
+
+                  {networkOpen && (
+                    <div className={styles.networkDropdown}>
+                      {NETWORK_OPTIONS.map((option) => (
+                        <button
+                          key={option}
+                          type="button"
+                          className={
+                            network === option
+                              ? `${styles.networkOption} ${styles.selected}`
+                              : styles.networkOption
+                          }
+                          onClick={() => {
+                            setNetwork(option);
+                            setNetworkOpen(false);
+                          }}
+                        >
+                          {option}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className={styles.closePoolActions}>
+                <AuthButton
+                  outline
+                  text="Cancel"
+                  onClick={handleClosePoolModal}
+                  disabled={deletePoolLoading}
+                />
+                <AuthButton
+                  danger
+                  text={deletePoolLoading ? 'Submitting...' : 'Submit Request'}
+                  type="submit"
+                  disabled={deletePoolLoading}
+                />
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );
