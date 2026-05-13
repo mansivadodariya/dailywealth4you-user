@@ -27,6 +27,7 @@ export default function MyPools() {
     poolPurchasesError,
     deletePoolLoading,
   } = useSelector((state) => state.performance);
+  
 
   const [selectedPoolPurchase, setSelectedPoolPurchase] = useState(null);
   const [deletingPoolId, setDeletingPoolId] = useState(null);
@@ -114,7 +115,7 @@ export default function MyPools() {
       </div>
 
       <div className={styles.poolsGrid}>
-        {!poolPurchases || poolPurchases.length === 0 ? (
+        {!poolPurchases || poolPurchases.length === 0  ? (
           <div className={styles.emptyState}>
             <p>You haven't joined any pools yet.</p>
             <p className={styles.emptyHint} onClick={handleClick}>
@@ -122,7 +123,8 @@ export default function MyPools() {
             </p>
           </div>
         ) : (
-          poolPurchases.map((purchase) => {
+          poolPurchases.filter((purchase) => purchase?.status !== 'pending')
+          .map((purchase) => {
             const pool = purchase?.socialPool || {};
             const isDeleting = deletingPoolId === purchase.id;
 

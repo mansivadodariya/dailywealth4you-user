@@ -17,6 +17,7 @@ import {
   GET_ALL_TRANSACTION,
   GET_ALL_DOCUMENT,
   GET_DASHBOARD_STATS,
+  WALLET_HISTORY,
 } from '@/service/url';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import toast from 'react-hot-toast';
@@ -300,6 +301,45 @@ export const fetchTransactions = createAsyncThunk(
   }
 );
 
+// Wallet history (wallet transactions list)
+// payload: { userId, search?, page?, limit?, startDate?, endDate?, status?, sourceType? }
+export const fetchWalletHistory = createAsyncThunk(
+  'account/fetchWalletHistory',
+  async (payload, thunkApi) => {
+    try {
+      const {
+        userId,
+        search,
+        page = 1,
+        limit = 10,
+        startDate,
+        endDate,
+        status,
+        sourceType,
+      } = payload || {};
+
+      const params = new URLSearchParams();
+      if (userId) params.append('userId', userId);
+      if (search) params.append('search', search);
+      if (page) params.append('page', page);
+      if (limit) params.append('limit', limit);
+      if (startDate) params.append('startDate', startDate);
+      if (endDate) params.append('endDate', endDate);
+      if (status) params.append('status', status);
+      if (sourceType) params.append('sourceType', sourceType);
+
+      // Backend: same endpoint, but wallet-history does not force `type=deposit|withdrawal`
+      const response = await api.get(
+        `${WALLET_HISTORY}?${params.toString()}`
+      );
+      return response;
+    } catch (error) {
+      toast.error(error);
+      return thunkApi.rejectWithValue(error);
+    }
+  }
+);
+
 export const fetchAllDocument = createAsyncThunk(
   'account/fetchAllDocument',
   async (userId, thunkApi) => {
@@ -343,6 +383,10 @@ const accountSlice = createSlice({
     transactionsError: null,
     depositsTotalPages: 1,
     withdrawalsTotalPages: 1,
+    walletHistory: [],
+    walletHistoryLoading: false,
+    walletHistoryError: null,
+    walletHistoryTotalPages: 1,
     loading: false,
     tradingAccountsLoading: false,
     faqsLoading: false,
@@ -615,6 +659,27 @@ const accountSlice = createSlice({
       .addCase(fetchTransactions.rejected, (state, action) => {
         state.transactionsLoading = false;
         state.transactionsError = action.payload;
+      })
+      .addCase(fetchWalletHistory.pending, (state) => {
+        state.walletHistoryLoading = true;
+        state.walletHistoryError = null;
+      })
+      .addCase(fetchWalletHistory.fulfilled, (state, action) => {
+        state.walletHistoryLoading = false;
+        const response = action.payload?.payload || action.payload;
+        const data =
+          response?.data || response?.payload?.data || response?.payload || [];
+        const totalPages =
+          response?.totalPages ||
+          response?.payload?.totalPages ||
+          response?.payload?.pagination?.totalPages ||
+          1;
+        state.walletHistory = Array.isArray(data) ? data : [];
+        state.walletHistoryTotalPages = totalPages;
+      })
+      .addCase(fetchWalletHistory.rejected, (state, action) => {
+        state.walletHistoryLoading = false;
+        state.walletHistoryError = action.payload;
       })
       .addCase(fetchAllDocument.pending, (state) => {
         state.kycStatusLoading = true;
