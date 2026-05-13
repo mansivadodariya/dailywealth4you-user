@@ -33,6 +33,17 @@ const getRoleFromResponse = (responseData, user) =>
   responseData?.data?.roleId ??
   getRoleFromUser(user);
 
+const toNumericBalance = (value) => {
+  if (typeof value === 'number') return Number.isFinite(value) ? value : 0;
+  if (typeof value === 'string') {
+    const cleaned = value.replace(/[^0-9.-]/g, '');
+    const parsed = Number(cleaned);
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+};
+
 const initialUser = getUserFromCookie();
 
 export const loginUser = createAsyncThunk(
@@ -158,6 +169,8 @@ const initialState = {
   notifications: [],
   notificationsLoading: false,
   unreadCount: 0,
+  walletBalance: null,
+  userLoading: false,
 };
 
 const loginSlice = createSlice({
@@ -312,17 +325,34 @@ const loginSlice = createSlice({
       .addCase(fetchNotifications.rejected, (state) => {
         state.notificationsLoading = false;
       })
+      .addCase(fetchUserById.pending, (state) => {
+        state.userLoading = true;
+      })
       // fetchUserById — merges full user data (including profileUrl) into state
-      .addCase(fetchUserById.fulfilled, (state, action) => {
-        const payload = action?.payload?.payload || action?.payload;
-        // API returns a list — pick the first item (queried by specific id)
-        const data = payload?.data;
-        const userRecord = Array.isArray(data) ? data[0] : data;
-        if (userRecord && typeof userRecord === 'object') {
-          state.user = { ...state.user, ...userRecord };
-          setAuthCookies({ token: state.token, user: state.user });
-        }
-      });
+   .addCase(fetchUserById.fulfilled, (state, action) => {
+  const payload = action?.payload?.payload || action?.payload;
+
+  const data = payload?.data;
+
+  // ✅ correct: first user record
+  const userRecord = Array.isArray(data) ? data[0] : data;
+
+  if (userRecord) {
+    const normalizedWalletBalance = toNumericBalance(userRecord.walletBalance);
+    state.walletBalance = normalizedWalletBalance;
+
+    state.user = {
+      ...state.user,
+      ...userRecord,
+      walletBalance: normalizedWalletBalance,
+    };
+
+    // setAuthCookies({
+    //   token: state.token,
+    //   user: state.user,
+    // });
+  }
+});
   },
 });
 

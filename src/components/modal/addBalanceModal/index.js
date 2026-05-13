@@ -16,17 +16,20 @@ const CloseIcon = '/assets/icons/close.svg';
 export default function AddBalanceModal({ poolPurchase, onClose, onSuccess }) {
   const dispatch = useDispatch();
   const { updatePoolLoading } = useSelector((state) => state.performance);
+  const { walletBalance } = useSelector((state) => state.login);
+
   // const { tradingAccounts, tradingAccountsLoading } = useSelector(
   //   (state) => state.account
   // );
 
   const [addAmount, setAddAmount] = useState('');
+  const balance = Number(walletBalance) || 0;
   // const [selectedAccount, setSelectedAccount] = useState(null);
 
-  const user = getUserFromCookie();
-  const userId = user?.id || user?._id;
+  // const user = getUserFromCookie();
+  // const userId = user?.id || user?._id;
 
-  const walletBalance = Number(user?.walletBalance || 0);
+  
 
   // Fetch trading accounts on mount
   // useEffect(() => {
@@ -55,9 +58,9 @@ export default function AddBalanceModal({ poolPurchase, onClose, onSuccess }) {
 
     const requestedAmount = Number(addAmount);
 
-    if (requestedAmount > walletBalance) {
+    if (requestedAmount > balance) {
       toast.error(
-        `Insufficient wallet balance. Available: ${walletBalance.toLocaleString()}`
+        `Insufficient wallet balance. Available: ${balance.toLocaleString()}`
       );
       return;
     }
@@ -188,7 +191,7 @@ export default function AddBalanceModal({ poolPurchase, onClose, onSuccess }) {
               />
               {addAmount && (
                 <div className={styles.amountValidation}>
-                  {Number(addAmount) > Number(walletBalance) ? (
+                  {Number(addAmount) > Number(balance) ? (
                     <span className={styles.errorText}>
                       ⚠ Insufficient balance
                     </span>

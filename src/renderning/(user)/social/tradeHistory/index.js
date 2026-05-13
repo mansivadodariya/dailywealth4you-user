@@ -123,7 +123,7 @@ export default function TradeHistory() {
               </h3>
             </div>
             <div className={styles.summaryCard}>
-              <p>Currect Profit </p>
+              <p>Current Value </p>
               <h3>
                 $0
                 {/* {(withdrawals || [])
@@ -143,7 +143,7 @@ export default function TradeHistory() {
           </div>
       <DataTableHeader onSearch={setSearch} onExport={handleExport} />
 
-      <h1 className={styles.heading}>Pool Trades History</h1>
+      {/* <h1 className={styles.heading}>Pool Trades History</h1> */}
 
       <div className={styles.filtersRow}>
         <label className={styles.filterLabel} htmlFor="poolNameFilter">

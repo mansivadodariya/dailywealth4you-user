@@ -14,6 +14,23 @@ import moment from 'moment';
 
 const LIMIT = 10;
 
+const ACCOUNT_MT5 = 'trading_account';
+const ACCOUNT_SOCIAL_POOL = 'social_pool';
+
+function getPoolName(row) {
+  return (
+    row?.socialPool?.title ||
+    row?.socialPool?.name ||
+    row?.pool?.title ||
+    row?.pool?.name ||
+    row?.poolName ||
+    row?.socialPoolName ||
+    row?.social_pool?.title ||
+    row?.social_pool?.name ||
+    '—'
+  );
+}
+
 const DEPOSIT_FILTER_GROUPS = [
   {
     group: 'Select Date Range',
@@ -72,6 +89,7 @@ export default function Deposits() {
     depositsTotalPages,
   } = useSelector((state) => state.account);
 
+  const [accountSource, setAccountSource] = useState('mt5');
   const [currentPage, setCurrentPage] = useState(1);
   const [search, setSearch] = useState('');
   const [activeFilters, setActiveFilters] = useState({});
@@ -80,12 +98,15 @@ export default function Deposits() {
   const debounceRef = useRef(null);
 
   const userId = getUserFromCookie()?.id;
+  const isSocialPool = accountSource === 'socialPool';
+  const accountType = isSocialPool ? ACCOUNT_SOCIAL_POOL : ACCOUNT_MT5;
 
   const loadData = useCallback(
     (page, searchVal, filters) => {
       dispatch(
         fetchTransactions({
           type: 'deposit',
+          accountType,
           userId,
           search: searchVal || undefined,
           page,
@@ -94,19 +115,13 @@ export default function Deposits() {
         })
       );
     },
-    [dispatch, userId]
+    [dispatch, userId, accountType]
   );
 
-  // Initial load
-  useEffect(() => {
-    loadData(1, '', {});
-  }, [loadData]);
-
-  // Re-fetch when page changes (search/filter changes reset page to 1 themselves)
   useEffect(() => {
     loadData(currentPage, search, activeFilters);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage]);
+  }, [loadData, currentPage, accountSource]);
 
   const handleSearch = (val) => {
     setSearch(val);
@@ -124,6 +139,23 @@ export default function Deposits() {
   };
 
   const handleExport = () => {
+    if (isSocialPool) {
+      const rows = (deposits || []).map((row) => ({
+        Date: row?.createdAt
+          ? moment(row.createdAt).format('DD-MM-YYYY | hh:mm A')
+          : '—',
+        'Pool Name': getPoolName(row),
+        'Deposit Amount': row?.amount ?? '—',
+        Status: row?.status || 'pending',
+      }));
+      exportToCsv(
+        rows,
+        ['Date', 'Pool Name', 'Deposit Amount', 'Status'],
+        {},
+        'deposits-social-pool'
+      );
+      return;
+    }
     const rows = (deposits || []).map((row) => ({
       Date: row?.createdAt
         ? moment(row.createdAt).format('DD-MM-YYYY | hh:mm A')
@@ -184,26 +216,82 @@ export default function Deposits() {
         }
       />
 
+      <div className={styles.accountSourceTabs} role="tablist" aria-label="Deposit account type">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={!isSocialPool}
+          className={`${styles.accountSourceTab} ${!isSocialPool ? styles.accountSourceTabActive : ''}`}
+          onClick={() => {
+            setAccountSource('mt5');
+            setCurrentPage(1);
+          }}
+        >
+          MT5 Account
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={isSocialPool}
+          className={`${styles.accountSourceTab} ${isSocialPool ? styles.accountSourceTabActive : ''}`}
+          onClick={() => {
+            setAccountSource('socialPool');
+            setCurrentPage(1);
+          }}
+        >
+          Social Pool Account
+        </button>
+      </div>
+
       <div className={styles.tableContainer}>
         <table className={styles.table}>
           <thead>
             <tr>
               <th>Date</th>
-              <th>MT5 Account</th>
-              <th>Broker</th>
-              <th>Deposit Amount</th>
-              <th>Status</th>
+              {isSocialPool ? (
+                <>
+                  <th>Pool Name</th>
+                  <th>Deposit Amount</th>
+                  <th>Status</th>
+                </>
+              ) : (
+                <>
+                  <th>MT5 Account</th>
+                  <th>Broker</th>
+                  <th>Deposit Amount</th>
+                  <th>Status</th>
+                </>
+              )}
             </tr>
           </thead>
           <tbody>
             {!deposits || deposits.length === 0 ? (
               <tr>
-                <td colSpan="5" className={styles.emptyRow}>
+                <td colSpan={isSocialPool ? 4 : 5} className={styles.emptyRow}>
                   {search || Object.keys(activeFilters).length > 0
                     ? 'No deposits match your filters.'
                     : 'No deposit records found.'}
                 </td>
               </tr>
+            ) : isSocialPool ? (
+              deposits.map((row) => (
+                <tr key={row?.id || row?._id}>
+                  <td>
+                    {row?.createdAt
+                      ? moment(row.createdAt).format('DD-MM-YYYY | hh:mm A')
+                      : '—'}
+                  </td>
+                  <td>{getPoolName(row)}</td>
+                  <td>${row?.amount ?? '—'}</td>
+                  <td>
+                    <span
+                      className={`${styles.badge} ${getStatusClass(row?.status)}`}
+                    >
+                      {row?.status || 'pending'}
+                    </span>
+                  </td>
+                </tr>
+              ))
             ) : (
               deposits.map((row) => (
                 <tr key={row?.id || row?._id}>

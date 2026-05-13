@@ -84,6 +84,7 @@ export default function Withdrawals() {
       dispatch(
         fetchTransactions({
           type: 'withdrawal',
+          accountType: 'trading_account',
           userId,
           search: searchVal || undefined,
           page,

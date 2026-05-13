@@ -232,8 +232,9 @@ export default function Dashboard() {
   const { tradingAccounts, selectedAccountId: selectedAccId } = useSelector(
     (state) => state.account
   );
-  const { user } = useSelector((state) => state.login);
+  const { user, walletBalance } = useSelector((state) => state.login);
   const isIbUser = useSelector((state) => !!state.login.user?.isIbUser);
+  const numericWalletBalance = Number(walletBalance) || 0;
 
   const [showDeposit, setShowDeposit] = useState(false);
   const [showWithdraw, setShowWithdraw] = useState(false);
@@ -243,7 +244,7 @@ export default function Dashboard() {
   const userId = getUserFromCookie()?.id;
   
   // Get wallet balance from user state
-  const walletBalance = user?.walletBalance ?? 0;
+  // const walletBalance = user?.walletBalance ?? 0;
 
   const donutData = [
     { name: 'Investor', value: 50 },
@@ -531,7 +532,7 @@ export default function Dashboard() {
                   style={{ width: 140, height: 36, display: 'inline-block' }}
                 />
               ) : (
-                `$${fmt(walletBalance ?? 0)}`
+                `$${fmt(numericWalletBalance)}`
               )}
             </span>
             <div className={styles.walletActions}>

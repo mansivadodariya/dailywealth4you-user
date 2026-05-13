@@ -201,13 +201,13 @@ export default function IbIncome() {
         <div className={styles.cardItem}>
           <p>Total Lots Traded</p>
           <h3>
-            {ibIncomeLoading ? '...' : (ibIncomeSummary?.totalLots ?? '—')}
+            ${ibIncomeLoading ? '...' : (ibIncomeSummary?.totalLots ?? '—')}
           </h3>
         </div>
         <div className={styles.cardItem}>
           <p>Commission</p>
           <h3>
-            {ibIncomeLoading
+            ${ibIncomeLoading
               ? '...'
               : ibIncomeSummary?.totalCommission != null
                 ? `${ibIncomeSummary.totalCommission}`

@@ -253,7 +253,7 @@ export const createTransaction = createAsyncThunk(
   }
 );
 
-// payload: { type, userId, search?, page?, limit?, startDate?, endDate?, minAmount?, maxAmount?, status?, mt5Account? }
+// payload: { type, userId, accountType?, search?, page?, limit?, startDate?, endDate?, minAmount?, maxAmount?, status?, mt5Account? }
 export const fetchTransactions = createAsyncThunk(
   'account/fetchTransactions',
   async (payload, thunkApi) => {
@@ -261,6 +261,7 @@ export const fetchTransactions = createAsyncThunk(
       const {
         type,
         userId,
+        accountType,
         search,
         page = 1,
         limit = 10,
@@ -275,6 +276,7 @@ export const fetchTransactions = createAsyncThunk(
       const params = new URLSearchParams();
       params.append('type', type);
       if (userId) params.append('userId', userId);
+      if (accountType) params.append('accountType', accountType);
       if (search) params.append('search', search);
       if (page) params.append('page', page);
       if (limit) params.append('limit', limit);
@@ -350,6 +352,7 @@ const accountSlice = createSlice({
     // KYC document status
     kycStatus: undefined,
     kycStatusLoading: false,
+    kycChecked: false,
     // Dashboard stats
     dashboardStats: null,
     dashboardStatsLoading: false,
@@ -615,6 +618,7 @@ const accountSlice = createSlice({
       })
       .addCase(fetchAllDocument.pending, (state) => {
         state.kycStatusLoading = true;
+        
       })
       .addCase(fetchAllDocument.fulfilled, (state, action) => {
         // debugger

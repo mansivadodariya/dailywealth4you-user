@@ -295,6 +295,19 @@ export default function Sidebar() {
                   <RightIcon />
                 </div>
               </div>
+                           <div
+                className={`${styles.subMenuItem} ${pathname === '/transactions/wallet-history' ? styles.subMenuItemActive : ''}`}
+                onClick={() => navigate('/transactions/wallet-history')}
+              >
+                <div className={styles.subMenuConnector} />
+                <div className={styles.subMenuLeft}>
+                  <img src={Deposite} alt="Deposits" />
+                  <span>Wallet History</span>
+                </div>
+                <div className={styles.rightAlignment}>
+                  <RightIcon />
+                </div>
+              </div>
             </div>
           )}
 

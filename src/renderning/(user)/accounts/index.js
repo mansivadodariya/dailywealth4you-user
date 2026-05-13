@@ -8,18 +8,15 @@ import DeleteIcon from '@/icons/deleteIcon';
 import moment from 'moment';
 import { getUserFromCookie } from '@/service/cookies';
 import UseExisting from '@/components/modal/useExisting';
+import CloseWalletRequestModal from '@/components/modal/closeWalletRequestModal';
 import {
   createAccountCloseRequest,
   fetchAccountCloseRequests,
   fetchTradingAccounts,
   fetchAccountHistory,
 } from '@/store/slice/accountSlice';
-import AuthButton from '@/components/authButton';
 import Loader from '@/components/Loader';
 import Pagination from '@/components/pagination';
-import toast from 'react-hot-toast';
-
-const NETWORK_OPTIONS = ['TRC20', 'ERC20', 'BEP20'];
 
 export default function Accounts() {
   const dispatch = useDispatch();
@@ -45,8 +42,6 @@ export default function Accounts() {
   const [networkOpen, setNetworkOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 9;
-
-  console.log('accountCloseRequests', accountToDelete);
 
   const user = getUserFromCookie();
   const userId = user?.id || user?._id;
@@ -84,9 +79,6 @@ export default function Accounts() {
   const handleDeleteClick = (e, account) => {
     e.stopPropagation();
     setAccountToDelete(account);
-    setWalletAddress('');
-    setNetwork('');
-    setNetworkOpen(false);
     setShowDeleteModal(true);
   };
 
@@ -94,25 +86,10 @@ export default function Accounts() {
     if (deleteSubmitting || createAccountCloseLoading) return;
     setShowDeleteModal(false);
     setAccountToDelete(null);
-    setWalletAddress('');
-    setNetwork('');
-    setNetworkOpen(false);
   };
 
-  const handleConfirmDelete = async (e) => {
-    e.preventDefault();
-
+  const handleAccountCloseSubmit = async ({ address, network }) => {
     if (!accountToDelete) return;
-
-    if (walletAddress.trim().length < 10) {
-      toast.error('Please enter a valid crypto wallet address.');
-      return;
-    }
-
-    if (!network) {
-      toast.error('Please select a network.');
-      return;
-    }
 
     setDeleteSubmitting(true);
     try {
@@ -135,7 +112,7 @@ export default function Accounts() {
           broker,
           mt5Account: String(accountToDelete?.mt5LoginId || ''),
           amount,
-          address: walletAddress.trim(),
+          address,
           proofUrl: '',
           network,
           status: 'pending',
@@ -144,11 +121,8 @@ export default function Accounts() {
       ).unwrap();
       setShowDeleteModal(false);
       setAccountToDelete(null);
-      setWalletAddress('');
-      setNetwork('');
-      setNetworkOpen(false);
       dispatch(fetchAccountCloseRequests());
-    } catch (error) {
+    } catch {
       // Error toast is handled by the thunk.
     } finally {
       setDeleteSubmitting(false);
@@ -463,114 +437,14 @@ const isActionDisabled =
         />
       )}
 
-      {showDeleteModal && accountToDelete && (
-        <div
-          className={styles.mt5AccountWrapper}
-          onClick={(e) => {
-            if (e.target === e.currentTarget) handleCloseDeleteModal();
-          }}
-        >
-          <div className={styles.modal}>
-            <div className={styles.modalHeader}>
-              <h2>Close Account</h2>
-              <p>
-                Are you sure you want to close this account? Once you submit the
-                close request, it will be reviewed by the admin. After admin
-                approval, your invested amount and profit will be credited back
-                to your wallet.
-              </p>
-            </div>
-
-            <form className={styles.modalBody} onSubmit={handleConfirmDelete}>
-              <div className={styles.fieldGroup}>
-                <label className={styles.fieldLabel}>
-                  Crypto Wallet Address
-                </label>
-                <input
-                  className={styles.walletInput}
-                  type="text"
-                  placeholder="Enter wallet address"
-                  value={walletAddress}
-                  onChange={(e) => setWalletAddress(e.target.value)}
-                  autoComplete="off"
-                  spellCheck={false}
-                />
-              </div>
-
-              <div className={styles.fieldGroup}>
-                <label className={styles.fieldLabel}>Network</label>
-                <div className={styles.networkWrapper}>
-                  <button
-                    type="button"
-                    className={styles.networkSelector}
-                    onClick={() => setNetworkOpen((prev) => !prev)}
-                  >
-                    <span
-                      className={
-                        network
-                          ? styles.networkValue
-                          : `${styles.networkValue} ${styles.networkPlaceholder}`
-                      }
-                    >
-                      {network || 'Select Network'}
-                    </span>
-                    <span
-                      className={
-                        networkOpen
-                          ? `${styles.networkChevron} ${styles.open}`
-                          : styles.networkChevron
-                      }
-                    >
-                      v
-                    </span>
-                  </button>
-
-                  {networkOpen && (
-                    <div className={styles.networkDropdown}>
-                      {NETWORK_OPTIONS.map((option) => (
-                        <button
-                          key={option}
-                          type="button"
-                          className={
-                            network === option
-                              ? `${styles.networkOption} ${styles.selected}`
-                              : styles.networkOption
-                          }
-                          onClick={() => {
-                            setNetwork(option);
-                            setNetworkOpen(false);
-                          }}
-                        >
-                          {option}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className={styles.actions}>
-                <AuthButton
-                  outline
-                  text="Cancel"
-                  onClick={handleCloseDeleteModal}
-                  disabled={deleteSubmitting || createAccountCloseLoading}
-                />
-                <AuthButton
-                  danger={true}
-                  text={
-                    deleteSubmitting || createAccountCloseLoading
-                      ? 'Submitting...'
-                      : 'Submit Request'
-                  }
-                  type="submit"
-                  disabled={deleteSubmitting || createAccountCloseLoading}
-                />
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <CloseWalletRequestModal
+        open={showDeleteModal && Boolean(accountToDelete)}
+        onClose={handleCloseDeleteModal}
+        title="Close Account"
+        description="Are you sure you want to close this account? Once you submit the close request, it will be reviewed by the admin. After admin approval, your invested amount and profit will be credited back to your wallet."
+        onSubmit={handleAccountCloseSubmit}
+        isSubmitting={deleteSubmitting || createAccountCloseLoading}
+      />
     </>
   );
 }

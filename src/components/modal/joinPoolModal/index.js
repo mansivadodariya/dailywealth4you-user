@@ -19,9 +19,12 @@ export default function JoinPoolModal({
 }) {
   const dispatch = useDispatch();
   const { joinPoolLoading } = useSelector((state) => state.performance);
+  const { walletBalance } = useSelector((state) => state.login);
+  const numericWalletBalance = Number(walletBalance) || 0;
 
   // const [selectedAccountId, setSelectedAccountId] = useState('');
   const [depositAmount, setDepositAmount] = useState('');
+  
   
   // const [selectedAccount, setSelectedAccount] = useState(null);
 
@@ -49,13 +52,13 @@ export default function JoinPoolModal({
   //   }
   // }, [selectedAccountId, tradingAccounts]);
 
-  const walletBalance = Number(user?.walletBalance || 0);
+  // const walletBalance = Number(user?.walletBalance || 0);
   const requestedAmount = Number(depositAmount || 0);
   const minDeposit = Number(pool?.minDeposit || 0);
   const hasInsufficientBalance =
     requestedAmount > 0
-      ? requestedAmount > walletBalance
-      : walletBalance < minDeposit;
+      ? requestedAmount > numericWalletBalance
+      : numericWalletBalance < minDeposit;
   // const handleSubmit = async (e) => {
   //   e.preventDefault();
 
@@ -144,7 +147,7 @@ const formik = useFormik({
         'wallet-balance',
         'Insufficient wallet balance',
         function (value) {
-          return Number(value || 0) <= walletBalance;
+          return Number(value || 0) <= numericWalletBalance;
         }
       ),
   }),
@@ -227,7 +230,7 @@ const formik = useFormik({
             <div className={styles.statBox}>
               <span className={styles.statLabel}>Current Wallet Balance</span>
               <span className={styles.statValue}>
-                ${walletBalance.toLocaleString()}
+                ${numericWalletBalance.toLocaleString()}
               </span>
               {/* <input
                 type="text"

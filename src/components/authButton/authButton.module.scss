@@ -10,16 +10,7 @@
 
       &:hover {
         background-color: transparent;
-      }
-
-      &:disabled {
-        border-color: rgba(142, 142, 142, 0.35);
-        color: #8e8e8e;
-        background: rgba(142, 142, 142, 0.12);
-      }
-    }
-  }
-  &.dangerButton {
+      }  &.dangerButton {
     button {
       background: rgba(255, 77, 77, 0.12);
       border: 1px solid #ff4d4d;
@@ -32,6 +23,13 @@
       }
 
       &:disabled {
+        border-color: rgba(142, 142, 142, 0.35);
+        color: #8e8e8e;
+        background: rgba(142, 142, 142, 0.12);
+      }
+    }
+  }
+        &:disabled {
         border-color: rgba(142, 142, 142, 0.35);
         color: #8e8e8e;
         background: rgba(142, 142, 142, 0.12);
@@ -62,17 +60,6 @@
 
       img {
         transform: translateX(5px);
-      }
-    }
-
-    &:disabled {
-      cursor: not-allowed;
-      opacity: 0.55;
-      background: rgba(142, 142, 142, 0.28);
-      color: #8e8e8e;
-
-      img {
-        transform: none;
       }
     }
 
