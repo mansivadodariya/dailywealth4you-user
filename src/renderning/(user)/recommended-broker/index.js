@@ -6,6 +6,7 @@ import { fetchBrokers } from '@/store/slice/accountSlice';
 import styles from './recommendedBrokers.module.scss';
 import Pagination from '@/components/pagination';
 import Mt5Account from '@/components/modal/Mt5Account';
+import BrokerModal from '@/components/modal/BrokerModal';
 
 const LIMIT = 12;
 
@@ -16,6 +17,7 @@ export default function RecommendedBrokers() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [selectedBroker, setSelectedBroker] = useState(null);
+  const [showBrokerModal, setShowBrokerModal] = useState(false);
   const [showMt5Modal, setShowMt5Modal] = useState(false);
 
   useEffect(() => {
@@ -34,8 +36,11 @@ export default function RecommendedBrokers() {
   const handleBrokerClick = (broker) => {
     // setSelectedBroker(broker);
     // setShowMt5Modal(true);
-    window.open(broker?.redirectURL, '_blank');
+    // window.open(broker?.redirectURL, '_blank')
+    setSelectedBroker(broker);
+    setShowBrokerModal(true);
   };
+
 
   if (loading) {
     return (
@@ -105,6 +110,16 @@ export default function RecommendedBrokers() {
           />
         )}
       </div>
+
+         {showBrokerModal && (
+        <BrokerModal
+          broker={selectedBroker}
+          onClose={() => {
+            setShowBrokerModal(false);
+            setSelectedBroker(null);
+          }}
+        />
+      )}
 
       {showMt5Modal && (
         <Mt5Account

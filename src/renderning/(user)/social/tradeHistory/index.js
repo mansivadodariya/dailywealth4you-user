@@ -75,7 +75,7 @@ export default function TradeHistory() {
         'Profit/Loss': trade?.profitLoss ?? '-',
         Title: pool?.title || '-',
         'Profit %': pool?.profitPercentage ?? '-',
-        'Min Deposit': pool?.minDeposit ?? '-',
+        // 'Min Deposit': pool?.minDeposit ?? '-',
         Status: trade?.isActive ? 'Active' : 'Inactive',
       };
     });
@@ -87,7 +87,7 @@ export default function TradeHistory() {
         'Profit/Loss',
         'Title',
         'Profit %',
-        'Min Deposit',
+        // 'Min Deposit',
         'Status',
       ],
       {},
@@ -130,7 +130,7 @@ export default function TradeHistory() {
           </h3>
         </div>
         <div className={styles.summaryCard}>
-          <p>Total Profit %</p>
+          <p>Total Profit </p>
           <h3>
             $0
             {/* {(withdrawals || [])
@@ -172,7 +172,7 @@ export default function TradeHistory() {
               <th> Profit %</th>
               <th>Profit/Loss</th>
               {/* <th>Profit %</th> */}
-              <th>Min Deposit</th>
+              {/* <th>Min Deposit</th> */}
               <th>Status</th>
             </tr>
           </thead>
@@ -226,11 +226,11 @@ export default function TradeHistory() {
                         ? `${Number(pool.profitPercentage).toFixed(0)}%`
                         : '-'}
                     </td> */}
-                    <td>
+                    {/* <td>
                       {pool?.minDeposit
                         ? `$${Number(pool.minDeposit).toLocaleString()}`
                         : '-'}
-                    </td>
+                    </td> */}
                     <td>
                       <span
                         className={`${styles.statusBadge} ${

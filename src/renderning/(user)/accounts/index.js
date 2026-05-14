@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styles from './accounts.module.scss';
 import EditIcon from '@/icons/editIcon';
@@ -17,6 +17,7 @@ import {
 } from '@/store/slice/accountSlice';
 import Loader from '@/components/Loader';
 import Pagination from '@/components/pagination';
+import { fetchDashboardInvestment } from '@/store/reducers';
 
 export default function Accounts() {
   const dispatch = useDispatch();
@@ -29,6 +30,10 @@ export default function Accounts() {
     accountCloseRequests,
     createAccountCloseLoading,
   } = useSelector((state) => state.account);
+     const {myProfit}= useSelector((state) => state.dashboard);
+
+
+
 
   // null = card view, object = history view for that account
   const [activeAccount, setActiveAccount] = useState(null);
@@ -51,6 +56,7 @@ export default function Accounts() {
     if (userId) {
       dispatch(fetchTradingAccounts({ userId }));
       dispatch(fetchAccountCloseRequests());
+ 
     }
   }, [dispatch, userId]);
 
@@ -99,9 +105,9 @@ export default function Accounts() {
           : accountToDelete?.broker || accountToDelete?.brokerName || '';
       const amount = String(
         accountToDelete?.currentBalance ||
-          accountToDelete?.sizeOfAccount ||
-          accountToDelete?.currentBalance ||
-          0
+        accountToDelete?.sizeOfAccount ||
+        accountToDelete?.currentBalance ||
+        0
       );
 
       await dispatch(
@@ -137,6 +143,35 @@ export default function Accounts() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
+    const allAccounts = tradingAccounts || [];
+  const totalPages = Math.ceil(allAccounts.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const accountsData = allAccounts.slice(startIndex, endIndex);
+  const closeRequestsByAccountId = new Map(
+    (accountCloseRequests || [])
+      .filter((request) => request?.type === 'trading_account')
+      .map((request) => [
+        String(request?.tradingAccountId || request?.tradingAccount?.id || ''),
+        request,
+      ])
+  );
+  const accountsWithProfit = useMemo(() => {
+    return accountsData.map((item) => {
+      const current = Number(item?.currentBalance || 0);
+      const size = Number(item?.sizeOfAccount || 0);
+
+      const profitPercentage =
+        size > 0
+          ? ((current - size) / size) * 100
+          : 0;
+
+      return {
+        ...item,
+        profitPercentage,
+      };
+    });
+  }, [accountsData]);
 
   if (tradingAccountsLoading) {
     return (
@@ -155,19 +190,7 @@ export default function Accounts() {
   }
 
   // Client-side pagination
-  const allAccounts = tradingAccounts || [];
-  const totalPages = Math.ceil(allAccounts.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const accountsData = allAccounts.slice(startIndex, endIndex);
-  const closeRequestsByAccountId = new Map(
-    (accountCloseRequests || [])
-      .filter((request) => request?.type === 'trading_account')
-      .map((request) => [
-        String(request?.tradingAccountId || request?.tradingAccount?.id || ''),
-        request,
-      ])
-  );
+
 
   const getAccountCloseRequest = (accountId) => {
     return closeRequestsByAccountId.get(String(accountId));
@@ -237,8 +260,8 @@ export default function Accounts() {
                       <td>
                         {trade?.createdAt
                           ? moment(trade.tradingDate).format(
-                              'DD-MM-YYYY | hh:mm A'
-                            )
+                            'DD-MM-YYYY | hh:mm A'
+                          )
                           : '—'}
                       </td>
                       <td>{trade?.orderId || '—'}</td>
@@ -294,7 +317,7 @@ export default function Accounts() {
     <>
       <div className={styles.accountsWrapper}>
         <div className={styles.accountsGrid}>
-          {accountsData.map((item) => {
+          {accountsWithProfit.map((item) => {
             const closeRequest = getAccountCloseRequest(item?.id);
             const closeBadge = getAccountCloseBadge(closeRequest);
             const isActionDisabled =
@@ -302,6 +325,12 @@ export default function Accounts() {
               ['pending', 'approved', 'approve'].includes(
                 String(closeRequest?.status || '').toLowerCase()
               );
+
+            // const currentBalance = item?.currentBalance || item?.balance || 0;
+            // const sizeOfAcc = item?.sizeOfAccount || 1; // Fallback to 1 to prevent division by zero
+            // const calculatedProfit = ((currentBalance - (item?.sizeOfAccount || 0)) / sizeOfAcc) * 100;
+            // const profitSign = calculatedProfit >= 0 ? '+' : '';
+
             return (
               <div
                 key={item?.id}
@@ -321,9 +350,8 @@ export default function Accounts() {
                     </div>
                     <div className={styles.buttonContainer}>
                       <div
-                        className={`${styles.editBtn} ${
-                          isActionDisabled ? styles.disabledAction : ''
-                        }`}
+                        className={`${styles.editBtn} ${isActionDisabled ? styles.disabledAction : ''
+                          }`}
                         onClick={(e) => {
                           e.stopPropagation();
 
@@ -336,9 +364,8 @@ export default function Accounts() {
                         <EditIcon />
                       </div>
                       <div
-                        className={`${styles.deleteBtn} ${
-                          isActionDisabled ? styles.disabledAction : ''
-                        }`}
+                        className={`${styles.deleteBtn} ${isActionDisabled ? styles.disabledAction : ''
+                          }`}
                         onClick={(e) => {
                           if (isActionDisabled) return;
                           handleDeleteClick(e, item);
@@ -350,9 +377,18 @@ export default function Accounts() {
                   </div>
                   <h3>
                     ${(item?.sizeOfAccount || 0).toLocaleString()}
-                    <span className={styles.profitText}>
-                      (+ ${(item?.currentDeposit || 0).toLocaleString()})
-                    </span>
+                    <span
+  className={styles.profitText}
+  style={{
+    color:
+      item?.profitPercentage >= 0
+        ? '#02DF82'
+        : '#FF4D4D',
+  }}
+>
+  ({item?.profitPercentage >= 0 ? '+' : ''}
+  {item?.profitPercentage.toFixed(2)}%)
+</span>
                   </h3>
                 </div>
 
@@ -381,10 +417,10 @@ export default function Accounts() {
                     <span
                       className={styles.value}
                       style={{
-                        color: (item?.pnl || 0) >= 0 ? '#02DF82' : '#FF4D4D',
+                        color: (myProfit || 0) >= 0 ? '#02DF82' : '#FF4D4D',
                       }}
                     >
-                      {item?.pnl || '0%'}
+                      {myProfit?.toFixed(2) || '0'}
                     </span>
                   </div>
                 </div>

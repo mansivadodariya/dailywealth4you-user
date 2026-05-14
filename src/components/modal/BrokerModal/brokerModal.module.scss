@@ -1,0 +1,208 @@
+@use '../../../scss/main.scss' as *;
+@use '../../../scss/breakpoints/breakpoints.scss' as *;
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(3, 15, 15, 0.65);
+  backdrop-filter: blur(12px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  padding: 20px;
+}
+
+.modal {
+  background: #0d1717;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 460px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+}
+
+/* ── Header ── */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 20px 18px;
+}
+
+.title {
+  color: #fafafa;
+  font-size: 18px;
+  font-weight: 700;
+  font-family: var(--font-red-hat-display);
+  margin: 0;
+}
+
+.closeBtn {
+  background: transparent;
+  border: none;
+  color: #8e8e8e;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px 6px;
+  line-height: 1;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: #fafafa;
+  }
+}
+
+.divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.07);
+  margin: 0;
+}
+
+/* ── Body ── */
+.body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── Field group ── */
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  color: #fafafa;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-manrope);
+}
+
+/* ── Image banner ── */
+.imageBanner {
+  width: 100%;
+  height: 160px;
+  border-radius: 10px;
+  border: 1.5px dashed rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.03);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+}
+
+.imageFallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  span {
+    color: rgba(255, 255, 255, 0.25);
+    font-size: 14px;
+    font-family: var(--font-manrope);
+    font-weight: 500;
+  }
+}
+
+/* ── Value box (read-only field style) ── */
+.valueBox {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #fafafa;
+  font-size: 14px;
+  font-family: var(--font-manrope);
+  font-weight: 400;
+  line-height: 1.5;
+  box-sizing: border-box;
+  word-break: break-word;
+}
+
+.descBox {
+  color: #9e9e9e;
+  min-height: 72px;
+}
+
+.urlLink {
+  color: #02df82;
+  text-decoration: none;
+  font-size: 14px;
+  font-family: var(--font-manrope);
+  word-break: break-all;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.placeholder {
+  color: rgba(255, 255, 255, 0.2);
+  font-size: 14px;
+  font-family: var(--font-manrope);
+}
+
+/* ── Buttons ── */
+.btnGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.viewBtn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  background: #02df82;
+  border: none;
+  color: #030f0f;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: var(--font-manrope);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  letter-spacing: 0.2px;
+
+  &:hover {
+    background: #02c070;
+    box-shadow: 0 6px 20px rgba(2, 223, 130, 0.3);
+  }
+
+  &:active {
+    transform: scale(0.99);
+  }
+}
+
+.cancelBtn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  background: transparent;
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  color: #fafafa;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: var(--font-manrope);
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.22);
+  }
+}

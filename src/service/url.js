@@ -1,4 +1,5 @@
 export const SIGNUP = '/user/signup';
+export const VERIFY_REFERRAL_CODE = '/user/verifyReferralCode';
 export const LOGIN = '/user/login';
 export const ADMIN_LOGIN = '/user/adminLogin';
 export const SEND_OTP = '/user/send-otp';

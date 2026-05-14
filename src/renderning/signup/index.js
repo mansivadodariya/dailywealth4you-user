@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './signup.module.scss';
 import AuthSlider from '@/components/authSlider';
 import Input from '@/components/input';
@@ -12,6 +12,8 @@ import * as Yup from 'yup';
 import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
 import toast from 'react-hot-toast';
+import api from '@/service/api';
+import { VERIFY_REFERRAL_CODE } from '@/service/url';
 
 const EyeIcon = '/assets/icons/eye.svg';
 const LockIcon = '/assets/icons/lock.svg';
@@ -67,6 +69,31 @@ const SignupSchema = Yup.object().shape({
     .required('Please enter your confirm password!'),
 });
 
+function extractReferrerName(response) {
+  const root =
+    response?.payload?.data ??
+    response?.payload ??
+    response?.data ??
+    response;
+  const data =
+    (typeof root === 'object' && root !== null && !Array.isArray(root)
+      ? root?.data ?? root?.user ?? root?.referrer ?? root
+      : null) ?? root;
+  if (typeof data === 'string') return data.trim() || null;
+  if (!data || typeof data !== 'object') return null;
+  const direct =
+    data.name ??
+    data.fullName ??
+    data.referrerName ??
+    data.displayName ??
+    data.username;
+  if (direct) return String(direct).trim();
+  const fn = data.firstName ?? data.first_name;
+  const ln = data.lastName ?? data.last_name;
+  const combined = [fn, ln].filter(Boolean).join(' ').trim();
+  return combined || null;
+}
+
 export default function Signup() {
   const dispatch = useDispatch();
   const router = useRouter();
@@ -78,6 +105,9 @@ export default function Signup() {
 
   const [agreed, setAgreed] = useState(false);
   const [localError, setLocalError] = useState('');
+  const [referralVerifyLoading, setReferralVerifyLoading] = useState(false);
+  const [referrerName, setReferrerName] = useState(null);
+  const [referralVerifyError, setReferralVerifyError] = useState(null);
 
   const formik = useFormik({
     initialValues: {
@@ -102,6 +132,43 @@ export default function Signup() {
       }
     },
   });
+
+  useEffect(() => {
+    const code = formik.values.referredBy?.trim() ?? '';
+    if (!code) {
+      setReferrerName(null);
+      setReferralVerifyError(null);
+      setReferralVerifyLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+    const handle = setTimeout(async () => {
+      setReferralVerifyLoading(true);
+      setReferralVerifyError(null);
+      try {
+        const res = await api.get(
+          `${VERIFY_REFERRAL_CODE}?referralCode=${encodeURIComponent(code)}`
+        );
+        if (cancelled) return;
+        const name = extractReferrerName(res);
+        setReferrerName(name);
+      } catch (err) {
+        if (cancelled) return;
+        setReferrerName(null);
+        setReferralVerifyError(
+          typeof err === 'string' ? err : 'Invalid referral code.'
+        );
+      } finally {
+        if (!cancelled) setReferralVerifyLoading(false);
+      }
+    }, 500);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(handle);
+    };
+  }, [formik.values.referredBy]);
 
   const message = localError || error;
 
@@ -207,23 +274,53 @@ export default function Signup() {
                     </span>
                   )}
               </div>
-              <div>
+              <div className={styles.referralField}>
                 <Input
-                  label="Referral Code "
+                  label="Referral code"
                   type="text"
-                  // leftIcon={LockIcon}
-                  // rightIcon={EyeIcon}
                   spacingRemove
                   name="referredBy"
                   value={formik.values.referredBy}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                 />
-                {/* {formik.touched.referredBy && formik.errors.referredBy && (
-                  <span className={styles.error}>
-                    {formik.errors.referredBy}
-                  </span>
-                )} */}
+                <div className={styles.referralHint} aria-live="polite">
+                  {referralVerifyLoading && (
+                    <div className={styles.referralBannerMuted}>
+                      <span className={styles.referralSpinner} aria-hidden />
+                      <span className={styles.referralMutedText}>
+                        Verifying code…
+                      </span>
+                    </div>
+                  )}
+                  {!referralVerifyLoading &&
+                    referrerName &&
+                    !referralVerifyError && (
+                      <div className={styles.referralBannerSuccess} role="status">
+                        <span className={styles.referralCheckIcon} aria-hidden>
+                          ✓
+                        </span>
+                        <div className={styles.referralBannerBody}>
+                          <span className={styles.referralBannerLabel}>
+                            Referrer User
+                          </span>
+                          <span className={styles.referralBannerName}>
+                            {referrerName}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  {!referralVerifyLoading && referralVerifyError && (
+                    <div className={styles.referralBannerError} role="alert">
+                      <span className={styles.referralErrorIcon} aria-hidden>
+                        !
+                      </span>
+                      <span className={styles.referralErrorText}>
+                        {referralVerifyError}
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
               <div className={styles.checkboxdesign}>
                 <label>
@@ -246,7 +343,7 @@ export default function Signup() {
                 text={isLoading ? 'Please wait...' : 'Continue'}
                 icon={RightIcon}
                 type="submit"
-                disabled={isLoading}
+                // disabled={isLoading}
               />
             </div>
           </form>

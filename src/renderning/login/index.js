@@ -30,7 +30,7 @@ const validationSchema = Yup.object({
   email: Yup.string()
     .email('Invalid email')
     .required('Please enter a valid email'),
-  password: Yup.string().required('Please enter a valid passord'),
+  password: Yup.string().required('Please enter a valid password'),
 });
 export default function Login() {
   const dispatch = useDispatch();
@@ -125,7 +125,7 @@ export default function Login() {
                 text={isLoading ? 'Please wait...' : 'Sign in'}
                 icon={RightIcon}
                 type="submit"
-                disabled={isLoading}
+                // disabled={isLoading}
               />
             </div>
           </form>

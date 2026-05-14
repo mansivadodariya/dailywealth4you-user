@@ -35,6 +35,8 @@ export default function MyPools() {
   const user = getUserFromCookie();
   const userId = user?.id || user?._id;
 
+  
+
   useEffect(() => {
     if (userId) {
       dispatch(fetchPoolPurchases(userId));
@@ -123,10 +125,12 @@ export default function MyPools() {
           </div>
         ) : (
           poolPurchases
-            .filter((purchase) => purchase?.status !== 'pending')
             .map((purchase) => {
               const pool = purchase?.socialPool || {};
               const isDeleting = deletingPoolId === purchase.id;
+
+  const isPending =
+    String(purchase?.status || '').toLowerCase() === 'pending';
 
               return (
                 <div key={purchase.id} className={styles.poolCard}>
@@ -180,6 +184,7 @@ export default function MyPools() {
                         <button
                           className={styles.viewBtn}
                           onClick={() => handleAddBalance(purchase)}
+                          disabled={isPending}
                         >
                           View
                         </button>
@@ -187,22 +192,30 @@ export default function MyPools() {
                     </div>
                   )}
 
-                  <div className={styles.actions}>
-                    <AuthButton
-                      icon={PlusIcon}
-                      text="Add Balance"
-                      onClick={() => handleAddBalance(purchase)}
-                      disabled={isDeleting}
-                    />
+             <div className={styles.actions}>
+  {isPending ? (
+    <div className={styles.pendingApproval}>
+      Approval Pending
+    </div>
+  ) : (
+    <>
+      <AuthButton
+        icon={PlusIcon}
+        text="Add Balance"
+        onClick={() => handleAddBalance(purchase)}
+        disabled={isDeleting}
+      />
 
-                    <AuthButton
-                      danger={true}
-                      icon={CloseIcon}
-                      text={isDeleting ? 'Closing...' : 'Close Pool'}
-                      onClick={() => handleClosePoolClick(purchase)}
-                      disabled={isDeleting}
-                    />
-                  </div>
+      <AuthButton
+        danger={true}
+        icon={CloseIcon}
+        text={isDeleting ? 'Closing...' : 'Close Pool'}
+        onClick={() => handleClosePoolClick(purchase)}
+        disabled={isDeleting}
+      />
+    </>
+  )}
+</div>
                 </div>
               );
             })

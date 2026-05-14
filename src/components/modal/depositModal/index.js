@@ -45,6 +45,7 @@ export default function DepositModal({ onClose, activeAccount, onSuccess }) {
         broker,
         amount: String(values.amount),
         type: 'deposit',
+        accountType:"trading_account"
       };
       try {
         await dispatch(createTransaction(payload)).unwrap();

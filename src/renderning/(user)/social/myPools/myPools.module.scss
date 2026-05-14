@@ -21,6 +21,20 @@
   font-family: var(--font-red-hat-display);
   margin: 0;
 }
+.pendingApproval {
+  width: 100%;
+  padding: 14px;
+  border-radius: 8px;
+  background: rgba(142, 142, 142, 0.12);
+  border: 1px solid rgba(142, 142, 142, 0.35);
+  color: #8e8e8e;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
 .subtitle {
   color: #8e8e8e;
@@ -202,7 +216,7 @@
 }
 
 .actions {
-  display: grid;
+  display: flex;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
   margin-top: 8px;

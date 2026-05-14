@@ -17,20 +17,6 @@ const LIMIT = 10;
 const ACCOUNT_MT5 = 'trading_account';
 const ACCOUNT_SOCIAL_POOL = 'social_pool';
 
-function getPoolName(row) {
-  return (
-    row?.socialPool?.title ||
-    row?.socialPool?.name ||
-    row?.pool?.title ||
-    row?.pool?.name ||
-    row?.poolName ||
-    row?.socialPoolName ||
-    row?.social_pool?.title ||
-    row?.social_pool?.name ||
-    '—'
-  );
-}
-
 const DEPOSIT_FILTER_GROUPS = [
   {
     group: 'Select Date Range',
@@ -285,7 +271,8 @@ export default function Deposits() {
                       ? moment(row.createdAt).format('DD-MM-YYYY | hh:mm A')
                       : '—'}
                   </td>
-                  <td>{getPoolName(row)}</td>
+                  <td>{row?.socialPool?.title ||
+                  '—'}</td>
                   <td>${row?.amount ?? '—'}</td>
                   <td>
                     <span

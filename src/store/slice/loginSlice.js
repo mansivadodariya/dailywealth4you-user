@@ -171,6 +171,7 @@ const initialState = {
   unreadCount: 0,
   walletBalance: null,
   userLoading: false,
+  profileUrl: null,
 };
 
 const loginSlice = createSlice({
@@ -342,6 +343,7 @@ const loginSlice = createSlice({
             userRecord.walletBalance
           );
           state.walletBalance = normalizedWalletBalance;
+          state.profileUrl = userRecord?.profileUrl;
 
           state.user = {
             ...state.user,

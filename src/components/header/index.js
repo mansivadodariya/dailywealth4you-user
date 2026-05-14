@@ -15,7 +15,7 @@ import {
   fetchTradingAccounts,
   setSelectedAccountId as setSelectedAccountIdAction,
 } from '@/store/slice/accountSlice';
-import { logout, fetchNotifications } from '@/store/slice/loginSlice';
+import { logout, fetchNotifications, fetchUserById } from '@/store/slice/loginSlice';
 import { getUserFromCookie, clearAuthCookies } from '@/service/cookies';
 
 import AuthButton from '../authButton';
@@ -77,6 +77,7 @@ export default function Header() {
     kycStatus,
     kycStatusLoading,
   } = useSelector((state) => state.account);
+  const {profileUrl} = useSelector((state) => state.login);
 
   const { unreadCount } = useSelector((state) => state.login);
   const isDashboard = pathname === '/dashboard' || pathname === '/';
@@ -93,10 +94,10 @@ export default function Header() {
   const isKycVerified = kycStatus === 'approved';
 
   // Resolve profile image — check all common field names the API might return
-  const profileUrl =
-    currentUser?.profileUrl && currentUser.profileUrl.trim() !== ''
-      ? currentUser.profileUrl
-      : null;
+  // const profileUrl =
+  //   currentUser?.profileUrl && currentUser.profileUrl.trim() !== ''
+  //     ? currentUser.profileUrl
+  //     : null;
 
   // ── Account breadcrumb ────────────────────────────────────────────────────
   useEffect(() => {
@@ -120,6 +121,7 @@ export default function Header() {
   // ── Fetch initial notifications on mount ──────────────────────────────────
   useEffect(() => {
     dispatch(fetchNotifications());
+    dispatch(fetchUserById(currentUser?.id));
   }, [dispatch]);
 
   // ── Outside click handler ─────────────────────────────────────────────────
@@ -327,7 +329,7 @@ export default function Header() {
                 setIsNotifOpen(false);
               }}
             >
-              {profileUrl ? (
+              {profileUrl && profileUrl.trim() !== '' ? (
                 <img
                   src={profileUrl}
                   alt={fullName}

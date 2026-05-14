@@ -30,6 +30,8 @@ import {
   YAxis,
   Tooltip,
   Cell,
+  AreaChart,          // ← add
+  Area,               // ← add
 } from 'recharts';
 
 const PlusIcon = '/assets/icons/plus.svg';
@@ -130,12 +132,25 @@ function LineChart({ data = [] }) {
     return <div className={styles.chartEmpty}>No data available</div>;
   }
 
+  const firstValue = data[0]?.value || 0;
+  const lastValue = data[data.length - 1]?.value || 0;
+  const isPositive = lastValue >= firstValue;
+  const strokeColor = isPositive ? '#02df82' : '#ff4d4d';
+  const gradientId = isPositive ? 'greenGradient' : 'redGradient';
+  const gradientColor = isPositive ? '#02df82' : '#ff4d4d';
+
   return (
     <ResponsiveContainer width="100%" height={340}>
-      <RechartsLineChart
+      <AreaChart
         data={data}
         margin={{ top: 20, right: 30, bottom: 20, left: 20 }}
       >
+        <defs>
+          <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={gradientColor} stopOpacity={0.3} />
+            <stop offset="100%" stopColor={gradientColor} stopOpacity={0} />
+          </linearGradient>
+        </defs>
         <XAxis
           dataKey="label"
           stroke="transparent"
@@ -151,15 +166,16 @@ function LineChart({ data = [] }) {
           position={{ y: 15 }}
           offset={20}
         />
-        <Line
+        <Area
           type="linear"
           dataKey="value"
-          stroke="#02df82"
+          stroke={strokeColor}
           strokeWidth={2.5}
+          fill={`url(#${gradientId})`}
           dot={false}
           activeDot={false}
         />
-      </RechartsLineChart>
+      </AreaChart>
     </ResponsiveContainer>
   );
 }

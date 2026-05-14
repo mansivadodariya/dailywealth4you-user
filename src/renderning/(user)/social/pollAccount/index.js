@@ -13,13 +13,27 @@ import AuthButton from '@/components/authButton';
 import { getUserFromCookie } from '@/service/cookies';
 import RichTextDescription from '@/components/richTextDescription';
 
+// ✅ Status se button ka config return karta hai
+const getButtonConfig = (status) => {
+  switch (status) {
+    case 'pending':
+      return { text: 'Requested', disabled: true };
+    case 'approved':
+      return { text: 'Joined', disabled: true };
+    case 'rejected':
+      return { text: 'Rejected', disabled: true };
+    default:
+      // null ya koi bhi unknown status → Join Pool
+      return { text: 'Join Pool', disabled: false };
+  }
+};
+
 export default function PollAccount() {
   const dispatch = useDispatch();
   const { socialPools, socialPoolsLoading, socialPoolsError, poolPurchases } =
     useSelector((state) => state.performance);
 
   const [selectedPool, setSelectedPool] = useState(null);
-  const [joinedPoolIds, setJoinedPoolIds] = useState(new Set());
   const user = getUserFromCookie();
   const userId = user?.id || user?._id;
 
@@ -30,33 +44,11 @@ export default function PollAccount() {
     }
   }, [dispatch, userId]);
 
-  // Update joined pool IDs when pool purchases are loaded
-  useEffect(() => {
-    if (poolPurchases && poolPurchases.length > 0) {
-      const ids = new Set(
-        poolPurchases
-          .map((purchase) => purchase.socialPoolId || purchase?.socialPool?.id)
-          .filter(Boolean)
-          .map((poolId) => String(poolId))
-      );
-      setJoinedPoolIds(ids);
-    } else {
-      setJoinedPoolIds(new Set());
-    }
-  }, [poolPurchases]);
-
   const handleJoinSuccess = (poolId) => {
-    // Add the pool ID to joined pools
-    setJoinedPoolIds((prev) => new Set([...prev, String(poolId)]));
-    // Refresh pools and purchases
     dispatch(fetchSocialPools());
     if (userId) {
       dispatch(fetchPoolPurchases(userId));
     }
-  };
-
-  const isPoolJoined = (poolId) => {
-    return joinedPoolIds.has(String(poolId));
   };
 
   if (socialPoolsLoading) {
@@ -97,7 +89,9 @@ export default function PollAccount() {
           </div>
         ) : (
           socialPools.map((pool) => {
-            const joined = isPoolJoined(pool.id);
+            // ✅ pool.status se seedha button config lo
+            const { text: btnText, disabled: btnDisabled } = getButtonConfig(pool.status);
+
             return (
               <div key={pool.id} className={styles.poolCard}>
                 <div className={styles.cardHeader}>
@@ -141,11 +135,12 @@ export default function PollAccount() {
                 </div>
 
                 <AuthButton
-                  text={joined ? 'Joined' : 'Join Pool'}
+                  text={btnText}
                   onClick={() => {
-                    if (!joined) setSelectedPool(pool);
+                    // ✅ Sirf Join Pool wala button kaam karega
+                    if (!btnDisabled) setSelectedPool(pool);
                   }}
-                  disabled={joined}
+                  disabled={btnDisabled}
                 />
               </div>
             );
@@ -156,7 +151,7 @@ export default function PollAccount() {
       {selectedPool && (
         <JoinPoolModal
           pool={selectedPool}
-          isJoined={isPoolJoined(selectedPool.id)}
+          isJoined={selectedPool.status === 'approved'}
           onClose={() => setSelectedPool(null)}
           onSuccess={handleJoinSuccess}
         />

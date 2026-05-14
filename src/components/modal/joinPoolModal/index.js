@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { joinSocialPool } from '@/store/slice/performanceSlice';
 import { getUserFromCookie } from '@/service/cookies';
@@ -10,6 +10,7 @@ import AuthButton from '@/components/authButton';
 import RichTextDescription from '@/components/richTextDescription';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import { fetchUserById } from '@/store/reducers';
 
 export default function JoinPoolModal({
   pool,
@@ -30,6 +31,13 @@ export default function JoinPoolModal({
   const user = getUserFromCookie();
 
   const userId = user?.id || user?._id;
+
+   useEffect(() => {
+    if (userId) {
+      dispatch(fetchUserById(userId));
+ 
+     }
+  }, [dispatch, userId]);
 
   // Fetch trading accounts and pool purchases on mount
   // useEffect(() => {
