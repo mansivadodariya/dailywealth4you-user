@@ -78,13 +78,11 @@ export default function Header() {
     kycStatusLoading,
   } = useSelector((state) => state.account);
 
-
   const { unreadCount } = useSelector((state) => state.login);
   const isDashboard = pathname === '/dashboard' || pathname === '/';
   const isAccountsPage = pathname === '/accounts';
 
   const cookieUser = getUserFromCookie();
-
 
   const currentUser = cookieUser;
 

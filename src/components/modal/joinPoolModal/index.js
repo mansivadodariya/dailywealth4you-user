@@ -24,8 +24,7 @@ export default function JoinPoolModal({
 
   // const [selectedAccountId, setSelectedAccountId] = useState('');
   const [depositAmount, setDepositAmount] = useState('');
-  
-  
+
   // const [selectedAccount, setSelectedAccount] = useState(null);
 
   const user = getUserFromCookie();
@@ -128,58 +127,58 @@ export default function JoinPoolModal({
   //     // Error already handled by toast in the thunk
   //   }
   // };
-const formik = useFormik({
-  initialValues: {
-    depositAmount: '',
-  },
+  const formik = useFormik({
+    initialValues: {
+      depositAmount: '',
+    },
 
-  validationSchema: Yup.object({
-    depositAmount: Yup.number()
-      .typeError('Please enter deposit amount')
-      .required('Please enter deposit amount')
-      .min(
-        Number(pool?.minDeposit || 0),
-        `Minimum deposit is $${Number(
-          pool?.minDeposit || 0
-        ).toLocaleString()}`
-      )
-      .test(
-        'wallet-balance',
-        'Insufficient wallet balance',
-        function (value) {
-          return Number(value || 0) <= numericWalletBalance;
-        }
-      ),
-  }),
+    validationSchema: Yup.object({
+      depositAmount: Yup.number()
+        .typeError('Please enter deposit amount')
+        .required('Please enter deposit amount')
+        .min(
+          Number(pool?.minDeposit || 0),
+          `Minimum deposit is $${Number(
+            pool?.minDeposit || 0
+          ).toLocaleString()}`
+        )
+        .test(
+          'wallet-balance',
+          'Insufficient wallet balance',
+          function (value) {
+            return Number(value || 0) <= numericWalletBalance;
+          }
+        ),
+    }),
 
-  onSubmit: async (values) => {
-    if (!userId) {
-      toast.error('User not found. Please login again.');
-      return;
-    }
+    onSubmit: async (values) => {
+      if (!userId) {
+        toast.error('User not found. Please login again.');
+        return;
+      }
 
-    if (isJoined) {
-      toast.error('You have already joined this pool.');
-      return;
-    }
+      if (isJoined) {
+        toast.error('You have already joined this pool.');
+        return;
+      }
 
-    const payload = {
-      userId,
-      socialPoolId: pool.id,
-      depositAmount: Number(values.depositAmount),
-    };
+      const payload = {
+        userId,
+        socialPoolId: pool.id,
+        depositAmount: Number(values.depositAmount),
+      };
 
-    try {
-      await dispatch(joinSocialPool(payload)).unwrap();
+      try {
+        await dispatch(joinSocialPool(payload)).unwrap();
 
-      if (onSuccess) onSuccess(pool.id);
+        if (onSuccess) onSuccess(pool.id);
 
-      onClose();
-    } catch (error) {
-      // handled in thunk
-    }
-  },
-});
+        onClose();
+      } catch (error) {
+        // handled in thunk
+      }
+    },
+  });
   if (!pool) return null;
 
   return (
@@ -298,36 +297,35 @@ const formik = useFormik({
 
             {/* Deposit Amount Input */}
 
-<div className={styles.inputGroup}>
-  <label htmlFor="depositAmount" className={styles.label}>
-    Deposit Amount ($)
-  </label>
+            <div className={styles.inputGroup}>
+              <label htmlFor="depositAmount" className={styles.label}>
+                Deposit Amount ($)
+              </label>
 
-  <input
-    id="depositAmount"
-    name="depositAmount"
-    type="number"
-    className={`${styles.input} ${
-      formik.touched.depositAmount && formik.errors.depositAmount
-        ? styles.inputError
-        : ''
-    }`}
-    placeholder={`Min: ${Number(pool.minDeposit).toLocaleString()}`}
-    value={formik.values.depositAmount}
-    onChange={formik.handleChange}
-    onBlur={formik.handleBlur}
-    min={pool.minDeposit}
-    step="0.01"
-    disabled={isJoined || joinPoolLoading}
-  />
+              <input
+                id="depositAmount"
+                name="depositAmount"
+                type="number"
+                className={`${styles.input} ${
+                  formik.touched.depositAmount && formik.errors.depositAmount
+                    ? styles.inputError
+                    : ''
+                }`}
+                placeholder={`Min: ${Number(pool.minDeposit).toLocaleString()}`}
+                value={formik.values.depositAmount}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                min={pool.minDeposit}
+                step="0.01"
+                disabled={isJoined || joinPoolLoading}
+              />
 
-  {formik.touched.depositAmount &&
-    formik.errors.depositAmount && (
-      <span className={styles.errorText}>
-        {formik.errors.depositAmount}
-      </span>
-    )}
-</div>
+              {formik.touched.depositAmount && formik.errors.depositAmount && (
+                <span className={styles.errorText}>
+                  {formik.errors.depositAmount}
+                </span>
+              )}
+            </div>
 
             <div className={styles.actions}>
               {/* <button
@@ -345,17 +343,17 @@ const formik = useFormik({
               >
                 {joinPoolLoading ? 'Joining...' : 'Join Pool'}
               </button> */}
-<AuthButton
-  text={
-    isJoined
-      ? 'Joined'
-      : joinPoolLoading
-        ? 'Joining...'
-        : 'Join Pool'
-  }
-  type="submit"
-  disabled={isJoined || joinPoolLoading}
-/>
+              <AuthButton
+                text={
+                  isJoined
+                    ? 'Joined'
+                    : joinPoolLoading
+                      ? 'Joining...'
+                      : 'Join Pool'
+                }
+                type="submit"
+                disabled={isJoined || joinPoolLoading}
+              />
               <AuthButton
                 outline={true}
                 text="Cancel"

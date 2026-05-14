@@ -83,7 +83,7 @@ export default function Sidebar() {
   const dispatch = useDispatch();
 
   const { ibRequestStatus } = useSelector((state) => state.ibUser);
-  const { kycStatus,kycStatusLoading } = useSelector((state) => state.account);
+  const { kycStatus, kycStatusLoading } = useSelector((state) => state.account);
   const isIbApproved = ibRequestStatus === 'approved';
   const isKycApproved = kycStatus === 'approved';
 
@@ -132,8 +132,9 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className={`${styles.sidebar} ${kycStatusLoading ? styles.sidebarDisabled : ''}`}>
-
+    <aside
+      className={`${styles.sidebar} ${kycStatusLoading ? styles.sidebarDisabled : ''}`}
+    >
       <div className={styles.logo}>
         <div className={styles.logoimage}>
           <img src={SidebarLogo} alt="SidebarLogo" />
@@ -295,7 +296,7 @@ export default function Sidebar() {
                   <RightIcon />
                 </div>
               </div>
-                           <div
+              <div
                 className={`${styles.subMenuItem} ${pathname === '/transactions/wallet-history' ? styles.subMenuItemActive : ''}`}
                 onClick={() => navigate('/transactions/wallet-history')}
               >

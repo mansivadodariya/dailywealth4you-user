@@ -108,46 +108,44 @@ export default function TradeHistory() {
   }
 
   return (
-
     <>
-
-          <div className={styles.summaryCards}>
-            <div className={styles.summaryCard}>
-              <p>Investment</p>
-              <h3>
-                $0
-                {/* {(withdrawals || [])
+      <div className={styles.summaryCards}>
+        <div className={styles.summaryCard}>
+          <p>Investment</p>
+          <h3>
+            $0
+            {/* {(withdrawals || [])
                   .filter((r) => (r?.status || '').toLowerCase() === 'pending')
                   .reduce((sum, r) => sum + (Number(r?.amount) || 0), 0)
                   .toLocaleString() || '0'} */}
-              </h3>
-            </div>
-            <div className={styles.summaryCard}>
-              <p>Current Value </p>
-              <h3>
-                $0
-                {/* {(withdrawals || [])
+          </h3>
+        </div>
+        <div className={styles.summaryCard}>
+          <p>Current Value </p>
+          <h3>
+            $0
+            {/* {(withdrawals || [])
                   .reduce((sum, r) => sum + (Number(r?.amount) || 0), 0)
                   .toLocaleString() || '0'} */}
-              </h3>
-            </div>
-                  <div className={styles.summaryCard}>
-              <p>Total Profit %</p>
-              <h3>
-                $0
-                {/* {(withdrawals || [])
+          </h3>
+        </div>
+        <div className={styles.summaryCard}>
+          <p>Total Profit %</p>
+          <h3>
+            $0
+            {/* {(withdrawals || [])
                   .reduce((sum, r) => sum + (Number(r?.amount) || 0), 0)
                   .toLocaleString() || '0'} */}
-              </h3>
-            </div>
-          </div>
+          </h3>
+        </div>
+      </div>
       <DataTableHeader onSearch={setSearch} onExport={handleExport} />
 
       {/* <h1 className={styles.heading}>Pool Trades History</h1> */}
 
       <div className={styles.filtersRow}>
         <label className={styles.filterLabel} htmlFor="poolNameFilter">
-         Filter By Pool Name :
+          Filter By Pool Name :
         </label>
         <select
           id="poolNameFilter"

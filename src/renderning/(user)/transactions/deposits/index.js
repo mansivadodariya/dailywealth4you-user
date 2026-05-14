@@ -216,7 +216,11 @@ export default function Deposits() {
         }
       />
 
-      <div className={styles.accountSourceTabs} role="tablist" aria-label="Deposit account type">
+      <div
+        className={styles.accountSourceTabs}
+        role="tablist"
+        aria-label="Deposit account type"
+      >
         <button
           type="button"
           role="tab"

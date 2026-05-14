@@ -115,22 +115,22 @@
       padding: 0 0 12px 0;
       gap: 12px;
 
-     .accountTitle {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-  flex-wrap: wrap;
-}
-.disabledAction {
-  opacity: 0.4;
-  cursor: not-allowed !important;
-  pointer-events: none;
+      .accountTitle {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+        flex-wrap: wrap;
+      }
+      .disabledAction {
+        opacity: 0.4;
+        cursor: not-allowed !important;
+        pointer-events: none;
 
-  &:hover {
-    color: #8e8e8e !important;
-  }
-}
+        &:hover {
+          color: #8e8e8e !important;
+        }
+      }
 
       p {
         color: var(--Text-Primary, #fafafa);

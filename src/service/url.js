@@ -30,7 +30,7 @@ export const UPDATE_NOTIFICATION = '/notification/updateNotification';
 export const GET_IB_INCOME = '/ibUser/getIbIncome';
 export const CREATE_TRANSACTION = '/transaction/createTransaction';
 export const GET_ALL_TRANSACTION = '/transaction/getAllTransaction';
-export const WALLET_HISTORY='/transaction/getUserWallethistory';
+export const WALLET_HISTORY = '/transaction/getUserWallethistory';
 export const GET_ALL_DOCUMENT = '/userDocument/getAllDocument';
 export const GET_DASHBOARD_CHARTS = '/tradesHistory/getUserDashboardProfitLots';
 export const GET_DASHBOARD_INVESTMENT =
@@ -46,4 +46,3 @@ export const UPDATE_POOL_PURCHASE = '/poolPurchase/updatePoolPurchase';
 export const DELETE_POOL_PURCHASE = '/poolPurchase/deletePoolPurchase';
 export const GET_ALL_POOL_TRADES_HISTORY =
   '/poolTradesHistory/getAllPoolTradesHistory';
-  

@@ -58,8 +58,8 @@ export default function UseExisting({
   const dropdownRef = useRef(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showMt5Modal, setShowMt5Modal] = useState(false);
- console.log("selectedBroker",selectedBroker)
-  
+  console.log('selectedBroker', selectedBroker);
+
   // Fetch brokers list on mount
   useEffect(() => {
     dispatch(fetchBrokers({ page: 1, limit: 50 }));

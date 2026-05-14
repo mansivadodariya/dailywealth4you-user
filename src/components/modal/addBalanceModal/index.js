@@ -29,8 +29,6 @@ export default function AddBalanceModal({ poolPurchase, onClose, onSuccess }) {
   // const user = getUserFromCookie();
   // const userId = user?.id || user?._id;
 
-  
-
   // Fetch trading accounts on mount
   // useEffect(() => {
   //   if (userId) {
@@ -128,7 +126,7 @@ export default function AddBalanceModal({ poolPurchase, onClose, onSuccess }) {
               </span>
             </div>
             <div className={styles.statBox}>
-              <span className={styles.statLabel}>Current Wallet Balance</span>
+              <span className={styles.statLabel}>Current Balance</span>
               <span className={styles.statValue}>
                 ${Number(poolPurchase.currentBalance || 0).toLocaleString()}
               </span>

@@ -329,9 +329,7 @@ export const fetchWalletHistory = createAsyncThunk(
       if (sourceType) params.append('sourceType', sourceType);
 
       // Backend: same endpoint, but wallet-history does not force `type=deposit|withdrawal`
-      const response = await api.get(
-        `${WALLET_HISTORY}?${params.toString()}`
-      );
+      const response = await api.get(`${WALLET_HISTORY}?${params.toString()}`);
       return response;
     } catch (error) {
       toast.error(error);
@@ -683,7 +681,6 @@ const accountSlice = createSlice({
       })
       .addCase(fetchAllDocument.pending, (state) => {
         state.kycStatusLoading = true;
-        
       })
       .addCase(fetchAllDocument.fulfilled, (state, action) => {
         // debugger

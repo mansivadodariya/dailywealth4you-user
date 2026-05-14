@@ -170,7 +170,7 @@ export default function MyClients() {
               <th>Date Referred</th>
               <th>Name</th>
               <th>Email</th>
-              <th>Deposit</th>
+              {/* <th>Deposit</th> */}
               <th>Profit</th>
               <th className={styles.actionCol}>Action</th>
             </tr>
@@ -202,9 +202,9 @@ export default function MyClients() {
                     <td>{dateReferred}</td>
                     <td>{name}</td>
                     <td>{email}</td>
-                    <td>
+                    {/* <td>
                       {deposit !== '—' ? Number(deposit).toLocaleString() : '—'}
-                    </td>
+                    </td> */}
                     <td>
                       {profit !== '—' ? Number(profit).toLocaleString() : '—'}
                     </td>

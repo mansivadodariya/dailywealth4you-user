@@ -27,7 +27,6 @@ export default function MyPools() {
     poolPurchasesError,
     deletePoolLoading,
   } = useSelector((state) => state.performance);
-  
 
   const [selectedPoolPurchase, setSelectedPoolPurchase] = useState(null);
   const [deletingPoolId, setDeletingPoolId] = useState(null);
@@ -115,7 +114,7 @@ export default function MyPools() {
       </div>
 
       <div className={styles.poolsGrid}>
-        {!poolPurchases || poolPurchases.length === 0  ? (
+        {!poolPurchases || poolPurchases.length === 0 ? (
           <div className={styles.emptyState}>
             <p>You haven't joined any pools yet.</p>
             <p className={styles.emptyHint} onClick={handleClick}>
@@ -123,89 +122,90 @@ export default function MyPools() {
             </p>
           </div>
         ) : (
-          poolPurchases.filter((purchase) => purchase?.status !== 'pending')
-          .map((purchase) => {
-            const pool = purchase?.socialPool || {};
-            const isDeleting = deletingPoolId === purchase.id;
+          poolPurchases
+            .filter((purchase) => purchase?.status !== 'pending')
+            .map((purchase) => {
+              const pool = purchase?.socialPool || {};
+              const isDeleting = deletingPoolId === purchase.id;
 
-            return (
-              <div key={purchase.id} className={styles.poolCard}>
-                <div className={styles.cardHeader}>
-                  <h3 className={styles.poolTitle}>{pool.title || 'Pool'}</h3>
-                  <span className={styles.statusBadge}>
-                    {purchase.status || 'Active'}
-                  </span>
-                </div>
-
-                <p className={styles.shortDescription}>
-                  {pool.shortDescription || pool.description}
-                </p>
-
-                <div className={styles.poolStats}>
-                  <div className={styles.statItem}>
-                    <span className={styles.statLabel}>Deposit Amount</span>
-                    <span className={styles.statValue}>
-                      ${Number(purchase.depositAmount || 0).toLocaleString()}
+              return (
+                <div key={purchase.id} className={styles.poolCard}>
+                  <div className={styles.cardHeader}>
+                    <h3 className={styles.poolTitle}>{pool.title || 'Pool'}</h3>
+                    <span className={styles.statusBadge}>
+                      {purchase.status || 'Active'}
                     </span>
                   </div>
-                  <div className={styles.statItem}>
-                    <span className={styles.statLabel}>Current Balance</span>
-                    <span className={styles.statValue}>
-                      ${Number(purchase.currentBalance || 0).toFixed(0)}
-                    </span>
-                  </div>
-                </div>
 
-                <div className={styles.detailsGrid}>
-                  <div className={styles.detailItem}>
-                    <span className={styles.detailLabel}>Joined Date</span>
-                    <span className={styles.detailValue}>
-                      {purchase.createdAt
-                        ? moment(purchase.createdAt).format( 'DD-MM-YYYY | hh:mm A')
-                        : '—'}
-                    </span>
-                  </div>
-                </div>
+                  <p className={styles.shortDescription}>
+                    {pool.shortDescription || pool.description}
+                  </p>
 
-                {pool.description && (
-               
-                  <div className={styles.descriptionWrapper}>
-             
-                    <RichTextDescription
-                      value={pool.description}
-                      className={styles.description}
+                  <div className={styles.poolStats}>
+                    <div className={styles.statItem}>
+                      <span className={styles.statLabel}>Deposit Amount</span>
+                      <span className={styles.statValue}>
+                        ${Number(purchase.depositAmount || 0).toLocaleString()}
+                      </span>
+                    </div>
+                    <div className={styles.statItem}>
+                      <span className={styles.statLabel}>Current Balance</span>
+                      <span className={styles.statValue}>
+                        ${Number(purchase.currentBalance || 0).toFixed(0)}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className={styles.detailsGrid}>
+                    <div className={styles.detailItem}>
+                      <span className={styles.detailLabel}>Joined Date</span>
+                      <span className={styles.detailValue}>
+                        {purchase.createdAt
+                          ? moment(purchase.createdAt).format(
+                              'DD-MM-YYYY | hh:mm A'
+                            )
+                          : '—'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {pool.description && (
+                    <div className={styles.descriptionWrapper}>
+                      <RichTextDescription
+                        value={pool.description}
+                        className={styles.description}
+                      />
+
+                      {pool.description.length > 120 && (
+                        <button
+                          className={styles.viewBtn}
+                          onClick={() => handleAddBalance(purchase)}
+                        >
+                          View
+                        </button>
+                      )}
+                    </div>
+                  )}
+
+                  <div className={styles.actions}>
+                    <AuthButton
+                      icon={PlusIcon}
+                      text="Add Balance"
+                      onClick={() => handleAddBalance(purchase)}
+                      disabled={isDeleting}
                     />
 
-                    {pool.description.length > 120 && (
-                      <button
-                        className={styles.viewBtn}
-                        onClick={() => handleAddBalance(purchase)}
-                      >
-                        View
-                      </button>
-                    )}
+                    <AuthButton
+                      danger={true}
+                      icon={CloseIcon}
+                      text={isDeleting ? 'Closing...' : 'Close Pool'}
+                      onClick={() => handleClosePoolClick(purchase)}
+                      disabled={isDeleting}
+                    />
                   </div>
-                )}
-
-                <div className={styles.actions}>
-                  <AuthButton
-                    icon={PlusIcon}
-                    text="Add Balance"
-                    onClick={() => handleAddBalance(purchase)}
-                    disabled={isDeleting}
-                  />
-
-                  <AuthButton
-                    danger={true}
-                    icon={CloseIcon}
-                    text={isDeleting ? 'Closing...' : 'Close Pool'}
-                    onClick={() => handleClosePoolClick(purchase)}
-                    disabled={isDeleting}
-                  />
                 </div>
-              </div>
-            );
-          })
+              );
+            })
         )}
       </div>
 

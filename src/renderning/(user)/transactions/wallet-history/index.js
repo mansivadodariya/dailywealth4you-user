@@ -159,8 +159,9 @@ export default function WalletHistory() {
             <tr>
               <th>Date</th>
               <th>Source type</th>
-              <th>Status</th>
+
               <th>Amount</th>
+              <th>Status</th>
             </tr>
           </thead>
           <tbody>
@@ -181,6 +182,7 @@ export default function WalletHistory() {
                       : '—'}
                   </td>
                   <td>{getSourceType(row)}</td>
+                  <td>${row?.amount ?? '—'}</td>
                   <td>
                     <span
                       className={`${styles.badge} ${getStatusClass(row?.status)}`}
@@ -188,7 +190,6 @@ export default function WalletHistory() {
                       {row?.status || 'pending'}
                     </span>
                   </td>
-                  <td>${row?.amount ?? '—'}</td>
                 </tr>
               ))
             )}

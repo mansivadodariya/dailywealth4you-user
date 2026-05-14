@@ -207,7 +207,8 @@ export default function IbIncome() {
         <div className={styles.cardItem}>
           <p>Commission</p>
           <h3>
-            ${ibIncomeLoading
+            $
+            {ibIncomeLoading
               ? '...'
               : ibIncomeSummary?.totalCommission != null
                 ? `${ibIncomeSummary.totalCommission}`
@@ -288,24 +289,24 @@ export default function IbIncome() {
                         <td>{row.user?.email || '—'}</td>
                         <td>{row.totalLots ?? '—'}</td>
                         <td>{row.broker?.name || '—'}</td>
-                      <td>
-  <span
-    className={styles.pnlBadge}
-    style={{
-      borderColor:
-        (row?.totalCommission ?? 0) >= 0
-          ? '#02df82'
-          : '#ff4d4d',
-      background:
-        (row?.totalCommission ?? 0) >= 0
-          ? 'rgba(2,223,130,0.1)'
-          : 'rgba(255,77,77,0.1)',
-    }}
-  >
-    {(row?.totalCommission ?? 0) >= 0 ? '+' : ''}
-    ${row?.totalCommission ?? '—'}
-  </span>
-</td>
+                        <td>
+                          <span
+                            className={styles.pnlBadge}
+                            style={{
+                              borderColor:
+                                (row?.totalCommission ?? 0) >= 0
+                                  ? '#02df82'
+                                  : '#ff4d4d',
+                              background:
+                                (row?.totalCommission ?? 0) >= 0
+                                  ? 'rgba(2,223,130,0.1)'
+                                  : 'rgba(255,77,77,0.1)',
+                            }}
+                          >
+                            {(row?.totalCommission ?? 0) >= 0 ? '+' : ''}$
+                            {row?.totalCommission ?? '—'}
+                          </span>
+                        </td>
                         <td className={styles.actionCol}>
                           <button
                             className={`${styles.viewBtn} ${expandedKey === row.key ? styles.active : ''}`}

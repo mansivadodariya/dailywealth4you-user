@@ -329,30 +329,32 @@ const loginSlice = createSlice({
         state.userLoading = true;
       })
       // fetchUserById — merges full user data (including profileUrl) into state
-   .addCase(fetchUserById.fulfilled, (state, action) => {
-  const payload = action?.payload?.payload || action?.payload;
+      .addCase(fetchUserById.fulfilled, (state, action) => {
+        const payload = action?.payload?.payload || action?.payload;
 
-  const data = payload?.data;
+        const data = payload?.data;
 
-  // ✅ correct: first user record
-  const userRecord = Array.isArray(data) ? data[0] : data;
+        // ✅ correct: first user record
+        const userRecord = Array.isArray(data) ? data[0] : data;
 
-  if (userRecord) {
-    const normalizedWalletBalance = toNumericBalance(userRecord.walletBalance);
-    state.walletBalance = normalizedWalletBalance;
+        if (userRecord) {
+          const normalizedWalletBalance = toNumericBalance(
+            userRecord.walletBalance
+          );
+          state.walletBalance = normalizedWalletBalance;
 
-    state.user = {
-      ...state.user,
-      ...userRecord,
-      walletBalance: normalizedWalletBalance,
-    };
+          state.user = {
+            ...state.user,
+            ...userRecord,
+            walletBalance: normalizedWalletBalance,
+          };
 
-    // setAuthCookies({
-    //   token: state.token,
-    //   user: state.user,
-    // });
-  }
-});
+          // setAuthCookies({
+          //   token: state.token,
+          //   user: state.user,
+          // });
+        }
+      });
   },
 });
 

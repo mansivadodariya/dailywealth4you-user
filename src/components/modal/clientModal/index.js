@@ -83,8 +83,7 @@ export default function ClientModal({ client, onClose }) {
               <div className={styles.accountsList}>
                 {accounts.map((account, idx) => {
                   const isExpanded = expandedAccount === idx;
-                  const mt5LoginId =
-                    account?.mt5LoginId;
+                  const mt5LoginId = account?.mt5LoginId;
                   const balance =
                     account?.currentDeposit ?? account?.balance ?? '—';
                   const broker =

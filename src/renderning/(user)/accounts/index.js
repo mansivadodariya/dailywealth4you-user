@@ -193,8 +193,6 @@ export default function Accounts() {
     return null;
   };
 
-  
-
   // ── History View ──────────────────────────────────────────────────────────
   if (activeAccount) {
     return (
@@ -299,11 +297,11 @@ export default function Accounts() {
           {accountsData.map((item) => {
             const closeRequest = getAccountCloseRequest(item?.id);
             const closeBadge = getAccountCloseBadge(closeRequest);
-const isActionDisabled =
-  closeRequest &&
-  ['pending', 'approved', 'approve'].includes(
-    String(closeRequest?.status || '').toLowerCase()
-  );
+            const isActionDisabled =
+              closeRequest &&
+              ['pending', 'approved', 'approve'].includes(
+                String(closeRequest?.status || '').toLowerCase()
+              );
             return (
               <div
                 key={item?.id}
@@ -312,42 +310,42 @@ const isActionDisabled =
               >
                 <div className={styles.headerAlignment}>
                   <div className={styles.cardHeader}>
-                 <div className={styles.accountTitle}>
-  <p>Account No: {item?.mt5LoginId}</p>
+                    <div className={styles.accountTitle}>
+                      <p>Account No: {item?.mt5LoginId}</p>
 
-  {closeBadge && (
-    <span className={closeBadge.className}>
-      {closeBadge.text}
-    </span>
-  )}
-</div>
+                      {closeBadge && (
+                        <span className={closeBadge.className}>
+                          {closeBadge.text}
+                        </span>
+                      )}
+                    </div>
                     <div className={styles.buttonContainer}>
-<div
-  className={`${styles.editBtn} ${
-    isActionDisabled ? styles.disabledAction : ''
-  }`}
-  onClick={(e) => {
-    e.stopPropagation();
+                      <div
+                        className={`${styles.editBtn} ${
+                          isActionDisabled ? styles.disabledAction : ''
+                        }`}
+                        onClick={(e) => {
+                          e.stopPropagation();
 
-    if (isActionDisabled) return;
+                          if (isActionDisabled) return;
 
-    setSelectedAccount(item);
-    setShowEditModal(true);
-  }}
->
-  <EditIcon />
-</div>
-             <div
-  className={`${styles.deleteBtn} ${
-    isActionDisabled ? styles.disabledAction : ''
-  }`}
-  onClick={(e) => {
-    if (isActionDisabled) return;
-    handleDeleteClick(e, item);
-  }}
->
-  <DeleteIcon />
-</div>
+                          setSelectedAccount(item);
+                          setShowEditModal(true);
+                        }}
+                      >
+                        <EditIcon />
+                      </div>
+                      <div
+                        className={`${styles.deleteBtn} ${
+                          isActionDisabled ? styles.disabledAction : ''
+                        }`}
+                        onClick={(e) => {
+                          if (isActionDisabled) return;
+                          handleDeleteClick(e, item);
+                        }}
+                      >
+                        <DeleteIcon />
+                      </div>
                     </div>
                   </div>
                   <h3>

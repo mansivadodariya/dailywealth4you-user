@@ -32,7 +32,6 @@ import {
   Cell,
 } from 'recharts';
 
-
 const PlusIcon = '/assets/icons/plus.svg';
 const UpDirection = '/assets/icons/Updirection.svg';
 
@@ -242,7 +241,7 @@ export default function Dashboard() {
   const [donutLabel, setDonutLabel] = useState({ name: 'Investor', value: 50 });
 
   const userId = getUserFromCookie()?.id;
-  
+
   // Get wallet balance from user state
   // const walletBalance = user?.walletBalance ?? 0;
 
@@ -284,7 +283,6 @@ export default function Dashboard() {
         fetchDashboardInvestment({ accountId: mt5LoginId, startDate, endDate })
       );
       dispatch(fetchDashboardCommission(mt5LoginId));
-     
     }
   };
 
@@ -471,9 +469,7 @@ export default function Dashboard() {
                 <div className={styles.revenueLabel}>
                   My Profit
                   {mt5LoginId && (
-                    <span className={styles.accountIdBadge}>
-                       {mt5LoginId}
-                    </span>
+                    <span className={styles.accountIdBadge}>{mt5LoginId}</span>
                   )}
                 </div>
 
